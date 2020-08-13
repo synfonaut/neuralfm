@@ -4,12 +4,13 @@
   "description": "NeuralFM",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha ./core/test.js ./plugins/**/*.test.js"
+    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha ./core/test.js ./plugins/**/*.test.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",
   "dependencies": {
     "caldera": "0.0.8",
+    "debug": "4.1.1",
     "twitter": "1.7.1"
   },
   "devDependencies": {
