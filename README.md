@@ -85,13 +85,18 @@ https://neural.fm/synfonaut@moneybutton.com
 
 
 ## TODO
-// TODO: test scraping data & getting fingerprints
-// TODO: test extracting features plugin & getting fingerprints of feature extracts
-// TODO: test normalize plugin & getting fingerprints of feature normalization code 
-// TODO: add DB ingestion to core, pulling in scraped data and providing central API for accessing and updating information
-// TODO:   - make it easy to plug in custom test adapters so we don't have to hit the database or could easily create a test database we can wipe
-// TODO: add classifcation to CORE...think about fingerprint,output ...who did it? when? hash of that on chain
-// TODO: add network plugin with ability to customize neural network architecture
-// be thinking about plugins
-// be thinking about snapshotting data to the blockchain
+- [ ] test scraping data & getting fingerprints
+- [ ] test extracting features plugin & getting fingerprints of feature extracts
+- [ ] test normalize plugin & getting fingerprints of feature normalization code 
+- [ ] add DB ingestion to core, pulling in scraped data and providing central API for accessing and updating information
+    - [ ] make it easy to plug in custom test adapters so we don't have to hit the database or could easily create a test database we can wipe
+- [ ] add classifcation to CORE...think about fingerprint,output ...who did it? when? hash of that on chain
+- [ ] add network plugin with ability to customize neural network architecture
+- [ ] what default plugins need to be added?
+    - [ ] scrapers: twitter, twetch, open directory, bit.sv
+    - [ ] extractors: twitter, twetch, open directory, bit.sv
+    - [ ] normalizer: default normalizer
+    - [ ] network: default neural network that is easily mutatable so can be controlled with ui (and provide UI updates)
+- [ ] figure out what all uuids are going to be in the system? urls? ids? txid or hash of content/url
+- [ ] snapshot data onchain at specific points and use the txid as an anchor/fingerprint/uuid
 
