@@ -11,5 +11,8 @@
   "dependencies": {
     "caldera": "0.0.8",
     "twitter": "1.7.1"
+  },
+  "devDependencies": {
+    "mocha": "8.1.1"
   }
 }
