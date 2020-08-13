@@ -1,0 +1,11 @@
+{
+  "name": "neural.fm",
+  "version": "0.0.1",
+  "description": "NeuralFM",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brad Jasper",
+  "license": "UNLICENSED"
+}
