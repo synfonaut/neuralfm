@@ -1,6 +1,3 @@
-function BSVTwitterScraper() {
-}
-
 module.exports = {
-    BSVTwitterScraper,
+    "BSVTwitterScraper": require("./bsv.twitter.js"),
 }

@@ -2,6 +2,10 @@ const path = require("path");
 
 const plugins = require("../plugins");
 
+module.exports = {
+    plugins,
+};
+
 console.log(plugins.scrapers);
 console.log(plugins.extractors);
 console.log(plugins.normalizers);
