@@ -1,45 +1,28 @@
 
 
-             _   _                      _  _________  ___
-            | \ | |                    | | |  ___|  \/  |
-            |  \| | ___ _   _ _ __ __ _| | | |_  | .  . |
-            | . ` |/ _ \ | | | '__/ _` | | |  _| | |\/| |
-            | |\  |  __/ |_| | | | (_| | |_| |   | |  | |
-            \_| \_/\___|\__,_|_|  \__,_|_(_)_|   \_|  |_/
-                                                         
-                     Intelligence For Your Life                                                         
+                     _   _                      _  _________  ___
+                    | \ | |                    | | |  ___|  \/  |
+                    |  \| | ___ _   _ _ __ __ _| | | |_  | .  . |
+                    | . ` |/ _ \ | | | '__/ _` | | |  _| | |\/| |
+                    | |\  |  __/ |_| | | | (_| | |_| |   | |  | |
+                    \_| \_/\___|\__,_|_|  \__,_|_(_)_|   \_|  |_/
+                                                                 
+                             Intelligence For Your Life                                                         
 
 
 # NeuralFM
 
 NeuralFM's mission is to put you in control of the AI's feeding you information.
 
-Say goodbye to factory farmed algorithms from megacorps that destroy your life.
+Say goodbye to factory farmed algorithms from megacorps that destroy your life. NeuralFM offers a novel solution to the biggest problem nobody knows about: algorithm bias.
 
-NeuralFM offers a novel solution to the biggest problem nobody knows about: algorithm bias.
+Some Google engineer is probably going to decide the next President of the United States. It's bad enough when megacorps purposefully bias algorithms (it really is). What's shocking though, is even with small algorithms, and even when unintended, human bias infects AI. Even worse, AI are "black boxes"—many of the creators don't fully understand what's happening inside.
 
-Some Google engineer is probably going to decide the next President of the United States.
+Neural Networks ("AI") are shaping your reality, but they're increasingly out-of-reach. Neural Networks are too powerful be left to the megacorps.
 
-It's bad enough when megacorps purposefully bias algorithms (it really is).
+NeuralFM puts an AI in your pocket and it puts you in control. It creates an open market for the best AI for all the information channels you care about. And it puts everything on the blockchain, so you can be sure about exactly what's going into your algorithms.
 
-What's shocking though, is even with small algorithms, and even when unintended, human bias infects AI.
-
-Even worse, AI are "black boxes"—many of the creators don't fully understand what's happening inside.
-
-Neural Networks ("AI") are shaping your reality, but they're increasingly out-of-reach.
-
-Neural Networks are too powerful be left to the megacorps.
-
-NeuralFM puts an AI in your pocket and it puts you in control.
-
-It creates an open market for the best AI for all the information channels you care about.
-
-And it puts everything on the blockchain, so you can be sure about exactly what's going into your algorithms.
-
-
-Now, you might be thinking....creating your own AI sounds pretty difficult.
-
-But it's not! In fact you'd be shocked how easy it is.
+Now, you might be thinking....creating your own AI sounds pretty difficult. But it's not! In fact you'd be shocked how easy it is.
 
 
 Creating an AI in NeuralFM is as simple as clicking a button. Seriously, that's it.
@@ -49,7 +32,7 @@ NerualFM is three things:
 - A radio station to discover channels from the best curators
 - A neural studio, to create your own AI with a few clicks (or modify someone else's)
 
-Try it out. -> https://neural.fm
+Try it out -> https://neural.fm
 
 ## Getting Started
 
