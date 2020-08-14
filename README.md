@@ -141,6 +141,8 @@ https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
 
+- feature extractos are pretty closely tied to data sources....
+
 - [ ] see how far you can go back in twitter history
 - [ ] discover limits of Twitter API
 

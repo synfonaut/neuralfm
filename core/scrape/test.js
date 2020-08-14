@@ -10,7 +10,7 @@ function getDummyTwitterDataSource(num=0) {
     return [];
 }
 
-async function TestScraper(db, opts={}) {
+export async function TestScraper(db, opts={}) {
     if (!db) { throw "expected DB" }
 
     const recentTweets = await db.collection(TestScraper.collectionName).find({}).sort({"fingerprint": -1}).limit(1).toArray();
@@ -30,7 +30,7 @@ async function TestScraper(db, opts={}) {
 
 TestScraper.collectionName = "tweets";
 
-describe("scraper", function () {
+describe("scrape", function () {
 
     before(async function() {
         const db = await core.db(TestScraper.name);
