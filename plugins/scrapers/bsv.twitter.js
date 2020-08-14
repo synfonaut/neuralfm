@@ -8,7 +8,7 @@ const Twitter = require("twitter");
 async function BSVTwitterScraper(db, opts={}) {
   if (!db) { throw "expected DB" }
   const limit = opts.limit || 10;
-  const usernames = opts.usernames || BSVTwitterScraper.getTwitterUsernames();
+  const usernames = opts.usernames || await BSVTwitterScraper.getTwitterUsernames(db);
 
   const client = BSVTwitterScraper.getTwitterClient();
 
@@ -16,6 +16,7 @@ async function BSVTwitterScraper(db, opts={}) {
   for (const username of usernames) {
     const recentTweetID = await BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount(db, username);
     try {
+      await db.collection("usernames").updateOne({ username }, {"$set": {"updated_date": new Date()}});
       const tweets = await BSVTwitterScraper.getRecentTweetsForTwitterAccount(client, username, limit, recentTweetID);
       if (tweets && tweets.length > 0) {
         log(`scraped ${tweets.length} tweets from ${username}`);
@@ -30,6 +31,8 @@ async function BSVTwitterScraper(db, opts={}) {
     } catch (e) {
       log(`error scraping BSV twitter user ${username}, resonse error: ${e}`);
     }
+
+    await utils.sleep(1000);
   }
 
   return [];
@@ -49,64 +52,16 @@ BSVTwitterScraper.getTwitterClient = function() {
   return new Twitter(config.twitter);
 }
 
-BSVTwitterScraper.getTwitterUsernames = function() {
-  return [
-    "synfonaut",
-    "_unwriter",
-    "cryptoacorns",
-    "JimmyWinSV",
-    "AttilaAros",
-    "libitx",
-    "DanielKrawisz",
-    "coinyeezy",
-    "mwilcox",
-    "deggen",
-    "shadders333",
-    "mrz1818",
-    "linzheming",
-    "disco_donald",
-    "liujackc",
-    "deanmlittle",
-    "kurtwuckertjr",
-    "bitcoin_beyond",
-    "1rootSV",
-    "JamesBelding",
-    "sinoTrinity",
-    "jeffmaxthon",
-    "JacksonLaskey",
-    "murphsicles",
-    "iamzatoshi",
-    "street5wall",
-    "digitsu",
-    "shruggr",
-    "scottjbarr",
-    "c0inalchemist",
-    "nondualrandy",
-    "stoichammer",
-    "akondelin",
-    "themullenmuhr",
-    "jackd004",
-    "chblm",
-    "kenshishido",
-    "realcoingeek",
-    "calvinayre",
-    "bitcoinsofia",
-    "jonathanaird",
-    "elasdigital",
-    "connolly_dan",
-    "bsvdevs",
-    "jcbstwsk",
-    "satoshidoodles",
-    "pmitchev",
-    "justicemate",
-    "_kevin_pham",
-    "wildsatchmo",
-    "theoryofbitcoin",
-  ];
-};
+BSVTwitterScraper.getTwitterUsernames = async function(db) {
+  return (await db.collection("usernames").find().sort({"updated_date": 1}).toArray()).map(username => {
+    return username.username;
+  });
+}
+
 
 BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount = async function(db, username) {
-  const recentTweets = await db.collection(BSVTwitterScraper.collectionName).find({"user.screen_name": username}).sort({"id_str": -1}).limit(1).toArray();
+  //const recentTweets = await db.collection(BSVTwitterScraper.collectionName).find({"user.screen_name": username}).sort({"id_str": -1}).limit(1).toArray();
+  const recentTweets = await db.collection(BSVTwitterScraper.collectionName).find({"user.screen_name": {"$regex": `${username}`, "$options": "i"}}).sort({"id_str": -1}).limit(1).toArray();
   if (recentTweets && recentTweets.length === 1) {
     return recentTweets[0].id_str;
   }

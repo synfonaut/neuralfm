@@ -140,8 +140,11 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-- [ ] caldera promises
-- [ ] test scraping data & getting fingerprints
+
+- [ ] add check for long sleep...if all users have been updated within last 5 minutes....sleep for a few minutes
+- [ ] see how far you can go back in twitter history
+- [ ] discover limits of Twitter API
+
 - [ ] test extracting features plugin & getting fingerprints of feature extracts
 - [ ] test normalize plugin & getting fingerprints of feature normalization code 
 - [ ] add DB ingestion to core, pulling in scraped data and providing central API for accessing and updating information
@@ -153,6 +156,5 @@ https://neural.fm/synfonaut@moneybutton.com
     - [ ] extractors: twitter, twetch, open directory, bit.sv
     - [ ] normalizer: default normalizer
     - [ ] network: default neural network that is easily mutatable so can be controlled with ui (and provide UI updates)
-- [ ] figure out what all uuids are going to be in the system? urls? ids? txid or hash of content/url
 - [ ] snapshot data onchain at specific points and use the txid as an anchor/fingerprint/uuid
 

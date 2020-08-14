@@ -6,6 +6,12 @@ export function ok(response) {
     return true;
 }
 
+export function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 /*
 export function good(response) {
     if (!response) return false;

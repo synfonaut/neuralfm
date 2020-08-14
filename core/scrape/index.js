@@ -1,5 +1,7 @@
 const log = require("debug")("neuralfm:core:scrape");
 const database = require("../db").db;
+const plugins = require("../../plugins");
+const utils = require("../../utils");
 
 async function scrape(scrapers, opts={}) {
     log("scraping");
@@ -18,14 +20,18 @@ async function scrape(scrapers, opts={}) {
 
 module.exports = scrape;
 
-/*
 if (require.main === module) {
     (async function() {
-        const database = db();
-        console.log("DB", database);
+        const scrapers = Object.values(plugins.scrapers);
+        let results;
+        do {
+            results = await scrape(scrapers);
+            log("sleeping");
+            await utils.sleep(2502);
+        } while (results.length > 0);
 
+        process.exit();
         //await scrape()
     })();
 
 }
-*/

@@ -4,9 +4,9 @@
   "description": "NeuralFM",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
+    "start": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
     "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --exit ./core/**/test.js ./plugins/**/*.test.js",
-    "scrape": "babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrape/index.js"
+    "scrape": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrape/index.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",
