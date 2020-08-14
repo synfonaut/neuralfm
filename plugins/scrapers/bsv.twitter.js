@@ -1,35 +1,38 @@
 const log = require("debug")("neuralfm:plugins:scrapers:bsv.twitter");
 
 const config = require("../../config");
+const utils = require("../../utils");
 
 const Twitter = require("twitter");
 
-function BSVTwitterScraper(opts={}) {
+async function BSVTwitterScraper(db, opts={}) {
+  if (!db) { throw "expected DB" }
   const limit = opts.limit || 10;
   const usernames = opts.usernames || BSVTwitterScraper.getTwitterUsernames();
 
   const client = BSVTwitterScraper.getTwitterClient();
 
-  function getTweets(username) {
-    return BSVTwitterScraper.getRecentTweetsForTwitterAccount(client, username, limit);
-  }
-
-  log(`scraping tweets for ${usernames.length} users`);
-  return new Promise(function(resolve, reject) {
-    Promise.all(usernames.map(getTweets)).then(function(results) {
-      const tweets = [];
-      for (const userTweets of results) {
-        for (const tweet of userTweets) {
-          tweets.push(tweet);
+  log(`scraping`);
+  for (const username of usernames) {
+    const recentTweetID = await BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount(db, username);
+    try {
+      const tweets = await BSVTwitterScraper.getRecentTweetsForTwitterAccount(client, username, limit, recentTweetID);
+      if (tweets && tweets.length > 0) {
+        log(`scraped ${tweets.length} tweets from ${username}`);
+        const response = await db.collection(BSVTwitterScraper.collectionName).insertMany(tweets);
+        if (utils.ok(response)) {
+          log(`inserted ${tweets.length} tweets for ${username}`);
+          return tweets;
+        } else {
+          log(`error scraping BSV twitter user ${username}, unable to insert scraped tweets`);
         }
       }
+    } catch (e) {
+      log(`error scraping BSV twitter user ${username}, resonse error: ${e}`);
+    }
+  }
 
-      resolve(tweets);
-    }).catch(function(e) {
-      log(`error scraping tweets: ${e}`);
-      reject(e);
-    });
-  });
+  return [];
 }
 
 BSVTwitterScraper.fingerprintData = function(tweet) {
@@ -102,13 +105,24 @@ BSVTwitterScraper.getTwitterUsernames = function() {
   ];
 };
 
-BSVTwitterScraper.getRecentTweetsForTwitterAccount = function(client, username, count=10) {
+BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount = async function(db, username) {
+  const recentTweets = await db.collection(BSVTwitterScraper.collectionName).find({"user.screen_name": username}).sort({"id_str": -1}).limit(1).toArray();
+  if (recentTweets && recentTweets.length === 1) {
+    return recentTweets[0].id_str;
+  }
+  return null;
+}
+
+BSVTwitterScraper.getRecentTweetsForTwitterAccount = function(client, username, count=10, since_id=null) {
   return new Promise(function(resolve, reject) {
     if (!client) { return reject("invalid client") }
     if (!username) { return reject("invalid username") }
 
-    log(`scraping recent tweets for ${username}`);
-    const params = { screen_name: username, trim_user: 1, count };
+    log(`scraping ${username} recent tweets count=${count} since_id=${since_id}`);
+    const params = { screen_name: username, count };
+    if (since_id) {
+      params.since_id = since_id;
+    }
     client.get("statuses/user_timeline", params, function(error, tweets, response) {
       if (error) { return reject(error) }
       resolve(tweets.map(BSVTwitterScraper.fingerprintData));
@@ -130,5 +144,8 @@ BSVTwitterScraper.description = "Scrapes top BSV Twitter usernames";
 
 /** Name: What's the name of the dataset that is created from this plugin? **/
 BSVTwitterScraper.dataset = "BSV Twitter";
+
+/** Collection Name: Name of the primary MongoDB table to store data**/
+BSVTwitterScraper.collectionName = "tweets";
 
 module.exports = BSVTwitterScraper;

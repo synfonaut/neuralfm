@@ -37,6 +37,7 @@ function db(dbname=null) {
                 databaseConnection.close = function() {
                     log(`closing ${dbname} db connection...`);
                     numconnections -= 1;
+                    databaseConnection = null;
                     //log(`${numconnections} // disconnected`);
                     return client.close();
                 }
