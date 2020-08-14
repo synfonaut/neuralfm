@@ -27,6 +27,7 @@ describe("bsv twitter scraper", function () {
       assert(results[0].text);
       assert(results[0].user);
       assert(results[0].user.id);
+      assert(results[0].fingerprint);
       done();
     });
   });
@@ -48,8 +49,12 @@ describe("bsv twitter scraper", function () {
       assert(results[0].text);
       assert(results[0].user);
       assert(results[0].user.id);
+      assert(results[0].fingerprint);
       done();
     });
   });
+
+  // TODO: Scrape tweets
+  // TODO: includes getting DB object and updating it with state, then checking again and verifying already synced up
 });
 

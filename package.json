@@ -4,11 +4,16 @@
   "description": "NeuralFM",
   "main": "index.js",
   "scripts": {
-    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha ./core/test.js ./plugins/**/*.test.js"
+    "start": "babel-node --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
+    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha ./app/test.js ./plugins/**/*.test.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",
   "dependencies": {
+    "@babel/core": "7.11.1",
+    "@babel/node": "7.10.5",
+    "@babel/preset-env": "7.11.0",
+    "@babel/preset-react": "7.10.4",
     "caldera": "0.0.8",
     "debug": "4.1.1",
     "twitter": "1.7.1"

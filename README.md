@@ -85,6 +85,8 @@ Feature Extractors decide which parts of the data are important.
     });
 }```
 
+// TODO: You will get a core object that contains a DB you can use to store state and only update what's necessary
+// TODO: Each data should return a fingerprint, or a hash of the data will be the fingerprint. bonus points for using bitcoin txids as fingerprints
 
 ### Normalizers
 
@@ -138,6 +140,7 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
+- [ ] caldera promises
 - [ ] test scraping data & getting fingerprints
 - [ ] test extracting features plugin & getting fingerprints of feature extracts
 - [ ] test normalize plugin & getting fingerprints of feature normalization code 
