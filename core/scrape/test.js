@@ -10,8 +10,7 @@ function getDummyTwitterDataSource(num=0) {
     return [];
 }
 
-async function TestScraper(opts={}) {
-    const db = opts.db;
+async function TestScraper(db, opts={}) {
     if (!db) { throw "expected DB" }
 
     const recentTweets = await db.collection(TestScraper.collectionName).find({}).sort({"fingerprint": -1}).limit(1).toArray();
@@ -50,27 +49,24 @@ describe("scraper", function () {
     });
 
     it("calls scrapers iteratively until synced", async function() {
-        const db = await core.db(TestScraper.name);
-        const scrapers = [TestScraper];
 
+        let scrapers = [TestScraper];
         let results;
 
-        results = await core.scrape(db, scrapers);
+        results = await core.scrape(scrapers);
         assert.equal(results.length, 1);
         assert.equal(results[0].fingerprint, "1");
 
-        results = await core.scrape(db, scrapers);
+        results = await core.scrape(scrapers);
         assert.equal(results.length, 1);
         assert.equal(results[0].fingerprint, "2");
 
-        results = await core.scrape(db, scrapers);
+        results = await core.scrape(scrapers);
         assert.equal(results.length, 1);
         assert.equal(results[0].fingerprint, "3");
 
-        results = await core.scrape(db, scrapers);
+        results = await core.scrape(scrapers);
         assert.equal(results.length, 0);
-
-        db.close();
     });
 });
 

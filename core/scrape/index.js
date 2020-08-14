@@ -1,14 +1,14 @@
 const log = require("debug")("neuralfm:core:scrape");
-const db = require("../db");
+const database = require("../db").db;
 
-async function scrape(db, scrapers) {
-    if (!db) { throw "expected DB" }
-
-    const opts = { db };
+async function scrape(scrapers, opts={}) {
     log("scraping");
     for (const scraper of scrapers) {
         log(`scraping ${scraper.name}`);
-        const results = await scraper(opts);
+        const db = await database(scraper.name);
+        const options = Object.assign({}, opts, { db });
+        const results = await scraper(db, options);
+        db.close();
         if (results && results.length > 0) {
             return results;
         }
@@ -18,11 +18,14 @@ async function scrape(db, scrapers) {
 
 module.exports = scrape;
 
+/*
 if (require.main === module) {
     (async function() {
-        console.log("DB", db);
+        const database = db();
+        console.log("DB", database);
 
         //await scrape()
-    });
+    })();
 
 }
+*/

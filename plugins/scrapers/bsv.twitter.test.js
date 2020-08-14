@@ -51,25 +51,22 @@ describe("bsv twitter scraper", function () {
       limit: 5,
     };
 
-    const db = await core.db(BSVTwitterScraper.name);
-
+    let scrapers = [BSVTwitterScraper];
     let results;
 
     // synfonaut
-    results = await BSVTwitterScraper(db, opts);
+    results = await core.scrape(scrapers, opts);
     assert.equal(results.length, 5);
     assert(results[0].fingerprint);
 
     // unwriter
-    results = await BSVTwitterScraper(db, opts);
+    results = await core.scrape(scrapers, opts);
     assert.equal(results.length, 5);
     assert(results[0].fingerprint);
 
     // empty
-    results = await BSVTwitterScraper(db, opts);
+    results = await core.scrape(scrapers, opts);
     assert.equal(results.length, 0);
-
-    db.close();
   });
 });
 
