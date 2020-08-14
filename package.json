@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "babel-node --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
-    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha ./app/test.js ./plugins/**/*.test.js"
+    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --exit ./**/test.js ./plugins/**/*.test.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",
@@ -16,6 +16,8 @@
     "@babel/preset-react": "7.10.4",
     "caldera": "0.0.8",
     "debug": "4.1.1",
+    "esm": "3.2.25",
+    "mongodb": "3.6.0",
     "twitter": "1.7.1"
   },
   "devDependencies": {
