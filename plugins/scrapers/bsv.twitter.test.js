@@ -6,15 +6,18 @@ assert(plugins);
 assert(plugins.scrapers.BSVTwitterScraper);
 
 const BSVTwitterScraper = plugins.scrapers.BSVTwitterScraper;
+BSVTwitterScraper.dbname = `Test${BSVTwitterScraper.name}`;
 
 describe("bsv twitter scraper", function () {
 
   before(async function() {
-    const db = await core.db(BSVTwitterScraper.name);
-    let response = await db.collection(BSVTwitterScraper.collectionName).deleteMany({});
-    assert(response);
-    assert(response.result);
-    assert(response.result.ok);
+    const db = await core.db(BSVTwitterScraper.dbname);
+    await db.collection(BSVTwitterScraper.collectionName).deleteMany({});
+    await db.collection(BSVTwitterScraper.userCollectionName).deleteMany({});
+    await db.collection(BSVTwitterScraper.userCollectionName).insertMany([
+      {"username": "synfonaut"},
+      {"username": "_unwriter"},
+    ]);
   });
 
   it("verify plugin meta data", function () {
@@ -47,9 +50,14 @@ describe("bsv twitter scraper", function () {
     this.slow(5000);
 
     const opts = {
-      usernames: ["synfonaut", "_unwriter"],
       limit: 5,
     };
+
+    let db, usernames;
+
+    db = await core.db(BSVTwitterScraper.dbname);
+    usernames = await BSVTwitterScraper.getTwitterUsernames(db);
+    assert.equal(usernames.length, 2);
 
     let scrapers = [BSVTwitterScraper];
     let results;
@@ -67,6 +75,11 @@ describe("bsv twitter scraper", function () {
     // empty
     results = await core.scrape(scrapers, opts);
     assert.equal(results.length, 0);
+
+    // no more twitter users to check
+    db = await core.db(BSVTwitterScraper.dbname);
+    usernames = await BSVTwitterScraper.getTwitterUsernames(db);
+    assert.equal(usernames.length, 0);
   });
 });
 

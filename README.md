@@ -141,7 +141,6 @@ https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
 
-- [ ] add check for long sleep...if all users have been updated within last 5 minutes....sleep for a few minutes
 - [ ] see how far you can go back in twitter history
 - [ ] discover limits of Twitter API
 

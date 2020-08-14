@@ -5,6 +5,8 @@ const utils = require("../../utils");
 
 const Twitter = require("twitter");
 
+const DEFAULT_TWITTER_CHECK_WINDOW_MINUTES = 30;
+
 async function BSVTwitterScraper(db, opts={}) {
   if (!db) { throw "expected DB" }
   const limit = opts.limit || 10;
@@ -16,7 +18,7 @@ async function BSVTwitterScraper(db, opts={}) {
   for (const username of usernames) {
     const recentTweetID = await BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount(db, username);
     try {
-      await db.collection("usernames").updateOne({ username }, {"$set": {"updated_date": new Date()}});
+      await db.collection(BSVTwitterScraper.userCollectionName).updateOne({ username }, {"$set": {"updated_date": new Date()}});
       const tweets = await BSVTwitterScraper.getRecentTweetsForTwitterAccount(client, username, limit, recentTweetID);
       if (tweets && tweets.length > 0) {
         log(`scraped ${tweets.length} tweets from ${username}`);
@@ -53,10 +55,23 @@ BSVTwitterScraper.getTwitterClient = function() {
 }
 
 BSVTwitterScraper.getTwitterUsernames = async function(db) {
-  return (await db.collection("usernames").find().sort({"updated_date": 1}).toArray()).map(username => {
-    return username.username;
-  });
+  return (await db.collection(BSVTwitterScraper.userCollectionName).find().sort({"updated_date": 1}).toArray()).map(username => {
+    if (!username.updated_date) {
+      return username.username;
+    } else {
+      const now = Date.now();
+      const lastCheckInMinutes = (now - username.updated_date) / (60 * 1000); // minutes
+      if (lastCheckInMinutes >= DEFAULT_TWITTER_CHECK_WINDOW_MINUTES) {
+        return username.username;
+      } else {
+        //log(`skipping twitter user ${username.username}, checked ${utils.round(lastCheckInMinutes)} minutes ago`);
+      }
+    }
+  }).filter(username => { return username });
 }
+
+
+BSVTwitterScraper.userCollectionName = "usernames";
 
 
 BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount = async function(db, username) {
