@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "babel-node --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
-    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --exit ./**/test.js ./plugins/**/*.test.js"
+    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --exit ./core/**/test.js ./plugins/**/*.test.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",
