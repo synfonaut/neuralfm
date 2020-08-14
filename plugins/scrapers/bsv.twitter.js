@@ -32,6 +32,16 @@ function BSVTwitterScraper(opts={}) {
   });
 }
 
+BSVTwitterScraper.fingerprintData = function(tweet) {
+  if (tweet.fingerprint) { return tweet }
+
+  if (!tweet.id) { throw new Error(`tweet has invalid id: ${JSON.stringify(tweet, null, 4)}`) }
+
+  tweet.fingerprint = `twitter-${tweet.id}`;
+
+  return tweet;
+}
+
 BSVTwitterScraper.getTwitterClient = function() {
   return new Twitter(config.twitter);
 }
@@ -101,7 +111,7 @@ BSVTwitterScraper.getRecentTweetsForTwitterAccount = function(client, username, 
     const params = { screen_name: username, trim_user: 1, count };
     client.get("statuses/user_timeline", params, function(error, tweets, response) {
       if (error) { return reject(error) }
-      resolve(tweets);
+      resolve(tweets.map(BSVTwitterScraper.fingerprintData));
     });
   });
 };
