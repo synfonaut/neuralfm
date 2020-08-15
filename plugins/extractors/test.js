@@ -47,6 +47,9 @@ describe("extract features", function () {
     });
 
     it("extract features from data", async function() {
+        this.timeout(5000);
+        this.slow(1000);
+
         let extractors = [core.plugins.extractors.TwitterFeatureExtractor];
         let results;
 

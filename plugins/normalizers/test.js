@@ -95,6 +95,9 @@ describe("normalize features", function () {
     });
 
     it("normalizes data", async function() {
+        this.timeout(10000);
+        this.slow(1000);
+
         let extractors = [core.plugins.extractors.TwitterFeatureExtractor];
 
         let results = await core.extract(extractors);

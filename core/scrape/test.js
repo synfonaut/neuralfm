@@ -67,6 +67,8 @@ describe("scrape", function () {
     });
 
     it("calls scrapers iteratively until synced", async function() {
+        this.timeout(10000);
+        this.slow(2500);
 
         let scrapers = [TestScraper];
         let results;
