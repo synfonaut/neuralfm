@@ -4,7 +4,7 @@ const core = require("../../core");
 const scrape = require("../../core/scrape");
 const utils = require("../../utils");
 
-import { minmax, wordvector, bagofwords } from "./standard"
+import { minmax, wordvector, bagofwords, normalizeValues } from "./standard"
 
 describe("normalize features", function () {
 
@@ -31,6 +31,12 @@ describe("normalize features", function () {
             const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
             assert(results);
             assert.equal(results.length, 10);
+
+            // reset metadata
+            response = await db.collection(core.plugins.normalizers.StandardFeatureNormalizer.getCollectionName()).deleteMany({});
+            assert(response);
+            assert(response.result);
+            assert(response.result.ok);
         }
     });
 
@@ -57,6 +63,21 @@ describe("normalize features", function () {
         assert.deepEqual(minmax([-100, 100], 0, 10), [0, 10]);
     });
 
+    it("normalizeValue reliably calculates correct value", function () {
+        assert.deepEqual(normalizeValues([1, 5, 10], 0, 10), [0.1, 0.5, 1]);
+        assert.deepEqual(normalizeValues([100, 25, 20], 0, 10), [1, 1, 1]);
+        assert.deepEqual(normalizeValues([100, -25, 20], 0, 10), [1, 0, 1]);
+        assert.deepEqual(normalizeValues([1, 1, 1], 1, 1), [1, 1, 1]);
+        assert.deepEqual(normalizeValues([-10, 1, 10], 1, 1), [1, 1, 1]);
+
+        const lower = new Date();
+        const middle = new Date();
+        const upper = new Date();
+        middle.setDate(middle.getDate() + 7);
+        upper.setDate(upper.getDate() + 14);
+        assert.deepEqual(normalizeValues([middle], lower, upper), [0.5]);
+    });
+
     it("bag of words reliably creates word vectors", function () {
         const data = ["hello", "hello there", "hello there sir", "HELLO THERE", "HeLlO-ThErE!", "HELLO.THERE"];
         const vector = wordvector(data);
@@ -73,7 +94,7 @@ describe("normalize features", function () {
         ]);
     });
 
-    it.skip("normalizes data", async function() {
+    it("normalizes data", async function() {
         let extractors = [core.plugins.extractors.TwitterFeatureExtractor];
 
         let results = await core.extract(extractors);
@@ -84,6 +105,13 @@ describe("normalize features", function () {
 
         let normalized = await core.normalize(extractors, StandardFeatureNormalizer);
         assert.equal(normalized.length, 10);
+        assert(normalized[0].fingerprint);
+        assert(normalized[0].date != null);
+        assert(normalized[0].likes != null);
+        assert(normalized[0].retweets != null);
+        assert(normalized[0].author.length == 2);
+        assert(normalized[0].submitter.length == 2);
+        assert(normalized[0].text.length > 0);
 
         normalized = await core.normalize(extractors, StandardFeatureNormalizer);
         assert.equal(normalized.length, 0);

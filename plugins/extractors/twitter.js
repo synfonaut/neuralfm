@@ -52,6 +52,7 @@ export class TwitterFeatureExtractor {
             "submitter": tweet.user.screen_name,
             "author": tweet.user.screen_name,
             "date": new Date(tweet.created_at),
+            "fingerprint": tweet.fingerprint,
         };
 
         const collectionName = this.scraper.constructor.getCollectionName()

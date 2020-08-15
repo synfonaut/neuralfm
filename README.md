@@ -141,16 +141,12 @@ https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
 
-- [ ] custom bag of words
-// TODO: indexes need to be automatically run every time
+- [ ] indexes need to be automatically run every time
+
+- [ ] pretty quickly implement a second data source so you can start testing multi data normalization
 - [ ] see how far you can go back in twitter history
 - [ ] discover limits of Twitter API
-- [ ] pretty quickly implement a second data source so you can start testing multi data normalization
 
-- [ ] test extracting features plugin & getting fingerprints of feature extracts
-- [ ] test normalize plugin & getting fingerprints of feature normalization code 
-- [ ] add DB ingestion to core, pulling in scraped data and providing central API for accessing and updating information
-    - [ ] make it easy to plug in custom test adapters so we don't have to hit the database or could easily create a test database we can wipe
 - [ ] add classifcation to CORE...think about fingerprint,output ...who did it? when? hash of that on chain
 - [ ] add network plugin with ability to customize neural network architecture
 - [ ] what default plugins need to be added?
