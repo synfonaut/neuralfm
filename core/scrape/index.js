@@ -5,7 +5,7 @@ async function scrape(scrapers, opts={}) {
     log("scraping");
     for (const scraper of scrapers) {
         log(`scraping ${scraper.name}`);
-        const dbname = scraper.dbname || scraper.name;
+        const dbname = scraper.getDatabaseName();
         const db = await database(dbname);
         const options = Object.assign({}, opts, { db });
         const instance = new scraper(db, options);

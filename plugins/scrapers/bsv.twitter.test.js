@@ -5,13 +5,15 @@ const plugins = require("../index");
 assert(plugins);
 assert(plugins.scrapers.BSVTwitterScraper);
 const BSVTwitterScraper = plugins.scrapers.BSVTwitterScraper;
-/*
-BSVTwitterScraper.dbname = `Test${BSVTwitterScraper.name}`;
-*/
 
-describe.only("bsv twitter scraper", function () {
+BSVTwitterScraper._getDatabaseName = BSVTwitterScraper.getDatabaseName;
+BSVTwitterScraper.getDatabaseName = function() {
+  return `Test${BSVTwitterScraper._getDatabaseName()}`;
+}
 
-  before(async function() {
+describe("bsv twitter scraper", function () {
+
+  beforeEach(async function() {
     const db = await core.db(BSVTwitterScraper.getDatabaseName());
     await db.collection(BSVTwitterScraper.getCollectionName()).deleteMany({});
     await db.collection(BSVTwitterScraper.getUsernameCollectionName()).deleteMany({});
@@ -29,12 +31,11 @@ describe.only("bsv twitter scraper", function () {
     assert(BSVTwitterScraper.getVersion());
   });
 
-  /*
-  it("gets recent tweets from user", function (done) {
+  it("fetches recent tweets from user", function (done) {
     this.timeout(10000);
     this.slow(5000);
     const client = BSVTwitterScraper.getTwitterClient();
-    BSVTwitterScraper.getRecentTweetsForTwitterAccount(client, "synfonaut").then(function (results) {
+    BSVTwitterScraper.fetchRecentTweetsForTwitterAccount(client, "synfonaut").then(function (results) {
       assert(results);
       assert.equal(results.length, 10);
       assert(results[0].created_at);
@@ -51,38 +52,31 @@ describe.only("bsv twitter scraper", function () {
     this.timeout(10000);
     this.slow(5000);
 
-    const opts = {
-      limit: 5,
-    };
+    let opts = { limit: 5 };
+    let db, usernames, results;
 
-    let db, usernames;
-
-    db = await core.db(BSVTwitterScraper.dbname);
+    // should have 2 users that need to be checked
+    db = await core.db(BSVTwitterScraper.getDatabaseName());
     usernames = await BSVTwitterScraper.getTwitterUsernames(db);
     assert.equal(usernames.length, 2);
 
     let scrapers = [BSVTwitterScraper];
-    let results;
 
-    // synfonaut
     results = await core.scrape(scrapers, opts);
     assert.equal(results.length, 5);
-    assert(results[0].fingerprint);
+    for (const result of results) { assert.equal(result.user.screen_name, "synfonaut") }
 
-    // unwriter
     results = await core.scrape(scrapers, opts);
     assert.equal(results.length, 5);
-    assert(results[0].fingerprint);
+    for (const result of results) { assert.equal(result.user.screen_name, "_unwriter") }
 
-    // empty
     results = await core.scrape(scrapers, opts);
     assert.equal(results.length, 0);
 
     // no more twitter users to check
-    db = await core.db(BSVTwitterScraper.dbname);
+    db = await core.db(BSVTwitterScraper.getDatabaseName());
     usernames = await BSVTwitterScraper.getTwitterUsernames(db);
     assert.equal(usernames.length, 0);
   });
-  */
 });
 

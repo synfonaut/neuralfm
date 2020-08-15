@@ -24,11 +24,11 @@ export class BSVTwitterScraper {
     for (const username of usernames) {
       const recentTweetID = await BSVTwitterScraper.getLastSeenTweetIDForTwitterAccount(this.db, username);
       try {
-        await this.db.collection(BSVTwitterScraper.userCollectionName).updateOne({ username }, {"$set": {"updated_date": new Date()}});
-        const tweets = await BSVTwitterScraper.fetchRecentTweetsForTwitterAccount(client, username, limit, recentTweetID);
+        await this.db.collection(BSVTwitterScraper.getUsernameCollectionName()).updateOne({ username }, {"$set": {"updated_date": new Date()}});
+        const tweets = await BSVTwitterScraper.fetchRecentTweetsForTwitterAccount(client, username, this.limit, recentTweetID);
         if (tweets && tweets.length > 0) {
           log(`scraped ${tweets.length} tweets from ${username}`);
-          const response = await this.db.collection(BSVTwitterScraper.collectionName).insertMany(tweets);
+          const response = await this.db.collection(BSVTwitterScraper.getCollectionName()).insertMany(tweets);
           if (utils.ok(response)) {
             log(`inserted ${tweets.length} tweets for ${username}`);
             return tweets;
@@ -144,9 +144,5 @@ export class BSVTwitterScraper {
 
 }
 
-/*
-
-
-*/
 
 module.exports = BSVTwitterScraper;

@@ -40,7 +40,7 @@ describe.skip("normalize", function () {
     });
     */
 
-    it.only("normalizes data", async function() {
+    it("normalizes data", async function() {
         const data = [
             getDummyTwitterDataSource(0),
             getDummyTwitterDataSource(1),

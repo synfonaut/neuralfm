@@ -53,7 +53,7 @@ describe.skip("extract features", function () {
         */
     });
 
-    it.only("fixtures load data properly", async function() {
+    it("fixtures load data properly", async function() {
     });
 
     it.skip("extract features from data", async function() {
