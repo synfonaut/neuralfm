@@ -1,6 +1,13 @@
 const log = require("debug")("neuralfm:core:normalize");
 const database = require("../db").db;
+const utils = require("../../utils");
+const plugins = require("../../plugins");
 const scrape = require("../scrape");
+const extract = require("../extract");
+
+require("../compatibility");
+
+const allNormalizers = Object.values(plugins.normalizers);
 
 export async function normalize(extractors, normalizer, opts={}) {
     log("normalizing");
@@ -42,19 +49,38 @@ export async function normalize(extractors, normalizer, opts={}) {
     return [];
 }
 
-/*
 if (require.main === module) {
     (async function() {
-        const utils = require("../../utils");
+
+        for (const normalizer of allNormalizers) {
+            const compatibleExtractors = extract.getCompatible(normalizer);
+            if (compatibleExtractors.length === 0) {
+                log(`no extractors for normalizer ${normalizer.name}`);
+                continue;
+            }
+
+            let results;
+            do {
+                results =  await normalize(compatibleExtractors, normalizer)
+            } while (results.length > 0);
+        }
+
+        /*
+        const extractors = Object.values(plugins.extractors);
+        console.log("EXTRACTORS", extractors);
+        */
+        /*
         let results;
         do {
-            results = await scrape(allScrapers);
-            log("sleeping");
-            await utils.sleep(1000);
+            results = await extract(extractors);
+            if (results.length > 0) {
+                log("sleeping");
+                await utils.sleep(1000);
+            }
         } while (results.length > 0);
+        */
 
         process.exit();
     })();
 
 }
-*/

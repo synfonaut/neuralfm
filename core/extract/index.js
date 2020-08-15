@@ -2,9 +2,14 @@ const log = require("debug")("neuralfm:core:extract");
 const database = require("../db").db;
 const scrape = require("../scrape");
 
+const utils = require("../../utils");
+const plugins = require("../../plugins");
+
+const allExtractors = Object.values(plugins.extractors);
+
 require("../compatibility");
 
-async function extract(extractors, opts={}) {
+export async function extract(extractors, opts={}) {
     log("extracting");
     for (const extractor of extractors) {
         const compatibleScrapers = scrape.getCompatible(extractor);
@@ -42,17 +47,23 @@ async function extract(extractors, opts={}) {
     return [];
 }
 
-module.exports = extract;
+export function getCompatible(normalizer) {
+    const compatible = [];
+    for (const extractor of allExtractors) {
+        const compatibleNormalizers = extractor.compatibleNormalizers || [];
+        if (compatibleNormalizers.indexOf(normalizer) !== -1) {
+            compatible.push(extractor);
+        }
+    }
+    return compatible;
+}
+
 
 if (require.main === module) {
     (async function() {
-        const utils = require("../../utils");
-        const plugins = require("../../plugins");
-
-        const extractors = Object.values(plugins.extractors);
         let results;
         do {
-            results = await extract(extractors);
+            results = await extract(allExtractors);
             if (results.length > 0) {
                 log("sleeping");
                 await utils.sleep(1000);

@@ -14,3 +14,4 @@ for (const extractor of Object.values(plugins.extractors)) {
 }
 
 plugins.scrapers.BSVTwitterScraper.compatibleExtractors.push(plugins.extractors.TwitterFeatureExtractor);
+plugins.extractors.TwitterFeatureExtractor.compatibleNormalizers.push(plugins.normalizers.StandardFeatureNormalizer);
