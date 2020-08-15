@@ -192,9 +192,21 @@ export function wordvector(rows) {
 }
 
 export function cleanText(text) {
-    let cleanedText = text.trim();
+    let cleanedText = text;
 
-    const inlineText = text.replace(/\n/g, " ");
+    cleanedText = cleanTextLinks(cleanedText);
+    cleanedText = cleanTextUsernames(cleanedText);
+
+    // replace any leftover non-alphanumeric chars with spaces
+    cleanedText = cleanedText.replace(/[^a-zA-Z0-9]+/g, " ").trim();
+
+    return cleanedText;
+}
+
+export function cleanTextLinks(text) {
+    let cleanedText = text;
+    let inlineText = text.replace(/\n/g, " ");
+
     const urls = inlineText.match(/(https?:\/\/[^ ]*)/g);
     if (urls) {
         for (const url of urls) {
@@ -203,8 +215,28 @@ export function cleanText(text) {
             cleanedText = cleanedText.replace(url, splitURL);
         }
     }
-    cleanedText = cleanedText.replace(/[^a-zA-Z0-9]+/g, " ").trim();
+
     return cleanedText;
+}
+
+export function cleanTextUsernames(text) {
+    let cleanedText = text;
+
+    const usernames = cleanedText.match(/@[a-zA-Z0-9_]+/g);
+    if (usernames) {
+        for (const username of usernames) {
+            const cleanedUsername = cleanUsername(username);
+            cleanedText = cleanedText.replace(username, cleanedUsername);
+        }
+    }
+
+    return cleanedText;
+}
+
+export function cleanUsername(username) {
+    let cleanedUsername = username.replace("@", "");
+    cleanedUsername = cleanedUsername.replace(/\_/g, "BOWUS");
+    return cleanedUsername;
 }
 
 export function bagofwords(text, vector) {

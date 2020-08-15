@@ -51,7 +51,6 @@ export async function normalize(extractors, normalizer, opts={}) {
 
 if (require.main === module) {
     (async function() {
-
         for (const normalizer of allNormalizers) {
             const compatibleExtractors = extract.getCompatible(normalizer);
             if (compatibleExtractors.length === 0) {
@@ -64,21 +63,6 @@ if (require.main === module) {
                 results =  await normalize(compatibleExtractors, normalizer)
             } while (results.length > 0);
         }
-
-        /*
-        const extractors = Object.values(plugins.extractors);
-        console.log("EXTRACTORS", extractors);
-        */
-        /*
-        let results;
-        do {
-            results = await extract(extractors);
-            if (results.length > 0) {
-                log("sleeping");
-                await utils.sleep(1000);
-            }
-        } while (results.length > 0);
-        */
 
         process.exit();
     })();

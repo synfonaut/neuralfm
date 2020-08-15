@@ -6,7 +6,7 @@ const utils = require("../../utils");
 
 import { minmax, wordvector, bagofwords, normalizeValues } from "./standard"
 
-describe("normalize features", function () {
+describe.only("normalize features", function () {
 
     beforeEach(async function() {
         const scrapers = scrape.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
@@ -100,7 +100,7 @@ describe("normalize features", function () {
         assert.deepEqual(bagofwords("not in bag", vector), [0, 0, 0]);
     });
 
-    it("bag of words reliably creates word vectors that normalize urls", function () {
+    it("bag of words normalizes urls", function () {
         const data = ["What if the world we were living in was just a lobby, and the real world has just started?\n\nhttps://t.co/2sPHLQ0xFJ"];
         const vector = wordvector(data);
         function bow(text) { return bagofwords(text, vector) }
@@ -128,6 +128,16 @@ describe("normalize features", function () {
             [ 1, 1, 0, 0, 0, 0, 0, 0, 0],
             [ 0, 1, 0, 0, 0, 0, 0, 0, 1],
         ]);
+    });
+
+    // TODO: Need to manually clean usernames....
+
+    it("bag of words normalizes usernames", function () {
+        const data = ["hello @username_with_underscores", "how are you doing?", "im doing well @synfonaut", "thats good to hear @brad", "ok cool", "@username_with_underscores"];
+        const vector = wordvector(data);
+        function bow(text) { return bagofwords(text, vector) }
+        const bag = data.map(bow);
+        assert.deepEqual(bag, [[1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0],[0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]);
     });
 
 
