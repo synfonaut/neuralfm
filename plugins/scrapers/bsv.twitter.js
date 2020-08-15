@@ -5,117 +5,148 @@ const utils = require("../../utils");
 
 const Twitter = require("twitter");
 
-const DEFAULT_TWITTER_CHECK_WINDOW_MINUTES = 30;
+export class BSVTwitterScraper {
 
-async function BSVTwitterScraper(db, opts={}) {
-  if (!db) { throw "expected DB" }
-  const limit = opts.limit || 10;
-  const usernames = opts.usernames || await BSVTwitterScraper.getTwitterUsernames(db);
+  constructor(db, opts={}) {
+    if (!db) { throw "expected db" }
+    this.db = db;
 
-  const client = BSVTwitterScraper.getTwitterClient();
-
-  log(`scraping`);
-  for (const username of usernames) {
-    const recentTweetID = await BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount(db, username);
-    try {
-      await db.collection(BSVTwitterScraper.userCollectionName).updateOne({ username }, {"$set": {"updated_date": new Date()}});
-      const tweets = await BSVTwitterScraper.getRecentTweetsForTwitterAccount(client, username, limit, recentTweetID);
-      if (tweets && tweets.length > 0) {
-        log(`scraped ${tweets.length} tweets from ${username}`);
-        const response = await db.collection(BSVTwitterScraper.collectionName).insertMany(tweets);
-        if (utils.ok(response)) {
-          log(`inserted ${tweets.length} tweets for ${username}`);
-          return tweets;
-        } else {
-          log(`error scraping BSV twitter user ${username}, unable to insert scraped tweets`);
-        }
-      }
-    } catch (e) {
-      log(`error scraping BSV twitter user ${username}, resonse error: ${e}`);
-    }
-
-    await utils.sleep(1000);
+    this.opts = opts;
+    this.limit = opts.limit || 10;
   }
 
-  return [];
-}
+  // scrape recent tweets from usernames
+  async run() {
+    const client = BSVTwitterScraper.getTwitterClient();
+    const usernames = await BSVTwitterScraper.getTwitterUsernames(this.db);
 
-BSVTwitterScraper.fingerprintData = function(tweet) {
-  if (tweet.fingerprint) { return tweet }
+    log(`scraping`);
+    for (const username of usernames) {
+      const recentTweetID = await BSVTwitterScraper.getLastSeenTweetIDForTwitterAccount(this.db, username);
+      try {
+        await this.db.collection(BSVTwitterScraper.userCollectionName).updateOne({ username }, {"$set": {"updated_date": new Date()}});
+        const tweets = await BSVTwitterScraper.fetchRecentTweetsForTwitterAccount(client, username, limit, recentTweetID);
+        if (tweets && tweets.length > 0) {
+          log(`scraped ${tweets.length} tweets from ${username}`);
+          const response = await this.db.collection(BSVTwitterScraper.collectionName).insertMany(tweets);
+          if (utils.ok(response)) {
+            log(`inserted ${tweets.length} tweets for ${username}`);
+            return tweets;
+          } else {
+            log(`error scraping BSV twitter user ${username}, unable to insert scraped tweets`);
+          }
+        }
+      } catch (e) {
+        log(`error scraping BSV twitter user ${username}, resonse error: ${e}`);
+      }
 
-  if (!tweet.id) { throw new Error(`tweet has invalid id: ${JSON.stringify(tweet, null, 4)}`) }
+      await utils.sleep(1000);
+    }
 
-  tweet.fingerprint = `twitter-${tweet.id}`;
+    return [];
+  }
 
-  return tweet;
-}
+  // given a tweet, return a uuid
+  static fingerprintData(tweet) {
+    if (tweet.fingerprint) { return tweet }
 
-BSVTwitterScraper.getTwitterClient = function() {
-  return new Twitter(config.twitter);
-}
+    if (!tweet.id) { throw new Error(`tweet has invalid id: ${JSON.stringify(tweet, null, 4)}`) }
 
-BSVTwitterScraper.getTwitterUsernames = async function(db) {
-  return (await db.collection(BSVTwitterScraper.userCollectionName).find().sort({"updated_date": 1}).toArray()).map(username => {
-    if (!username.updated_date) {
-      return username.username;
-    } else {
-      const now = Date.now();
-      const lastCheckInMinutes = (now - username.updated_date) / (60 * 1000); // minutes
-      if (lastCheckInMinutes >= DEFAULT_TWITTER_CHECK_WINDOW_MINUTES) {
+    tweet.fingerprint = `twitter-${tweet.id}`;
+
+    return tweet;
+  }
+
+  // get last known tweet for username
+  static async getLastSeenTweetIDForTwitterAccount(db, username) {
+    const recentTweets = await db.collection(BSVTwitterScraper.getCollectionName()).find({"user.screen_name": {"$regex": `${username}`, "$options": "i"}}).sort({"id_str": -1}).limit(1).toArray();
+    if (recentTweets && recentTweets.length === 1) {
+      return recentTweets[0].id_str;
+    }
+    return null;
+  }
+
+  // fetch tweets from api for username, should use since_id when available
+  static fetchRecentTweetsForTwitterAccount(client, username, count=10, since_id=null) {
+    return new Promise(function(resolve, reject) {
+      if (!client) { return reject("invalid client") }
+      if (!username) { return reject("invalid username") }
+
+      log(`scraping ${username} recent tweets count=${count} since_id=${since_id}`);
+      const params = { screen_name: username, count };
+      if (since_id) {
+        params.since_id = since_id;
+      }
+      client.get("statuses/user_timeline", params, function(error, tweets, response) {
+        if (error) { return reject(error) }
+        resolve(tweets.map(BSVTwitterScraper.fingerprintData));
+      });
+    });
+  }
+
+  // return infrequently checked usernames that haven't been checked inside window
+  static async getTwitterUsernames(db) {
+    return (await db.collection(BSVTwitterScraper.getUsernameCollectionName()).find().sort({"updated_date": 1}).toArray()).map(username => {
+      if (!username.updated_date) {
         return username.username;
       } else {
-        //log(`skipping twitter user ${username.username}, checked ${utils.round(lastCheckInMinutes)} minutes ago`);
+        const now = Date.now();
+        const lastCheckInMinutes = (now - username.updated_date) / (60 * 1000); // minutes
+        if (lastCheckInMinutes >= BSVTwitterScraper.getTwitterCheckWindowInMinutes()) {
+          return username.username;
+        } else {
+          //log(`skipping twitter user ${username.username}, checked ${utils.round(lastCheckInMinutes)} minutes ago`);
+        }
       }
-    }
-  }).filter(username => { return username });
-}
-
-
-BSVTwitterScraper.userCollectionName = "usernames";
-
-
-BSVTwitterScraper.getMostRecentTweetIDForTwitterAccount = async function(db, username) {
-  //const recentTweets = await db.collection(BSVTwitterScraper.collectionName).find({"user.screen_name": username}).sort({"id_str": -1}).limit(1).toArray();
-  const recentTweets = await db.collection(BSVTwitterScraper.collectionName).find({"user.screen_name": {"$regex": `${username}`, "$options": "i"}}).sort({"id_str": -1}).limit(1).toArray();
-  if (recentTweets && recentTweets.length === 1) {
-    return recentTweets[0].id_str;
+    }).filter(username => { return username });
   }
-  return null;
+
+  // return new twitter API client
+  static getTwitterClient(credentials=config.twitter) {
+    return new Twitter(credentials);
+  }
+
+  static getDatabaseName() {
+    return BSVTwitterScraper.name;
+  }
+
+  static getCollectionName() {
+    return "tweets";
+  }
+
+  static getUsernameCollectionName() {
+    return "usernames";
+  }
+
+  static getTwitterCheckWindowInMinutes() {
+    return 30;
+  }
+
+  static getAuthor() {
+    return "synfonaut"; // name of plugin creator
+  }
+
+  static getPaymail() {
+   return  "synfonaut@moneybutton.com"; // paymail of plugin creator
+  }
+
+  static getVersion() {
+    return "0.0.1"; // semvar
+  }
+
+  static getDescription() {
+    return "Scrapes top BSV Twitter usernames"; // human readable description
+  }
+
+  static getDataset() {
+    return "BSV Twitter"; // human readable dataset this scraper creates
+  }
+
 }
 
-BSVTwitterScraper.getRecentTweetsForTwitterAccount = function(client, username, count=10, since_id=null) {
-  return new Promise(function(resolve, reject) {
-    if (!client) { return reject("invalid client") }
-    if (!username) { return reject("invalid username") }
+/*
 
-    log(`scraping ${username} recent tweets count=${count} since_id=${since_id}`);
-    const params = { screen_name: username, count };
-    if (since_id) {
-      params.since_id = since_id;
-    }
-    client.get("statuses/user_timeline", params, function(error, tweets, response) {
-      if (error) { return reject(error) }
-      resolve(tweets.map(BSVTwitterScraper.fingerprintData));
-    });
-  });
-};
 
-/** Author: Enter the name of the creator of this plugin **/
-BSVTwitterScraper.author = "synfonaut";
-
-/** Paymail: Enter the paymail of the creator of this plugin **/
-BSVTwitterScraper.paymail = "synfonaut@moneybutton.com";
-
-/** Version: Enter a semver version for this plugin **/
-BSVTwitterScraper.version = "0.0.1";
-
-/** Description: What does this plugin do? **/
-BSVTwitterScraper.description = "Scrapes top BSV Twitter usernames";
-
-/** Name: What's the name of the dataset that is created from this plugin? **/
-BSVTwitterScraper.dataset = "BSV Twitter";
-
-/** Collection Name: Name of the primary MongoDB table to store data**/
-BSVTwitterScraper.collectionName = "tweets";
+*/
 
 module.exports = BSVTwitterScraper;
