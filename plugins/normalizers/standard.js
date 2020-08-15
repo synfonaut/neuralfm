@@ -186,12 +186,30 @@ export function normalizeValues(arr, min, max) {
 }
 
 export function wordvector(rows) {
-    rows.sort((a, b) => { return a.localeCompare(b) });
-    return dict(rows);
+    const cleanedRows = rows.map(cleanText);
+    cleanedRows.sort((a, b) => { return a.localeCompare(b) });
+    return dict(cleanedRows);
+}
+
+export function cleanText(text) {
+    let cleanedText = text.trim();
+
+    const inlineText = text.replace(/\n/g, " ");
+    const urls = inlineText.match(/(https?:\/\/[^ ]*)/g);
+    if (urls) {
+        for (const url of urls) {
+            const parts = url.split(/[^a-zA-Z0-9\.]+/);
+            const splitURL = parts.join(" ");
+            cleanedText = cleanedText.replace(url, splitURL);
+        }
+    }
+    cleanedText = cleanedText.replace(/[^a-zA-Z0-9]+/g, " ").trim();
+    return cleanedText;
 }
 
 export function bagofwords(text, vector) {
-    const results = bow(text, vector);
+    const cleanedText = cleanText(text);
+    const results = bow(cleanedText, vector);
     const mm = minmax(results);
     const normal = normalizeValues(results, mm[0], mm[1]);
     return normal;

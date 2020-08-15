@@ -25,8 +25,9 @@ export async function scrape(scrapers, opts={}) {
 }
 
 export function isCompatible(scraper, extractor) {
-    for (const compatiableExtractor of scraper.compatibleExtractors) {
-        if (compatiableExtractor === extractor) {
+    const compatibleExtractors = scraper.compatibleExtractors || [];
+    for (const compatibleExtractor of compatibleExtractors) {
+        if (compatibleExtractor === extractor) {
             return true;
         }
     }
@@ -36,7 +37,8 @@ export function isCompatible(scraper, extractor) {
 export function getCompatible(extractor) {
     const compatible = [];
     for (const scraper of allScrapers) {
-        if (scraper.compatibleExtractors.indexOf(extractor) !== -1) {
+        const compatibleExtractors = scraper.compatibleExtractors || [];
+        if (compatibleExtractors.indexOf(extractor) !== -1) {
             compatible.push(scraper);
         }
     }

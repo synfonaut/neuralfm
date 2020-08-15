@@ -2,6 +2,8 @@ const log = require("debug")("neuralfm:core:extract");
 const database = require("../db").db;
 const scrape = require("../scrape");
 
+require("../compatibility");
+
 async function extract(extractors, opts={}) {
     log("extracting");
     for (const extractor of extractors) {
@@ -51,8 +53,10 @@ if (require.main === module) {
         let results;
         do {
             results = await extract(extractors);
-            log("sleeping");
-            await utils.sleep(1000);
+            if (results.length > 0) {
+                log("sleeping");
+                await utils.sleep(1000);
+            }
         } while (results.length > 0);
 
         process.exit();

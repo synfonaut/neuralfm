@@ -141,12 +141,6 @@ https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
 
-- [ ] indexes need to be automatically run every time
-
-- [ ] pretty quickly implement a second data source so you can start testing multi data normalization
-- [ ] see how far you can go back in twitter history
-- [ ] discover limits of Twitter API
-
 - [ ] add classifcation to CORE...think about fingerprint,output ...who did it? when? hash of that on chain
 - [ ] add network plugin with ability to customize neural network architecture
 - [ ] what default plugins need to be added?
@@ -154,5 +148,9 @@ https://neural.fm/synfonaut@moneybutton.com
     - [ ] extractors: twitter, twetch, open directory, bit.sv
     - [ ] normalizer: default normalizer
     - [ ] network: default neural network that is easily mutatable so can be controlled with ui (and provide UI updates)
+
+- [ ] pretty quickly implement a second data source so you can start testing multi data normalization
+- [ ] see how far you can go back in twitter history
+- [ ] discover limits of Twitter API
 - [ ] snapshot data onchain at specific points and use the txid as an anchor/fingerprint/uuid
 

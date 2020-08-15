@@ -5,8 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
+
     "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --exit ./core/**/test.js ./plugins/**/*test.js",
-    "scrape": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrape/index.js"
+
+    "scrape": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrape/index.js",
+    "extract": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/extract/index.js",
+    "normalize": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/normalize/index.js",
+    "train": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/train/index.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",

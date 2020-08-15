@@ -85,20 +85,51 @@ describe("normalize features", function () {
     it("bag of words reliably creates word vectors", function () {
         const data = ["hello", "hello there", "hello there sir", "HELLO THERE", "HeLlO-ThErE!", "HELLO.THERE"];
         const vector = wordvector(data);
+
         function bow(text) { return bagofwords(text, vector) }
         const bag = data.map(bow);
-
         assert.deepEqual(bag, [
             [ 1, 0, 0 ],
             [ 1, 1, 0 ],
-            [ 1, 1, 0 ],
             [ 1, 1, 1 ],
+            [ 1, 1, 0 ],
             [ 1, 1, 0 ],
             [ 1, 1, 0 ]
         ]);
 
         assert.deepEqual(bagofwords("not in bag", vector), [0, 0, 0]);
     });
+
+    it("bag of words reliably creates word vectors that normalize urls", function () {
+        const data = ["What if the world we were living in was just a lobby, and the real world has just started?\n\nhttps://t.co/2sPHLQ0xFJ"];
+        const vector = wordvector(data);
+        function bow(text) { return bagofwords(text, vector) }
+        const bag = data.map(bow);
+        assert.deepEqual(bagofwords("what", vector), [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        assert.deepEqual(bagofwords("what if", vector), [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        assert.deepEqual(bagofwords("started", vector), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]);
+        assert.deepEqual(bagofwords("https://t.co/2sPHLQ0xFJ", vector), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]);
+    });
+
+    it("bag of words reliably strips out non-alphanumeric characters", function () {
+        const data = ["wh0t", "are?", "!you!", "doing???", "to", "fix", "broken", "words!!words", "are?you!", "you're"];
+        const vector = wordvector(data);
+        function bow(text) { return bagofwords(text, vector) }
+        const bag = data.map(bow);
+        assert.deepEqual(bag, [
+            [ 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [ 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [ 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            [ 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [ 0, 0, 0, 0, 0, 1, 0, 0, 0],
+            [ 0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [ 0, 0, 1, 0, 0, 0, 0, 0, 0],
+            [ 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [ 1, 1, 0, 0, 0, 0, 0, 0, 0],
+            [ 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        ]);
+    });
+
 
     it("normalizes data", async function() {
         this.timeout(10000);
