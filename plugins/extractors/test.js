@@ -1,47 +1,25 @@
 const fs = require("fs");
 const assert = require("assert");
-const core = require("../index");
+const core = require("../../core");
 const utils = require("../../utils");
 
-import { TestScraper } from "../scrape/test"
+//import { TwitterFeatureExtractor } from "../extract/twitter"
 
 // bag of words // td ifs
 
-// simulate API that runs out of data
-function getDummyTwitterDataSource(num=0) {
-    if (num == 0) { return [ {"fingerprint": "1", "tweet": "hello world"} ] }
-    if (num == 1) { return [ {"fingerprint": "2", "tweet": "hi"} ] }
-    if (num == 2) { return [ {"fingerprint": "3", "tweet": "hola"} ] }
-    return [];
-}
-
-async function TestNormalizer(db, opts={}) {
-    if (!db) { throw "expected DB" }
-
-    let normalized = [];
-    let data, i = 0;
-    while ((data = getDummyTwitterDataSource(i++)).length > 0) {
-        console.log("DATA", data);
-        data.normalized = Object.assign({}, data, {
-            tweet_vector: [0],
-        });
-
-    }
-
-    return [];
-}
-
-TestNormalizer.scrapers = [TestScraper];
-
-
-describe.skip("extract features", function () {
+describe.only("extract features", function () {
 
     before(async function() {
-
+        /*
+        const scraper = TestExtractor.getScrapers()[0];
+        const db = await scraper.getDatabaseName();
         const fixtures = JSON.parse(fs.readFileSync("./core/extract/fixtures.json", "utf8"));
-        assert.equal(TestNormalizer.scrapers.length, 1);
-        const db = await core.db(TestNormalizer.scrapers[0].collectionName);
-        db.collect
+        */
+        /*
+        for (const scraper of TestExtractor.getScrapers()) {
+            const db = await core.db(scraper.getDatabaseName());
+        }
+        */
         console.log("DB");
 
 
@@ -51,6 +29,20 @@ describe.skip("extract features", function () {
         assert(response.result);
         assert(response.result.ok);
         */
+    });
+
+    it.only("default plugins load properly", function () {
+        const plugins = core.plugins;
+        assert(plugins);
+
+        const BSVTwitterScraper = plugins.scrapers.BSVTwitterScraper;
+        assert(BSVTwitterScraper);
+
+        const TwitterFeatureExtractor = plugins.extractors.TwitterFeatureExtractor;
+        assert(TwitterFeatureExtractor);
+
+        assert(core.scrape.isCompatible(BSVTwitterScraper, TwitterFeatureExtractor));
+        assert.deepEqual(core.scrape.getCompatible(TwitterFeatureExtractor), [BSVTwitterScraper]);
     });
 
     it("fixtures load data properly", async function() {

@@ -1,7 +1,10 @@
 const log = require("debug")("neuralfm:core:scrape");
 const database = require("../db").db;
 
-async function scrape(scrapers, opts={}) {
+const plugins = require("../../plugins");
+const allScrapers = Object.values(plugins.scrapers);
+
+export async function scrape(scrapers, opts={}) {
     log("scraping");
     for (const scraper of scrapers) {
         log(`scraping ${scraper.name}`);
@@ -18,17 +21,31 @@ async function scrape(scrapers, opts={}) {
     return [];
 }
 
-module.exports = scrape;
+export function isCompatible(scraper, extractor) {
+    for (const compatiableExtractor of scraper.compatibleExtractors) {
+        if (compatiableExtractor === extractor) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function getCompatible(extractor) {
+    const compatible = [];
+    for (const scraper of allScrapers) {
+        if (scraper.compatibleExtractors.indexOf(extractor) !== -1) {
+            compatible.push(scraper);
+        }
+    }
+    return compatible;
+}
 
 if (require.main === module) {
     (async function() {
         const utils = require("../../utils");
-        const plugins = require("../../plugins");
-
-        const scrapers = Object.values(plugins.scrapers);
         let results;
         do {
-            results = await scrape(scrapers);
+            results = await scrape(allScrapers);
             log("sleeping");
             await utils.sleep(1000);
         } while (results.length > 0);
