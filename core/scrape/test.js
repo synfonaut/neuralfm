@@ -2,39 +2,57 @@ const assert = require("assert");
 const core = require("../index");
 const utils = require("../../utils");
 
-// simulate API that runs out of data
-function getDummyTwitterDataSource(num=0) {
-    if (num == 0) { return [ {"fingerprint": "1", "tweet": "hello world"} ] }
-    if (num == 1) { return [ {"fingerprint": "2", "tweet": "hi"} ] }
-    if (num == 2) { return [ {"fingerprint": "3", "tweet": "hola"} ] }
-    return [];
-}
+export class TestScraper {
+    constructor(db, opts={}) {
+        if (!db) { throw "expected DB" }
+        this.db = db;
 
-export async function TestScraper(db, opts={}) {
-    if (!db) { throw "expected DB" }
+        this.opts = opts;
 
-    const recentTweets = await db.collection(TestScraper.collectionName).find({}).sort({"fingerprint": -1}).limit(1).toArray();
-    const fingerprint = Number(recentTweets.length == 1 ? recentTweets[0].fingerprint : 0);
-    const tweets = getDummyTwitterDataSource(fingerprint);
-
-    if (tweets && tweets.length > 0) {
-        const response = await db.collection(TestScraper.collectionName).insertMany(tweets);
-        if (!utils.ok(response)) {
-            console.log("ERROR", resonse);
-            throw "error while inserting tweets"
-        }
+        this.dbname = opts.dbname || this.name;
     }
 
-    return tweets;
-}
+    async run() {
+        const tweets = this.getData(await this.getLastSeenFingerprint());
 
-TestScraper.collectionName = "tweets";
+        if (tweets && tweets.length > 0) {
+            const response = await this.db.collection(TestScraper.getCollectionName()).insertMany(tweets);
+            if (!utils.ok(response)) {
+                console.log("ERROR", resonse);
+                throw "error while inserting tweets"
+            }
+        }
+
+        return tweets;
+    }
+
+    async getLastSeenFingerprint() {
+        const recentTweets = await this.db.collection(TestScraper.getCollectionName()).find({}).sort({"fingerprint": -1}).limit(1).toArray();
+        return Number(recentTweets.length == 1 ? recentTweets[0].fingerprint : 0);
+    }
+
+    getData(since=0) {
+        if (since == 0) { return [ {"fingerprint": "1", "tweet": "hello world"} ] }
+        if (since == 1) { return [ {"fingerprint": "2", "tweet": "hi"} ] }
+        if (since == 2) { return [ {"fingerprint": "3", "tweet": "hola"} ] }
+        return [];
+    }
+
+    static getCollectionName() {
+        return "tweets";
+    }
+
+    static getDatabaseName() {
+        return TestScraper.name;
+    }
+}
 
 describe("scrape", function () {
 
     before(async function() {
-        const db = await core.db(TestScraper.name);
-        let response = await db.collection(TestScraper.collectionName).deleteMany({});
+        const db = await core.db(TestScraper.getDatabaseName());
+
+        let response = await db.collection(TestScraper.getCollectionName()).deleteMany({});
         assert(response);
         assert(response.result);
         assert(response.result.ok);

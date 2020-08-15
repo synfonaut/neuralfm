@@ -8,7 +8,8 @@ async function scrape(scrapers, opts={}) {
         const dbname = scraper.dbname || scraper.name;
         const db = await database(dbname);
         const options = Object.assign({}, opts, { db });
-        const results = await scraper(db, options);
+        const instance = new scraper(db, options);
+        const results = await instance.run();
         db.close();
         if (results && results.length > 0) {
             return results;
