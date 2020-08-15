@@ -1,37 +1,38 @@
 const fs = require("fs");
 const assert = require("assert");
 const core = require("../../core");
+const scrape = require("../../core/scrape");
 const utils = require("../../utils");
 
-//import { TwitterFeatureExtractor } from "../extract/twitter"
-
-// bag of words // td ifs
-
-describe.only("extract features", function () {
+describe("extract features", function () {
 
     before(async function() {
-        /*
-        const scraper = TestExtractor.getScrapers()[0];
-        const db = await scraper.getDatabaseName();
-        const fixtures = JSON.parse(fs.readFileSync("./core/extract/fixtures.json", "utf8"));
-        */
-        /*
-        for (const scraper of TestExtractor.getScrapers()) {
-            const db = await core.db(scraper.getDatabaseName());
+        const scrapers = scrape.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
+        assert(scrapers && scrapers.length > 0);
+        const fixtures = JSON.parse(fs.readFileSync("./plugins/extractors/fixtures.json", "utf8"));
+        for (const scraper of scrapers) {
+            const databaseName = await scraper.getDatabaseName();
+            assert.equal(databaseName.indexOf("Test"), 0);
+
+            const db = await core.db(databaseName);
+            let response = await db.collection(scraper.getCollectionName()).deleteMany({});
+            assert(response);
+            assert(response.result);
+            assert(response.result.ok);
+
+
+            response = await db.collection(scraper.getCollectionName()).insertMany(fixtures);
+            assert(response);
+            assert(response.result);
+            assert(response.result.ok);
+
+            const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
+            assert(results);
+            assert.equal(results.length, 10);
         }
-        */
-        console.log("DB");
-
-
-        /*
-        let response = await db.collection(TestScraper.collectionName).deleteMany({});
-        assert(response);
-        assert(response.result);
-        assert(response.result.ok);
-        */
     });
 
-    it.only("default plugins load properly", function () {
+    it("default plugins load properly", function () {
         const plugins = core.plugins;
         assert(plugins);
 
@@ -41,27 +42,20 @@ describe.only("extract features", function () {
         const TwitterFeatureExtractor = plugins.extractors.TwitterFeatureExtractor;
         assert(TwitterFeatureExtractor);
 
-        assert(core.scrape.isCompatible(BSVTwitterScraper, TwitterFeatureExtractor));
-        assert.deepEqual(core.scrape.getCompatible(TwitterFeatureExtractor), [BSVTwitterScraper]);
+        assert(scrape.isCompatible(BSVTwitterScraper, TwitterFeatureExtractor));
+        assert.deepEqual(scrape.getCompatible(TwitterFeatureExtractor), [BSVTwitterScraper]);
     });
 
-    it("fixtures load data properly", async function() {
-    });
-
-    it.skip("extract features from data", async function() {
-        const data = [
-            getDummyTwitterDataSource(0),
-            getDummyTwitterDataSource(1),
-            getDummyTwitterDataSource(2),
-        ];
-
-        // Normalizers are code running objects...that update objects to have a normalized object
-        // WHere is the minMax information stored?
-        let normalizers = [TestNormalizer];
+    it("extract features from data", async function() {
+        let extractors = [core.plugins.extractors.TwitterFeatureExtractor];
         let results;
 
-        results = await core.normalize(normalizers);
-        console.log("RESULTS", results);
+        results = await core.extract(extractors);
+        assert.equal(results.length, 10);
+        assert(results[0].twitter_features);
+
+        results = await core.extract(extractors);
+        assert.equal(results.length, 0);
     });
 });
 

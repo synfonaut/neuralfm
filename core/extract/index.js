@@ -1,20 +1,35 @@
 const log = require("debug")("neuralfm:core:extract");
 const database = require("../db").db;
+const scrape = require("../scrape");
 
 async function extract(extractors, opts={}) {
     log("extracting");
     for (const extractor of extractors) {
-        log(`extracting ${extractor.name}`);
-        const dbname = extractor.getDatabaseName();
-        const db = await database(dbname);
-        const options = Object.assign({}, opts, { db });
-        const instance = new extractor(db, options);
-        const results = await instance.run();
-        db.close();
-        if (results && results.length > 0) {
-            return results;
+        const compatibleScrapers = scrape.getCompatible(extractor);
+
+        if (compatibleScrapers.length > 0) {
+            for (const scraper of compatibleScrapers) {
+                log(`attempting to extract features from ${scraper.name} with ${extractor.name}`);
+                const dbname = scraper.getDatabaseName();
+                const db = await database(dbname);
+
+                const options = Object.assign({}, opts);
+
+
+                const scraperInstance = new scraper(db, options);
+                const instance = new extractor(db, scraperInstance, options);
+
+                const results = await instance.run();
+                db.close();
+                if (results && results.length > 0) {
+                    return results;
+                }
+            }
+        } else {
+            log(`found 0 compatible scrapers for ${extractor.name}, skipping...`);
         }
     }
+
     return [];
 }
 

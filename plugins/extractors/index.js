@@ -1,3 +1,3 @@
 module.exports = {
-    TwitterFeatureExtractor: require("./twitter")
+    TwitterFeatureExtractor: require("./twitter").TwitterFeatureExtractor,
 };

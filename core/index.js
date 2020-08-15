@@ -5,7 +5,7 @@ const db = require("./db").db;
 
 const plugins = require("../plugins");
 
-const scrape = require("./scrape");
+const scrape = require("./scrape").scrape;
 const extract = require("./extract");
 const normalize = require("./normalize");
 
