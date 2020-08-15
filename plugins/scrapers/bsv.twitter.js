@@ -46,6 +46,10 @@ export class BSVTwitterScraper {
     return [];
   }
 
+  async getDataCursor() {
+    return await this.db.collection(BSVTwitterScraper.getCollectionName()).find({});
+  }
+
   // given a tweet, return a uuid
   static fingerprintData(tweet) {
     if (tweet.fingerprint) { return tweet }

@@ -142,8 +142,10 @@ https://neural.fm/synfonaut@moneybutton.com
 ## TODO
 
 - [ ] custom bag of words
+// TODO: indexes need to be automatically run every time
 - [ ] see how far you can go back in twitter history
 - [ ] discover limits of Twitter API
+- [ ] pretty quickly implement a second data source so you can start testing multi data normalization
 
 - [ ] test extracting features plugin & getting fingerprints of feature extracts
 - [ ] test normalize plugin & getting fingerprints of feature normalization code 

@@ -7,7 +7,7 @@ const plugins = require("../plugins");
 
 const scrape = require("./scrape").scrape;
 const extract = require("./extract");
-const normalize = require("./normalize");
+const normalize = require("./normalize").normalize;
 
 // connections
 for (const scraper of Object.values(plugins.scrapers)) {

@@ -34,6 +34,14 @@ export class TwitterFeatureExtractor {
         return results;
     }
 
+    async getDataCursor() {
+        const fieldName = TwitterFeatureExtractor.getFeaturesFieldName();
+        const collectionName = this.scraper.constructor.getCollectionName();
+        const findQuery = {};
+        findQuery[fieldName] = {"$exists": true};
+        return await this.db.collection(collectionName).find(findQuery);
+    }
+
     async runFeatureExtractOnTweet(tweet) {
         log(`extracting features from ${tweet.fingerprint}`);
 
