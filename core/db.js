@@ -6,7 +6,8 @@ let numconnections = 0;
 let debugConnectionsInterval = null;
 let connurl = "mongodb://localhost:27017";
 
-let databaseConnection = null;
+//let databaseConnection = null;
+let databaseConnections = new Map();
 
 function db(dbname=null) {
     if (debugConnectionsInterval === null) {
@@ -19,6 +20,7 @@ function db(dbname=null) {
             return reject("invalid db name");
         }
 
+        let databaseConnection = databaseConnections.get(dbname);
         if (databaseConnection) {
             return resolve(databaseConnection);
         }
@@ -37,10 +39,15 @@ function db(dbname=null) {
                 databaseConnection.close = function() {
                     log(`closing ${dbname} db connection...`);
                     numconnections -= 1;
-                    databaseConnection = null;
-                    //log(`${numconnections} // disconnected`);
-                    return client.close();
+                    const connectedClient = databaseConnections.get("dbname") || null;
+                    if (connectedClient) {
+                        connectedClient.close();
+                    }
+
+                    databaseConnections[dbname] = null;
                 }
+
+                databaseConnections[dbname] = databaseConnection;
                 resolve(databaseConnection);
             }
         });

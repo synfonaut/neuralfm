@@ -15,9 +15,16 @@ async function extract(extractors, opts={}) {
 
                 const options = Object.assign({}, opts);
 
-
                 const scraperInstance = new scraper(db, options);
                 const instance = new extractor(db, scraperInstance, options);
+
+                if (scraper.createIndexes) {
+                    await scraper.createIndexes(db);
+                }
+
+                if (extractor.createIndexes) {
+                    await extractor.createIndexes(db);
+                }
 
                 const results = await instance.run();
                 db.close();

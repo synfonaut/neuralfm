@@ -14,9 +14,21 @@ export async function normalize(extractors, normalizer, opts={}) {
                 const options = Object.assign({}, opts);
 
                 const scraperInstance = new scraper(db, options);
+                if (scraper.createIndexes) {
+                    await scraper.createIndexes(db);
+                }
+
                 const extractorInstance = new extractor(db, scraperInstance, options);
+                if (extractor.createIndexes) {
+                    await extractor.createIndexes(db);
+                }
+
                 log(`normalizing ${scraper.name} data with ${extractor.name} features using ${normalizer.name}`);
                 const instance = new normalizer(db, scraperInstance, extractorInstance);
+                if (normalizer.createIndexes) {
+                    await normalizer.createIndexes(db);
+                }
+
                 const results = await instance.run();
                 if (results && results.length > 0) {
                     return results;
@@ -31,25 +43,6 @@ export async function normalize(extractors, normalizer, opts={}) {
 }
 
 /*
-export function isCompatible(scraper, extractor) {
-    for (const compatiableExtractor of scraper.compatibleExtractors) {
-        if (compatiableExtractor === extractor) {
-            return true;
-        }
-    }
-    return false;
-}
-
-export function getCompatible(extractor) {
-    const compatible = [];
-    for (const scraper of allScrapers) {
-        if (scraper.compatibleExtractors.indexOf(extractor) !== -1) {
-            compatible.push(scraper);
-        }
-    }
-    return compatible;
-}
-
 if (require.main === module) {
     (async function() {
         const utils = require("../../utils");

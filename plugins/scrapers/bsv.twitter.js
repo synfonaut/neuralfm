@@ -146,6 +146,10 @@ export class BSVTwitterScraper {
     return "BSV Twitter"; // human readable dataset this scraper creates
   }
 
+  static async createIndexes(db) {
+    await db.collection(BSVTwitterScraper.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+    await db.collection(BSVTwitterScraper.getUsernameCollectionName()).createIndex({ "username": 1 }, {"unique": true});
+  }
 }
 
 

@@ -13,7 +13,7 @@ export class TestScraper {
     }
 
     async run() {
-        const tweets = this.getData(await this.getLastSeenFingerprint());
+        const tweets = TestScraper.getData(await this.getLastSeenFingerprint());
 
         if (tweets && tweets.length > 0) {
             const response = await this.db.collection(TestScraper.getCollectionName()).insertMany(tweets);
@@ -31,7 +31,7 @@ export class TestScraper {
         return Number(recentTweets.length == 1 ? recentTweets[0].fingerprint : 0);
     }
 
-    getData(since=0) {
+    static getData(since=0) {
         if (since == 0) { return [ {"fingerprint": "1", "tweet": "hello world"} ] }
         if (since == 1) { return [ {"fingerprint": "2", "tweet": "hi"} ] }
         if (since == 2) { return [ {"fingerprint": "3", "tweet": "hola"} ] }
@@ -39,23 +39,29 @@ export class TestScraper {
     }
 
     static getCollectionName() {
-        return "tweets";
+        return "test_tweets";
     }
 
     static getDatabaseName() {
         return TestScraper.name;
     }
+
+    static async createIndexes(db) {
+        await db.collection(TestScraper.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+    }
 }
 
 describe("scrape", function () {
 
-    before(async function() {
+    beforeEach(async function() {
         const db = await core.db(TestScraper.getDatabaseName());
-
         let response = await db.collection(TestScraper.getCollectionName()).deleteMany({});
         assert(response);
         assert(response.result);
         assert(response.result.ok);
+
+        await TestScraper.createIndexes(db);
+        db.close();
     });
 
     it("default plugins load properly", function () {
@@ -88,5 +94,24 @@ describe("scrape", function () {
         results = await core.scrape(scrapers);
         assert.equal(results.length, 0);
     });
+
+    it("verifies fingerprints are unique", async function() {
+        const db = await core.db(TestScraper.getDatabaseName());
+        let response;
+
+        response = await db.collection(TestScraper.getCollectionName()).insert(TestScraper.getData(0));
+        assert(utils.ok(response));
+
+        // should fail
+        try {
+            response = await db.collection(TestScraper.getCollectionName()).insert(TestScraper.getData(0));
+        } catch(e) {
+            assert.equal(e.name, "BulkWriteError");
+            assert(true);
+        }
+
+        db.close();
+    });
+
 });
 

@@ -142,6 +142,10 @@ export class StandardFeatureNormalizer {
     static getCollectionName() {
         return "standard_normalizer_metadata";
     }
+
+    static async createIndexes(db) {
+        await db.collection(StandardFeatureNormalizer.getCollectionName()).createIndex({ "_name": 1 }, {"unique": true});
+    }
 }
 
 export function minmax(rows, minimum=null, maximum=null) {

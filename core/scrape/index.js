@@ -10,6 +10,9 @@ export async function scrape(scrapers, opts={}) {
         log(`scraping ${scraper.name}`);
         const dbname = scraper.getDatabaseName();
         const db = await database(dbname);
+        if (scraper.createIndexes) {
+            await scraper.createIndexes(db);
+        }
         const options = Object.assign({}, opts, { db });
         const instance = new scraper(db, options);
         const results = await instance.run();

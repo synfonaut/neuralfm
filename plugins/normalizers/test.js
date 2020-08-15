@@ -8,7 +8,7 @@ import { minmax, wordvector, bagofwords, normalizeValues } from "./standard"
 
 describe("normalize features", function () {
 
-    before(async function() {
+    beforeEach(async function() {
         const scrapers = scrape.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
         assert(scrapers && scrapers.length > 0);
         const fixtures = JSON.parse(fs.readFileSync("./plugins/extractors/fixtures.json", "utf8"));
@@ -22,6 +22,10 @@ describe("normalize features", function () {
             assert(response.result);
             assert(response.result.ok);
 
+            response = await db.collection(scraper.getUsernameCollectionName()).deleteMany({});
+            assert(response);
+            assert(response.result);
+            assert(response.result.ok);
 
             response = await db.collection(scraper.getCollectionName()).insertMany(fixtures);
             assert(response);
