@@ -96,6 +96,8 @@ describe("normalize features", function () {
             [ 1, 1, 0 ],
             [ 1, 1, 0 ]
         ]);
+
+        assert.deepEqual(bagofwords("not in bag", vector), [0, 0, 0]);
     });
 
     it("normalizes data", async function() {
