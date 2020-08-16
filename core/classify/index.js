@@ -70,8 +70,10 @@ export class Classifier {
         return classifications;
     }
 
-    async getClassificationMapping() {
-        const classifications = await this.getClassifications();
+    async getClassificationMapping(classifications=null) {
+        if (!classifications) {
+            classifications = await this.getClassifications();
+        }
         const classificationMapping = {};
         for (const classification of classifications) {
             const classificationValue = Number(classification.classification);

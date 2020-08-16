@@ -7,6 +7,11 @@ const utils = require("../../utils");
 
 const StandardFeatureNormalizer = plugins.normalizers.StandardFeatureNormalizer;
 
+plugins.networks.BrainNeuralNetwork._getDatabaseName = plugins.networks.BrainNeuralNetwork.getDatabaseName;
+plugins.networks.BrainNeuralNetwork.getDatabaseName = function() {
+  return `Test${plugins.networks.BrainNeuralNetwork._getDatabaseName()}`;
+}
+
 // save neural network
 // load neural network
 // easily morphable for frontend UI
@@ -33,6 +38,8 @@ describe("brain neural network", function () {
             await db.collection(scraper.getCollectionName()).insertMany(fixtures);
             const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
             assert.equal(results.length, 10);
+
+            await plugins.networks.BrainNeuralNetwork.resetDatabase();
 
             db.close();
         }
@@ -130,5 +137,31 @@ describe("brain neural network", function () {
         }
     });
 
+    it.only("saves and loads neural network", async function() {
+        this.timeout(20000);
+        this.slow(5000);
+
+        const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
+        const scraper = new plugins.scrapers.BSVTwitterScraper(db);
+        const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
+        const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
+
+        await scraper.run();
+        await extractor.run();
+        await normalizer.run();
+
+        const classifier = new core.Classifier("test_classifier");
+        await classifier.classify("twitter-1294363849961820200", 1);
+
+        const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
+        await core.train(network);
+
+        const fingerprint = await network.save();
+        assert(fingerprint);
+
+        const newNetwork = await plugins.networks.BrainNeuralNetwork.loadFromFingerprint(fingerprint);
+        assert(newNetwork);
+
+    });
 });
 

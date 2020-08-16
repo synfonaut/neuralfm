@@ -1,4 +1,8 @@
 const log = require("debug")("neuralfm:plugins:networks:brainnn");
+const config = require("../../config");
+const utils = require("../../utils");
+const database = require("../../core/db").db;
+
 const brain = require("brain.js");
 
 // easy to save snapshotted versions
@@ -23,8 +27,11 @@ export class BrainNeuralNetwork {
         this.classifier = classifier;
 
         this.nn = null;
-
         this.isDirty = true;
+        this.normalizationMetadata = null;
+        this.classifications = null;
+        this.data = null;
+        this.trainingData = null;
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
         this.networkOptions = (opts.networkOptions ? opts.networkOptions : BrainNeuralNetwork.getDefaultNeuralNetworkOptions());
@@ -33,15 +40,15 @@ export class BrainNeuralNetwork {
     }
 
     async run() {
-        const classifications = await this.classifier.getClassifications();
-        if (classifications.length == 0) {
+        this.classifications = await this.classifier.getClassifications();
+        if (this.classifications.length == 0) {
             log(`no classifications to train ${this.name}`);
             return;
         }
 
-        const data = await this.normalizer.getDataSource();
+        this.data = await this.normalizer.getDataSource();
 
-        const normalizationMetadata = await this.normalizer.getOrCreateMetadata(data);
+        this.normalizationMetadata = await this.normalizer.getOrCreateMetadata(this.data);
 
         if (this.nn) {
             log(`reusing existing neural network`);
@@ -49,11 +56,11 @@ export class BrainNeuralNetwork {
             this.nn = this.createNeuralNetwork();
         }
 
-        const trainingData = await this.normalizer.getTrainingData(this.classifier, data);
+        this.trainingData = await this.normalizer.getTrainingData(this.classifier, this.data);
 
-        log(`training ${this.name} on ${trainingData.length} classifications (${data.length} data)`);
+        log(`training ${this.name} on ${this.trainingData.length} classifications (${this.data.length} data)`);
         const starttime = Date.now();
-        this.nn.train(trainingData, this.trainingOptions);
+        this.nn.train(this.trainingData, this.trainingOptions);
         const endtime = Date.now();
         log(`finished training ${this.name} in ${(endtime-starttime) / 1000}s`);
 
@@ -67,6 +74,73 @@ export class BrainNeuralNetwork {
         }
 
         return this.nn.run(input)[0];
+    }
+
+    reset() {
+        this.nn = null;
+        this.isDirty = true;
+        this.normalizationMetadata = null;
+        this.classifications = null;
+        this.data = null;
+        this.trainingData = null;
+    }
+
+    createNeuralNetwork() {
+        log(`creating new neural network with options ${JSON.stringify(this.networkOptions)}`);
+        return new brain.NeuralNetwork(this.networkOptions);
+    }
+
+    async toJSON() {
+        if (!this.nn || !this.classifications) { throw "expected nn and classifications" }
+
+        const classifications = await this.classifier.getClassificationMapping(this.classifications);
+        const network = this.nn.toJSON();
+        const fingerprint = `${this.name}:${Object.keys(classifications).length}:${Date.now()}`;
+
+        return {
+            fingerprint,
+            name: fingerprint,
+            networkOptions: this.networkOptions,
+            trainingOptions: this.trainingOptions,
+            scraper: this.scraper.constructor.name,
+            extractor: this.extractor.constructor.name,
+            normalizer: this.normalizer.constructor.name,
+            classifier: this.classifier.name,
+            classifications,
+            normalizationMetadata: this.normalizationMetadata,
+            trainingData: this.trainingData,
+            network,
+            created_at: new Date(),
+        }
+    }
+
+    async save() {
+        const obj = await this.toJSON();
+
+        const db = await database(BrainNeuralNetwork.getDatabaseName());
+        try {
+            const response = await db.collection(BrainNeuralNetwork.getCollectionName()).insertOne(obj);
+            if (!utils.ok(response)) {
+                throw "invalid response"
+            }
+
+            log(`successfully saved network ${obj.fingerprint}`);
+
+            return obj.fingerprint;
+        } catch (e) {
+            log(`error saving network ${obj.fingerprint} - ${resonse}`);
+            throw e;
+        } finally {
+            db.close();
+        }
+    }
+
+    static getDefaultNeuralNetworkOptions() {
+        return {
+            binaryThresh: 0.5,
+            hiddenLayers: [10, 5],
+            activation: 'sigmoid',
+        };
     }
 
     static getDefaultTrainingOptions() {
@@ -92,16 +166,22 @@ export class BrainNeuralNetwork {
         }
     }
 
-    createNeuralNetwork() {
-        log(`creating new neural network with options ${JSON.stringify(this.networkOptions)}`);
-        return new brain.NeuralNetwork(this.networkOptions);
+    static getCollectionName() {
+        return "networks";
     }
 
-    static getDefaultNeuralNetworkOptions() {
-        return {
-            binaryThresh: 0.5,
-            hiddenLayers: [10, 5],
-            activation: 'sigmoid',
-        };
+    static getDatabaseName() {
+        return config.databaseName;
+    }
+
+    static async createIndexes(db) {
+        await db.collection(this.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+    }
+
+    static async resetDatabase() {
+        const db = await database(this.getDatabaseName());
+        await db.collection(this.getCollectionName()).deleteMany();
+        await BrainNeuralNetwork.createIndexes(db);
+        db.close();
     }
 }
