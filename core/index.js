@@ -13,6 +13,7 @@ const network = require("./network");
 const train = network.train;
 const load = network.load
 const save = network.save;
+const calculate = network.calculate;
 
 const Classifier = require("./classify").Classifier;
 
@@ -24,6 +25,7 @@ module.exports = {
     save,
     load,
     train,
+    calculate,
     network,
     Classifier,
 

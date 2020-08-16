@@ -95,3 +95,7 @@ export async function getAllNetworks() {
     return networks;
 }
 
+export async function calculate(network) {
+    await network.calculate();
+}
+

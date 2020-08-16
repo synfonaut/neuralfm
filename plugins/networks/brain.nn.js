@@ -62,13 +62,54 @@ export class BrainNeuralNetwork {
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }
 
+    async calculate() {
+        if (!this.nn) { throw "expected neural network" }
+        if (!this.data || this.data.length === 0) { throw "expected data" }
+
+        log(`calculating predictions for ${this.fingerprint} on ${this.data.length} data`);
+
+        const normalizedFieldName = this.normalizer.constructor.getNormalizedFieldName(this.extractor);
+        for (const row of this.data) {
+            const normalizedData = row[normalizedFieldName];
+            const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
+            const prediction = this.predict(input);
+            await this.updatePrediction(row.fingerprint, prediction);
+        }
+
+        log(`updated predictions for ${this.fingerprint} on ${this.data.length} data`);
+    }
+
+    async updatePrediction(fingerprint, prediction) {
+        const findQuery = { fingerprint };
+        const updateQuery = { "$set": { "predictions": {} } };
+
+        updateQuery["$set"]["predictions"][this.fingerprint] = prediction;
+
+        const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).updateOne(findQuery, updateQuery, {"upsert": true});
+        if (!utils.ok(response)) {
+            log(`error response while updating prediction - ${response}`);
+            throw "error updating prediction"
+        }
+
+        if (response.result.n === 1) {
+            log(`created prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`);
+        } else {
+            log(`error updating prediction for ${fingerprint} to ${prediction} for ${this.fingerprint} - ${response}`);
+            throw `error updating prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`;
+        }
+    }
+
     predict(input) {
         if (!this.nn) { throw "expected neural network to be trained to predict" }
         if (this.isDirty) {
             log(`warning: neural network is dirty and needs to be re-trained to reflect most recent classifications`);
         }
 
-        return this.nn.run(input)[0];
+        const prediction = this.nn.run(input)[0];
+
+        if (isNaN(prediction)) { throw "inputs gave NaN prediction" }
+
+        return prediction;
     }
 
     reset() {
@@ -144,22 +185,6 @@ export class BrainNeuralNetwork {
 
         return network;
     }
-
-    /*
-    static async loadFromFingerprint(fingerprint) {
-        const db = await database(BrainNeuralNetwork.getDatabaseName());
-        const network = await db.collection(BrainNeuralNetwork.getCollectionName()).findOne({ fingerprint });
-        if (!network) { throw `error finding network with fingerprint ${fingerprint}` }
-
-        console.log("PLUGINS", plugins);
-
-        const scraper = plugins.scrapers[network.scraper];
-        if (!scraper) { throw `error finding scraper ${network.scraper} for fingerprint ${fingerprint}` }
-
-        console.log(scraper);
-        throw "BLAM";
-    }
-    */
 
     static getDefaultNeuralNetworkOptions() {
         return {

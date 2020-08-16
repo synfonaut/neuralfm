@@ -183,5 +183,37 @@ describe("brain neural network", function () {
 
     assert(found);
   });
+
+  it("saves prediction on data object", async function() {
+    this.timeout(20000);
+    this.slow(5000);
+
+    const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
+    const scraper = new plugins.scrapers.BSVTwitterScraper(db);
+    const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
+    const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
+
+    await scraper.run();
+    await extractor.run();
+    await normalizer.run();
+
+    const classifier = new core.Classifier("test_classifier");
+    await classifier.classify("twitter-1294363849961820200", 1);
+
+    const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
+    await core.train(network);
+
+    await core.calculate(network);
+
+    const data = await normalizer.getDataSource();
+    let found = false;
+    for (const row of data) {
+      assert(row.predictions);
+      assert(row.predictions[network.fingerprint]);
+      assert(row.predictions[network.fingerprint] > 0.8);
+      found = true;
+    }
+    assert(found);
+  });
 });
 
