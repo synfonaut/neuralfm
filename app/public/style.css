@@ -4,12 +4,23 @@ html, body {
   height: 100%;
 }
 
-/* App */
-#app {
-  margin-top: 40px;
+/** App **/
+#app-wrapper {
+  margin-top: 50px;
 }
 
-/* Loading */
+#app {
+  margin: 0;
+}
+
+#app h2 {
+  margin: 0;
+  padding: 0;
+  margin-bottom: 5px;
+  font-size: 19px;
+}
+
+/** Loading **/
 #loading {
   position: absolute;
   vertical-align: middle;
@@ -83,4 +94,11 @@ nav a {
   vertical-align: middle;
 }
 
+/** Sidebar **/
+#sidebar h2 {
+  font-size: 120%;
+}
 
+#sidebar {
+  font-size: 14px;
+}

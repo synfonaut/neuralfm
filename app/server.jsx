@@ -1,15 +1,8 @@
 import React, { useState } from "react"
 import { renderCalderaApp, makeSharedResource, useSharedState, useLocation, useHistory } from "caldera"
 
-// TODO: Get data....display it....you know what to do... good luck ☕️ 👍
-
-function getNewData() {
-    return new Promise((resolve, reject) => {
-        setTimeout(function() {
-            resolve(["A", "B", "C"]);
-        }, 2000);
-    });
-}
+import { Timeline } from "./timeline"
+import { Sidebar } from "./sidebar"
 
 function NeuralFMApplicationWrapper(args={}) {
     const [data, setData]  = useState([]);
@@ -25,8 +18,6 @@ function NeuralFMApplicationWrapper(args={}) {
         isLoaded,
     });
 
-    //getNewData().then(setData);
-
     return <>
         <LoadingScreen {...params} />
         <NeuralFMApplication {...params} />
@@ -38,10 +29,15 @@ function NeuralFMApplication(args={}) {
         <NavigationBar {...args} />
         <section className="section">
           <div className="container">
-            <div className="columns">
-                <div className="column">
-                    <Timeline {...args} />
-                </div>
+            <div id="app-wrapper">
+              <div className="columns">
+                  <div className="column is-8">
+                      <Timeline {...args} />
+                  </div>
+                  <div className="column is-4">
+                      <Sidebar {...args} />
+                  </div>
+              </div>
             </div>
           </div>
         </section>
@@ -53,7 +49,7 @@ function NavigationBar() {
       <div className="navbar-brand">
         <div className="logo">
           <h1 className="title">NeuralFM</h1>
-          <p className="subtitle">AI News Radio</p>
+          <p className="subtitle">AI Information Radio</p>
         </div>
 
         <div className="navbar-menu">
@@ -75,28 +71,6 @@ function NavigationBar() {
     </nav>
 }
 
-
-function Timeline(args) {
-    return <div id="timeline">
-        TOP timeline<br />
-        1timeline<br />
-        2timeline<br />
-        3timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
-    </div>
-}
 
 function LoadingScreen(args={}) {
   return <div id="loading" className={args.isLoaded ? "loaded" : "unloaded"}>
