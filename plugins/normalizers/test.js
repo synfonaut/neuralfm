@@ -6,7 +6,7 @@ const utils = require("../../utils");
 
 import { minmax, wordvector, bagofwords, normalizeValues } from "./standard"
 
-describe.only("normalize features", function () {
+describe("normalize features", function () {
 
     beforeEach(async function() {
         const scrapers = scrape.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
@@ -130,7 +130,20 @@ describe.only("normalize features", function () {
         ]);
     });
 
-    // TODO: Need to manually clean usernames....
+    it("bag of words creates category vectors", function () { // category vecors treat text columns as categories
+        const data = ["user", "user_name", "user_same"];
+        const vector = wordvector(data);
+
+        function bow(text) { return bagofwords(text, vector) }
+        const bag = data.map(bow);
+        assert.deepEqual(bag, [
+            [ 1, 0, 0 ],
+            [ 0, 1, 0 ],
+            [ 0, 0, 1 ],
+        ]);
+
+        assert.deepEqual(bagofwords("not in bag", vector), [0, 0, 0]);
+    });
 
     it("bag of words normalizes usernames", function () {
         const data = ["hello @username_with_underscores", "how are you doing?", "im doing well @synfonaut", "thats good to hear @brad", "ok cool", "@username_with_underscores"];
@@ -139,7 +152,6 @@ describe.only("normalize features", function () {
         const bag = data.map(bow);
         assert.deepEqual(bag, [[1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],[0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0],[0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]);
     });
-
 
     it("normalizes data", async function() {
         this.timeout(10000);
@@ -166,5 +178,6 @@ describe.only("normalize features", function () {
         normalized = await core.normalize(extractors, StandardFeatureNormalizer);
         assert.equal(normalized.length, 0);
     });
+
 });
 

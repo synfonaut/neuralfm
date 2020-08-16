@@ -198,7 +198,7 @@ export function cleanText(text) {
     cleanedText = cleanTextUsernames(cleanedText);
 
     // replace any leftover non-alphanumeric chars with spaces
-    cleanedText = cleanedText.replace(/[^a-zA-Z0-9]+/g, " ").trim();
+    cleanedText = cleanedText.replace(/[^a-zA-Z0-9_]+/g, " ").trim();
 
     return cleanedText;
 }
