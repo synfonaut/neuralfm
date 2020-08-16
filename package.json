@@ -9,7 +9,7 @@
     "scrape": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrape/index.js",
     "extract": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/extract/index.js",
     "normalize": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/normalize/index.js",
-    "train": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/train/index.js"
+    "train": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/network/index.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",

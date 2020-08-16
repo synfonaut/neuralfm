@@ -1,4 +1,4 @@
-const log = require("debug")("neuralfm:core:train");
+const log = require("debug")("neuralfm:core:network");
 const database = require("../db").db;
 const config = require("../../config");
 const brain = require("brain.js");
@@ -11,6 +11,7 @@ const plugins = require("../../plugins");
 export async function train(network) {
     log(`training ${network.name}`);
     await network.run();
+    await network.calculate();
 }
 
 export async function load(fingerprint) {
@@ -99,3 +100,24 @@ export async function calculate(network) {
     await network.calculate();
 }
 
+
+if (require.main === module) {
+    (async function() {
+
+        const networks = await getAllNetworks();
+        console.log("NETWORKS", networks);
+        /*
+        let results;
+        do {
+            results = await extract(allExtractors);
+            if (results.length > 0) {
+                log("sleeping");
+                await utils.sleep(1000);
+            }
+        } while (results.length > 0);
+
+        */
+        process.exit();
+    })();
+
+}
