@@ -1,6 +1,6 @@
 const log = require("debug")("neuralfm:core:extract");
 const database = require("../db").db;
-const scrape = require("../scrape");
+const scrapers = require("../scrapers");
 
 const utils = require("../../utils");
 const plugins = require("../../plugins");
@@ -12,7 +12,7 @@ require("../compatibility");
 export async function extract(extractors, opts={}) {
     log("extracting");
     for (const extractor of extractors) {
-        const compatibleScrapers = scrape.getCompatible(extractor);
+        const compatibleScrapers = scrapers.getCompatible(extractor);
 
         if (compatibleScrapers.length > 0) {
             for (const scraper of compatibleScrapers) {

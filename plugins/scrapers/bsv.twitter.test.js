@@ -66,15 +66,15 @@ describe("bsv twitter scraper", function () {
 
     let scrapers = [BSVTwitterScraper];
 
-    results = await core.scrape(scrapers, opts);
+    results = await core.scrapers.scrape(scrapers, opts);
     assert.equal(results.length, 5);
     for (const result of results) { assert.equal(result.user.screen_name, "synfonaut") }
 
-    results = await core.scrape(scrapers, opts);
+    results = await core.scrapers.scrape(scrapers, opts);
     assert.equal(results.length, 5);
     for (const result of results) { assert.equal(result.user.screen_name, "_unwriter") }
 
-    results = await core.scrape(scrapers, opts);
+    results = await core.scrapers.scrape(scrapers, opts);
     assert.equal(results.length, 0);
 
     // no more twitter users to check

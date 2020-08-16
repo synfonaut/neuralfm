@@ -1,7 +1,7 @@
 const fs = require("fs");
 const assert = require("assert");
 const core = require("../index");
-const scrape = require("../../core/scrape");
+const scrapersCore = require("../scrapers");
 const utils = require("../../utils");
 
 describe("network", function () {
@@ -14,7 +14,7 @@ describe("network", function () {
           await network.resetDatabase();
       }
 
-      const scrapers = scrape.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
+      const scrapers = scrapersCore.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
       assert(scrapers && scrapers.length > 0);
       const fixtures = JSON.parse(fs.readFileSync("./plugins/extractors/fixtures.json", "utf8"));
       for (const scraper of scrapers) {
@@ -24,7 +24,7 @@ describe("network", function () {
 
           await scraper.resetDatabase();
           await core.plugins.normalizers.StandardFeatureNormalizer.resetDatabase(databaseName);
-          await core.Classifier.resetDatabase();
+          await core.classifiers.Classifier.resetDatabase();
 
           await db.collection(scraper.getCollectionName()).insertMany(fixtures);
           const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
@@ -32,7 +32,7 @@ describe("network", function () {
 
           await core.plugins.networks.BrainNeuralNetwork.resetDatabase();
 
-          await core.network.createIndexes();
+          await core.networks.createIndexes();
 
           db.close();
       }
@@ -48,21 +48,21 @@ describe("network", function () {
     await extractor.run();
     await normalizer.run();
 
-    const classifier = new core.Classifier("test_classifier");
+    const classifier = new core.classifiers.Classifier("test_classifier");
     await classifier.classify("twitter-1294363849961820200", 1);
 
     const network = new core.plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
-    await core.network.train(network);
+    await core.networks.train(network);
 
     const fingerprint1 = await network.save();
     assert(fingerprint1);
 
 
-    await core.network.train(network);
+    await core.networks.train(network);
     const fingerprint2 = await network.save();
     assert(fingerprint2);
 
-    const networks = await core.network.getAllNetworks();
+    const networks = await core.networks.getAllNetworks();
     assert.equal(networks.length, 2);
   });
 
@@ -73,10 +73,10 @@ describe("network", function () {
     const network = core.plugins.networks.BrainNeuralNetwork;
     const classifier = "test neural network name";
 
-    const fingerprint = await core.network.create(scraper, extractor, normalizer, network, classifier);
+    const fingerprint = await core.networks.create(scraper, extractor, normalizer, network, classifier);
     assert.equal(fingerprint, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test neural network name:0");
 
-    const networkInstance = await core.network.load(fingerprint);
+    const networkInstance = await core.networks.load(fingerprint);
     assert(networkInstance);
     assert.equal(scraper.name, networkInstance.scraper.constructor.name);
     assert.equal(extractor.name, networkInstance.extractor.constructor.name);
@@ -90,7 +90,7 @@ describe("network", function () {
 
     await networkInstance.classifier.classify("twitter-1294363849961820200", 1);
 
-    await core.network.train(networkInstance);
+    await core.networks.train(networkInstance);
 
     const results = await networkInstance.normalizer.getDataSource();
     let found = false;

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const assert = require("assert");
 const core = require("../../core");
-const scrape = require("../../core/scrape");
+const scrapersCore = require("../../core/scrapers");
 const plugins = require("../index");
 const utils = require("../../utils");
 
@@ -15,16 +15,12 @@ plugins.networks.BrainNeuralNetwork.getDatabaseName = function() {
   return plugins.networks.BrainNeuralNetwork._getDatabaseName();
 }
 
-// easily morphable for frontend UI
-// UI callbacks for frontend
-// interrputable training
-
 describe("brain neural network", function () {
     this.timeout(10000);
     this.slow(1000);
 
     beforeEach(async function() {
-        const scrapers = scrape.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
+        const scrapers = scrapersCore.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
         assert(scrapers && scrapers.length > 0);
         const fixtures = JSON.parse(fs.readFileSync("./plugins/extractors/fixtures.json", "utf8"));
         for (const scraper of scrapers) {
@@ -34,7 +30,7 @@ describe("brain neural network", function () {
 
             await scraper.resetDatabase();
             await StandardFeatureNormalizer.resetDatabase(databaseName);
-            await core.Classifier.resetDatabase();
+            await core.classifiers.Classifier.resetDatabase();
 
             await db.collection(scraper.getCollectionName()).insertMany(fixtures);
             const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
@@ -84,7 +80,7 @@ describe("brain neural network", function () {
         await extractor.run();
         await normalizer.run();
 
-        const classifier = new core.Classifier("test_classifier");
+        const classifier = new core.classifiers.Classifier("test_classifier");
         await classifier.classify("twitter-1294363849961820200", 1);
 
         const classifications = await classifier.getClassifications();
@@ -111,7 +107,7 @@ describe("brain neural network", function () {
         await extractor.run();
         await normalizer.run();
 
-        const classifier = new core.Classifier("test_classifier");
+        const classifier = new core.classifiers.Classifier("test_classifier");
         await classifier.classify("twitter-1294363849961820200", 1);
 
         const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
@@ -119,7 +115,7 @@ describe("brain neural network", function () {
         assert.equal(network.isDirty, true);
         assert.equal(network.name, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test_classifier");
 
-        await core.network.train(network);
+        await core.networks.train(network);
         assert(network.nn);
         assert.equal(network.isDirty, false);
 
@@ -151,16 +147,16 @@ describe("brain neural network", function () {
     await extractor.run();
     await normalizer.run();
 
-    const classifier = new core.Classifier("test_classifier");
+    const classifier = new core.classifiers.Classifier("test_classifier");
     await classifier.classify("twitter-1294363849961820200", 1);
 
     const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
-    await core.network.train(network);
+    await core.networks.train(network);
 
     const fingerprint = await network.save();
     assert(fingerprint);
 
-    const newNetwork = await core.network.load(fingerprint);
+    const newNetwork = await core.networks.load(fingerprint);
     assert(newNetwork);
 
 
@@ -197,13 +193,13 @@ describe("brain neural network", function () {
     await extractor.run();
     await normalizer.run();
 
-    const classifier = new core.Classifier("test_classifier");
+    const classifier = new core.classifiers.Classifier("test_classifier");
     await classifier.classify("twitter-1294363849961820200", 1);
 
     const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
-    await core.network.train(network);
+    await core.networks.train(network);
 
-    await core.network.calculate(network);
+    await core.networks.calculate(network);
 
     const data = await normalizer.getDataSource();
     let found = false;

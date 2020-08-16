@@ -80,19 +80,19 @@ describe("scrape", function () {
         let scrapers = [TestScraper];
         let results;
 
-        results = await core.scrape(scrapers);
+        results = await core.scrapers.scrape(scrapers);
         assert.equal(results.length, 1);
         assert.equal(results[0].fingerprint, "1");
 
-        results = await core.scrape(scrapers);
+        results = await core.scrapers.scrape(scrapers);
         assert.equal(results.length, 1);
         assert.equal(results[0].fingerprint, "2");
 
-        results = await core.scrape(scrapers);
+        results = await core.scrapers.scrape(scrapers);
         assert.equal(results.length, 1);
         assert.equal(results[0].fingerprint, "3");
 
-        results = await core.scrape(scrapers);
+        results = await core.scrapers.scrape(scrapers);
         assert.equal(results.length, 0);
     });
 

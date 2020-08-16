@@ -3,7 +3,7 @@ const database = require("../db").db;
 const config = require("../../config");
 const brain = require("brain.js");
 
-const Classifier = require("../classify").Classifier;
+const Classifier = require("../classifiers").Classifier;
 
 const plugins = require("../../plugins");
 

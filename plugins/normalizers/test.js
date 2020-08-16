@@ -1,7 +1,7 @@
 const fs = require("fs");
 const assert = require("assert");
 const core = require("../../core");
-const scrape = require("../../core/scrape");
+const scrapersCore = require("../../core/scrapers");
 const utils = require("../../utils");
 
 import { minmax, wordvector, bagofwords, normalizeValues } from "./standard"
@@ -9,7 +9,7 @@ import { minmax, wordvector, bagofwords, normalizeValues } from "./standard"
 describe("normalize features", function () {
 
     beforeEach(async function() {
-        const scrapers = scrape.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
+        const scrapers = scrapersCore.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
         assert(scrapers && scrapers.length > 0);
         const fixtures = JSON.parse(fs.readFileSync("./plugins/extractors/fixtures.json", "utf8"));
         for (const scraper of scrapers) {
@@ -142,13 +142,13 @@ describe("normalize features", function () {
 
         let extractors = [core.plugins.extractors.TwitterFeatureExtractor];
 
-        let results = await core.extract(extractors);
+        let results = await core.extractors.extract(extractors);
         assert.equal(results.length, 10);
         assert(results[0].twitter_features);
 
         const StandardFeatureNormalizer = core.plugins.normalizers.StandardFeatureNormalizer;
 
-        let normalized = await core.normalize(extractors, StandardFeatureNormalizer);
+        let normalized = await core.normalizers.normalize(extractors, StandardFeatureNormalizer);
         assert.equal(normalized.length, 10);
         assert(normalized[0].fingerprint);
         assert(normalized[0].date != null);
@@ -158,7 +158,7 @@ describe("normalize features", function () {
         assert(normalized[0].submitter.length == 2);
         assert(normalized[0].text.length > 0);
 
-        normalized = await core.normalize(extractors, StandardFeatureNormalizer);
+        normalized = await core.normalizers.normalize(extractors, StandardFeatureNormalizer);
         assert.equal(normalized.length, 0);
     });
 

@@ -1,9 +1,9 @@
 const log = require("debug")("neuralfm:core:normalize");
 const database = require("../db").db;
 const utils = require("../../utils");
+const scrapers = require("../scrapers");
+const extractorsCore = require("../extractors");
 const plugins = require("../../plugins");
-const scrape = require("../scrape");
-const extract = require("../extract");
 
 require("../compatibility");
 
@@ -12,7 +12,7 @@ const allNormalizers = Object.values(plugins.normalizers);
 export async function normalize(extractors, normalizer, opts={}) {
     log("normalizing");
     for (const extractor of extractors) {
-        const compatibleScrapers = scrape.getCompatible(extractor);
+        const compatibleScrapers = scrapers.getCompatible(extractor);
         if (compatibleScrapers.length > 0) {
             for (const scraper of compatibleScrapers) {
                 const dbname = scraper.getDatabaseName();
@@ -52,7 +52,7 @@ export async function normalize(extractors, normalizer, opts={}) {
 if (require.main === module) {
     (async function() {
         for (const normalizer of allNormalizers) {
-            const compatibleExtractors = extract.getCompatible(normalizer);
+            const compatibleExtractors = extractorsCore.getCompatible(normalizer);
             if (compatibleExtractors.length === 0) {
                 log(`no extractors for normalizer ${normalizer.name}`);
                 continue;
