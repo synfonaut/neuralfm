@@ -141,7 +141,6 @@ https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
 
-- [ ] add classifcation to CORE...think about fingerprint,output ...who did it? when? hash of that on chain
 - [ ] add network plugin with ability to customize neural network architecture
 - [ ] what default plugins need to be added?
     - [ ] scrapers: twitter, twetch, open directory, bit.sv
