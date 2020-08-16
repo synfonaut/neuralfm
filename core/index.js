@@ -8,13 +8,17 @@ const plugins = require("../plugins");
 const scrape = require("./scrape").scrape;
 const extract = require("./extract").extract;
 const normalize = require("./normalize").normalize;
+const Classifier = require("./classify").Classifier;
 
 require("./compatibility");
 
 module.exports = {
+    // core
     db,
-    plugins,
+    Classifier,
 
+    // plugins
+    plugins,
     scrape,
     extract,
     normalize,

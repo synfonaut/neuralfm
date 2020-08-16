@@ -153,4 +153,5 @@ https://neural.fm/synfonaut@moneybutton.com
 - [ ] see how far you can go back in twitter history
 - [ ] discover limits of Twitter API
 - [ ] snapshot data onchain at specific points and use the txid as an anchor/fingerprint/uuid
+- [ ] think about how to do permissions....signing content?
 

@@ -1,0 +1,11 @@
+process.on('unhandledRejection', up => { throw up })
+
+module.exports = {
+    databaseName: "neuralfm",
+    twitter: {
+        consumer_key: '...',
+        consumer_secret: '...',
+        access_token_key: '...',
+        access_token_secret: '...'
+    },
+};
