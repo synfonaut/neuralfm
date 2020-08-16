@@ -96,6 +96,7 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
+- [ ] frontend
 - [ ] implement second data source to start testing multi data normalization
     - [ ] twetch, open directory, bit.sv, ark
 - [ ] see how far you can go back in twitter history (discover limits of Twitter API)
