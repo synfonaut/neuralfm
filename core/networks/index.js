@@ -1,4 +1,4 @@
-const log = require("debug")("neuralfm:core:network");
+const log = require("debug")("neuralfm:core:networks");
 const database = require("../db").db;
 const config = require("../../config");
 const brain = require("brain.js");

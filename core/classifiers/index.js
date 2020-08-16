@@ -1,4 +1,4 @@
-const log = require("debug")("neuralfm:core:classify");
+const log = require("debug")("neuralfm:core:classifiers");
 const database = require("../db").db;
 const config = require("../../config");
 const utils = require("../../utils");

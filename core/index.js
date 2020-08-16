@@ -2,6 +2,7 @@ const log = require("debug")("neuralfm:core:index");
 
 const db = require("./db").db;
 
+const channels = require("./channels");
 const networks = require("./networks");
 const classifiers = require("./classifiers");
 const plugins = require("../plugins");
@@ -13,6 +14,7 @@ require("./compatibility");
 
 module.exports = {
     db,
+    channels,
     networks,
     classifiers,
     plugins,

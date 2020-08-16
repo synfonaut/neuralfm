@@ -1,4 +1,4 @@
-const log = require("debug")("neuralfm:core:scrape");
+const log = require("debug")("neuralfm:core:scrapers");
 const database = require("../db").db;
 
 const plugins = require("../../plugins");
