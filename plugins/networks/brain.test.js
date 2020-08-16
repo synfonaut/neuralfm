@@ -20,7 +20,7 @@ const utils = require("../../utils");
 // - dataset used
 // - created date
 
-describe.skip("brain neural network", function () {
+describe("brain neural network", function () {
     this.timeout(10000);
     this.slow(1000);
 
@@ -73,7 +73,7 @@ describe.skip("brain neural network", function () {
         });
     });
 
-    it.skip("trains basic neural network", async function() {
+    it.only("trains basic neural network", async function() {
         this.timeout(20000);
         this.slow(5000);
 
@@ -86,18 +86,22 @@ describe.skip("brain neural network", function () {
         await extractor.run();
         await normalizer.run();
 
-        /*
-        core.Classifier("test_classifier");
-        */
+        const classifier = new core.Classifier("test_classifier");
+        await classifier.classify("twitter-1294363849961820200", 1);
 
-        /*
-        const classifications = [
-            {"fingerprint": "twitter-1294363849961820200", "classification": 1},
-        ];
+        const classifications = await classifier.getClassifications();
+        assert.equal(classifications.length, 1);
 
-        const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifications);
+        const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
         assert(network);
-        */
+
+        assert.equal(network.isTrained, false);
+        assert.equal(network.isDirty, true);
+        assert.equal(network.name, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test_classifier");
+
+        core.train(network);
+
+        // test trained network
     });
 
 });

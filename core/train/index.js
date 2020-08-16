@@ -1,7 +1,8 @@
 const log = require("debug")("neuralfm:core:train");
 const database = require("../db").db;
 
-export async function train(scrapers, opts={}) {
+export async function train(network, opts={}) {
+    log(`training ${network.name}`);
 }
 
 /*

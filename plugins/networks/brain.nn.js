@@ -8,20 +8,27 @@
 // training is async and can provide update to ui progress bar
 
 export class BrainNeuralNetwork {
-    constructor(scraper, extractor, normalizer, classifications=[], opts={}) {
+    constructor(scraper, extractor, normalizer, classifier, opts={}) {
         if (!scraper) { throw "expected scraper" }
         if (!extractor) { throw "expected extractor" }
         if (!normalizer) { throw "expected normalizer" }
-        if (!classifications) { throw "expected classifications" }
+        if (!classifier) { throw "expected classifier" }
 
         this.scraper = scraper;
         this.extractor = extractor;
         this.normalizer = normalizer;
-        this.classifications = classifications;
+        this.classifier = classifier;
+
+        this.isTrained = false;
+        this.isDirty = true;
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
         this.networkOptions = (opts.networkOptions ? opts.networkOptions : BrainNeuralNetwork.getDefaultNeuralNetworkOptions());
+
+        this.name = `${this.scraper.constructor.name}:${this.extractor.constructor.name}:${this.normalizer.constructor.name}:${this.classifier.name}`;
     }
+
+
 
     static getDefaultTrainingOptions() {
         /*
