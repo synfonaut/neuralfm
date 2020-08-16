@@ -23,11 +23,6 @@ require("./compatibility");
 module.exports = {
     // core
     db,
-    create,
-    save,
-    load,
-    train,
-    calculate,
     network,
     Classifier,
 

@@ -119,7 +119,7 @@ describe("brain neural network", function () {
         assert.equal(network.isDirty, true);
         assert.equal(network.name, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test_classifier");
 
-        await core.train(network);
+        await core.network.train(network);
         assert(network.nn);
         assert.equal(network.isDirty, false);
 
@@ -155,12 +155,12 @@ describe("brain neural network", function () {
     await classifier.classify("twitter-1294363849961820200", 1);
 
     const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
-    await core.train(network);
+    await core.network.train(network);
 
     const fingerprint = await network.save();
     assert(fingerprint);
 
-    const newNetwork = await core.load(fingerprint);
+    const newNetwork = await core.network.load(fingerprint);
     assert(newNetwork);
 
 
@@ -201,9 +201,9 @@ describe("brain neural network", function () {
     await classifier.classify("twitter-1294363849961820200", 1);
 
     const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
-    await core.train(network);
+    await core.network.train(network);
 
-    await core.calculate(network);
+    await core.network.calculate(network);
 
     const data = await normalizer.getDataSource();
     let found = false;
