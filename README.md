@@ -96,54 +96,38 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-- [ ] Get created connected to new create function.....then show model at URL with fingerprint (name?)
-
-- [ ] Neural Network Studio
+- [ ] Create channel data model with tests
+- [ ] Create new neural network (studio)
 - [ ] Show tweets on frontend
 - [ ] Switch between channels
+
+- [ ] Train script to update weights
 
 - [ ] Create a new neural network
 - [ ] Classify it
 - [ ] Train it
 - [ ] Save it as a channel
 
-- [ ] Train script to update weights
-
-- [ ] Display tweets on frontend
 - [ ] Image mode
 - [ ] Editor mode
 - [ ] Classification mode
 
-- [ ] Load tweets from channel/classifications
+## BONUS ROUND
+- [ ] snapshot hashes of data models on chain
 
-- [ ] Save Channels
-
-
-
+## BEFORE GOING LIVE
+- [ ] SSL certificate
+- [ ] Error boundary
+- [ ] Copywriting
 
 ## NICE TO HAVE
 - [ ] Custom Colors ...just something a little unique
 - [ ] A few icons here and there would make a big different ("like on the create button")
 - [ ] Loading spinner before side loads (with timout and error message)
-
-
-
-
-
-- [ ] classifier/editor mode
-- [ ] get top stories for current classifier
-- [ ] SSL certificate
-- [ ] Error boundary
-
-
-
-
 - [ ] training with callback to provide UI updates
 - [ ] cancel training in middle
-- [ ] snapshot hashes of data models on chain
 
-- [ ] implement second data source to start testing multi data normalization
-    - [ ] twetch, open directory, bit.sv, ark
-- [ ] see how far you can go back in twitter history (discover limits of Twitter API)
-- [ ] user permissions
+## INSANE MODE
+- [ ] implement twetch source to start testing multi data normalization
+- [ ] scrape a lot of twitter history
 
