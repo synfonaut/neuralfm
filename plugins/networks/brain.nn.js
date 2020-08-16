@@ -137,13 +137,29 @@ export class BrainNeuralNetwork {
         }
     }
 
+    static async getFromFingerprint(fingerprint) {
+        const db = await database(BrainNeuralNetwork.getDatabaseName());
+        const network = await db.collection(BrainNeuralNetwork.getCollectionName()).findOne({ fingerprint });
+        if (!network) { throw `error finding network with fingerprint ${fingerprint}` }
+
+        return network;
+    }
+
+    /*
     static async loadFromFingerprint(fingerprint) {
         const db = await database(BrainNeuralNetwork.getDatabaseName());
         const network = await db.collection(BrainNeuralNetwork.getCollectionName()).findOne({ fingerprint });
-        if (!network) { throw `couldn't find network with fingerprint ${fingerprint}` }
+        if (!network) { throw `error finding network with fingerprint ${fingerprint}` }
 
-        console.log(network.scraper);
+        console.log("PLUGINS", plugins);
+
+        const scraper = plugins.scrapers[network.scraper];
+        if (!scraper) { throw `error finding scraper ${network.scraper} for fingerprint ${fingerprint}` }
+
+        console.log(scraper);
+        throw "BLAM";
     }
+    */
 
     static getDefaultNeuralNetworkOptions() {
         return {

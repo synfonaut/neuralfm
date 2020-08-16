@@ -137,7 +137,7 @@ describe("brain neural network", function () {
         }
     });
 
-    it.skip("saves and loads neural network", async function() {
+    it.only("saves and loads neural network", async function() {
         this.timeout(20000);
         this.slow(5000);
 
