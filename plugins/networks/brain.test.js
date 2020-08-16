@@ -5,22 +5,15 @@ const scrape = require("../../core/scrape");
 const plugins = require("../index");
 const utils = require("../../utils");
 
-// easy to store in database
-//  trains
-//  easily morphable for frontend UI
+const StandardFeatureNormalizer = plugins.normalizers.StandardFeatureNormalizer;
 
+// save neural network
+// load neural network
+// easily morphable for frontend UI
+// UI callbacks for frontend
+// interrputable training
 
-// Network
-// - networkOptions
-// - trainingOptions
-// - network used
-// - classifications used
-// - normalized used
-// - features used
-// - dataset used
-// - created date
-
-describe.only("brain neural network", function () {
+describe("brain neural network", function () {
     this.timeout(10000);
     this.slow(1000);
 
@@ -34,7 +27,7 @@ describe.only("brain neural network", function () {
             const db = await core.db(databaseName);
 
             await scraper.resetDatabase();
-            await core.plugins.normalizers.StandardFeatureNormalizer.resetDatabase(databaseName);
+            await StandardFeatureNormalizer.resetDatabase(databaseName);
             await core.Classifier.resetDatabase();
 
             await db.collection(scraper.getCollectionName()).insertMany(fixtures);
@@ -53,7 +46,7 @@ describe.only("brain neural network", function () {
         const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
         const scraper = new plugins.scrapers.BSVTwitterScraper(db);
         const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
-        const normalizer = new plugins.normalizers.StandardFeatureNormalizer(db, scraper, extractor);
+        const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
         const classifications = [];
 
         const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifications);
@@ -65,22 +58,19 @@ describe.only("brain neural network", function () {
             activation: 'sigmoid',
         });
 
-        assert.deepEqual(network.trainingOptions, {
-            iterations: 10000,
-            errorThresh: 0.005,
-            log: true,
-            logPeriod: 500,
-        });
+        assert(network.trainingOptions);
+        assert.equal(network.trainingOptions.iterations, 10000);
+        assert.equal(network.trainingOptions.errorThresh, 0.005);
     });
 
-    it.only("trains basic neural network", async function() {
+    it("converts normalized and classification data to nn data", async function() {
         this.timeout(20000);
         this.slow(5000);
 
         const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
         const scraper = new plugins.scrapers.BSVTwitterScraper(db);
         const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
-        const normalizer = new plugins.normalizers.StandardFeatureNormalizer(db, scraper, extractor);
+        const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
 
         await scraper.run();
         await extractor.run();
@@ -89,21 +79,55 @@ describe.only("brain neural network", function () {
         const classifier = new core.Classifier("test_classifier");
         await classifier.classify("twitter-1294363849961820200", 1);
 
-        /*
         const classifications = await classifier.getClassifications();
         assert.equal(classifications.length, 1);
-        */
+
+        const trainingData = await normalizer.getTrainingData(classifier);
+        assert.equal(trainingData.length, 1);
+
+        assert.equal(trainingData[0].fingerprint, "twitter-1294363849961820200");
+        assert.equal(trainingData[0].input.length, 136);
+        assert.equal(trainingData[0].output[0], 1);
+    });
+
+    it("trains basic neural network", async function() {
+        this.timeout(20000);
+        this.slow(5000);
+
+        const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
+        const scraper = new plugins.scrapers.BSVTwitterScraper(db);
+        const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
+        const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
+
+        await scraper.run();
+        await extractor.run();
+        await normalizer.run();
+
+        const classifier = new core.Classifier("test_classifier");
+        await classifier.classify("twitter-1294363849961820200", 1);
 
         const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
         assert(network);
-
-        assert.equal(network.isTrained, false);
         assert.equal(network.isDirty, true);
         assert.equal(network.name, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test_classifier");
 
         await core.train(network);
+        assert(network.nn);
+        assert.equal(network.isDirty, false);
 
-        // test trained network
+        const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(extractor);
+
+        const rows = await normalizer.getDataSource();
+        for (const row of rows) {
+            const input = StandardFeatureNormalizer.convertToTrainingDataInput(row[fieldName]);
+            for (const val of input) {
+                assert(val >= -1);
+                assert(val <= 1);
+            }
+
+            const output = network.predict(input);
+            assert(output > 0.8);
+        }
     });
 
 });

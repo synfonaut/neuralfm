@@ -17,6 +17,8 @@ export class StandardFeatureNormalizer {
 
         if (!extractor) { throw "expected extractor" }
         this.extractor = extractor;
+
+        this.name = `${this.scraper.constructor.name}:${this.extractor.constructor.name}:${StandardFeatureNormalizer.name}`;
     }
 
     async run() {
@@ -158,6 +160,53 @@ export class StandardFeatureNormalizer {
         await this.db.collection(StandardFeatureNormalizer.getCollectionName()).insertOne(metadata);
 
         return metadata;
+    }
+
+    async getTrainingData(classifier, rows=null) {
+        const classificationMapping = await classifier.getClassificationMapping();
+
+        // often need to calculate data externally, so don't want to duplicate a large query
+        if (!rows) {
+            rows = await this.getDataSource();
+        }
+
+        const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
+
+        const trainingData = [];
+
+        for (const row of rows) {
+            const normalizedData = row[fieldName];
+            const classificationValue = classificationMapping[normalizedData.fingerprint];
+
+            // only handle training data with classification data
+            if (typeof classificationValue !== "undefined") {
+                const fingerprint = normalizedData.fingerprint;
+
+                const normalizedInput = StandardFeatureNormalizer.convertToTrainingDataInput(normalizedData);
+
+                log(`created training data on ${fingerprint} from ${this.name} with ${normalizedInput.length} inputs and 1 output`);
+
+                trainingData.push({
+                    fingerprint,
+                    input: normalizedInput,
+                    output: [classificationValue],
+                });
+            }
+        }
+
+        log(`created ${trainingData.length} training data from ${this.name}`);
+
+        return trainingData;
+    }
+
+    static convertToTrainingDataInput(normalizedData) {
+        delete normalizedData["fingerprint"];
+        const keys = Object.keys(normalizedData).sort();
+        let normalizedInput = [];
+        for (const key of keys) {
+            normalizedInput = normalizedInput.concat(normalizedData[key]);
+        }
+        return normalizedInput;
     }
 
     static getNormalizedFieldName(extractor) {

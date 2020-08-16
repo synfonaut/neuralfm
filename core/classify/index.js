@@ -70,6 +70,17 @@ export class Classifier {
         return classifications;
     }
 
+    async getClassificationMapping() {
+        const classifications = await this.getClassifications();
+        const classificationMapping = {};
+        for (const classification of classifications) {
+            const classificationValue = Number(classification.classification);
+            if (classificationValue < -1 || classificationValue > 1) { throw "expected classification value to be between -1 and 1" }
+            classificationMapping[classification.fingerprint] = classificationValue;
+        }
+        return classificationMapping;
+    }
+
     static getCollectionName() {
         return "classifications";
     }

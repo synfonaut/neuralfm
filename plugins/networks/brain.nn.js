@@ -22,7 +22,8 @@ export class BrainNeuralNetwork {
         this.normalizer = normalizer;
         this.classifier = classifier;
 
-        this.isTrained = false;
+        this.nn = null;
+
         this.isDirty = true;
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
@@ -40,19 +41,32 @@ export class BrainNeuralNetwork {
 
         const data = await this.normalizer.getDataSource();
 
-        log(`training ${this.name} on ${classifications.length} classifications and ${data.length} data`);
-
         const normalizationMetadata = await this.normalizer.getOrCreateMetadata(data);
 
-        const nn = this.createNeuralNetwork();
+        if (this.nn) {
+            log(`reusing existing neural network`);
+        } else {
+            this.nn = this.createNeuralNetwork();
+        }
 
-        console.log("NORMAL", normalizationMetadata);
-        console.log("CLASS", classifications);
+        const trainingData = await this.normalizer.getTrainingData(this.classifier, data);
 
-        // create inputs & outputs
+        log(`training ${this.name} on ${trainingData.length} classifications (${data.length} data)`);
+        const starttime = Date.now();
+        this.nn.train(trainingData, this.trainingOptions);
+        const endtime = Date.now();
+        log(`finished training ${this.name} in ${(endtime-starttime) / 1000}s`);
 
+        this.isDirty = false;
+    }
 
-        throw "BLAM";
+    predict(input) {
+        if (!this.nn) { throw "expected neural network to be trained to predict" }
+        if (this.isDirty) {
+            log(`warning: neural network is dirty and needs to be re-trained to reflect most recent classifications`);
+        }
+
+        return this.nn.run(input)[0];
     }
 
     static getDefaultTrainingOptions() {
@@ -71,17 +85,15 @@ export class BrainNeuralNetwork {
         return {
             iterations: 10000,
             errorThresh: 0.005,
-            log: true,
-            logPeriod: 500,
+            callback: (stats={}) => {
+                log(`training iterations=${stats.iterations} error=${stats.error} for ${this.name}`);
+            },
+            callbackPeriod: 100,
         }
     }
 
-    train() {
-        this.isDirty = false;
-        this.isTrained = true;
-    }
-
     createNeuralNetwork() {
+        log(`creating new neural network with options ${JSON.stringify(this.networkOptions)}`);
         return new brain.NeuralNetwork(this.networkOptions);
     }
 
