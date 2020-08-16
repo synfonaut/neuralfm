@@ -33,7 +33,7 @@ const NeuralFMApplication = (params={}) => {
 };
 
 renderCalderaApp(<NeuralFMApplication />, {
-    port: 4000,
+    port: 7777,
     rootDir: "./app/public"
 });
 
