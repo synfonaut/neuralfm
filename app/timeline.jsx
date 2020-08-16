@@ -8,8 +8,8 @@ export function Timeline(args) {
 
     // get neural networks
     // display data from top rated neural networks
-    const networks = core.networks.getAllNetworks();
-    console.log("CORE", core.plugins);
+    //const networks = core.networks.getAllNetworks();
+    //console.log("CORE", core.plugins);
 
     return <div id="timeline">
         <h2 className="title">Top News</h2>

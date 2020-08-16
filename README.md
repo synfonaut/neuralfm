@@ -96,6 +96,12 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
+- [ ] Neural Network Studio
+- [ ] Create a new neural network
+- [ ] Classify it
+- [ ] Train it
+- [ ] Save it as a channel
+
 - [ ] Train script to update weights
 
 - [ ] Display tweets on frontend
@@ -105,13 +111,13 @@ https://neural.fm/synfonaut@moneybutton.com
 
 - [ ] Load tweets from channel/classifications
 
-- [ ] Neural Network Studio
 - [ ] Save Channels
 
 
 
 
-
+## NICE TO HAVE
+- [ ] Loading spinner before side loads (with timout and error message)
 
 
 
