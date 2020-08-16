@@ -19,7 +19,7 @@
     "@babel/preset-env": "7.11.0",
     "@babel/preset-react": "7.10.4",
     "brain.js": "2.0.0-beta.1",
-    "caldera": "0.0.8",
+    "caldera": "github:bradjasper/caldera-react",
     "debug": "4.1.1",
     "esm": "3.2.25",
     "mimir": "0.0.1",
