@@ -15,6 +15,7 @@ function db(dbname=null) {
             log(`${numconnections} connections`);
         }, 1000 * 60);
     }
+
     return new Promise((resolve, reject) => {
         if (!dbname) {
             return reject("invalid db name");
@@ -35,19 +36,11 @@ function db(dbname=null) {
                 numconnections += 1;
                 //log(`${numconnections} // connected`);
                 log(`connecting to ${dbname} db...`);
-                databaseConnection = client.db(dbname);
+                const databaseConnection = client.db(dbname);
+                databaseConnections.set(dbname, databaseConnection);
                 databaseConnection.close = function() {
-                    log(`closing ${dbname} db connection...`);
-                    numconnections -= 1;
-                    const connectedClient = databaseConnections.get("dbname") || null;
-                    if (connectedClient) {
-                        connectedClient.close();
-                    }
-
-                    databaseConnections[dbname] = null;
+                    // no-op
                 }
-
-                databaseConnections[dbname] = databaseConnection;
                 resolve(databaseConnection);
             }
         });

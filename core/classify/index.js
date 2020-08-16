@@ -79,12 +79,12 @@ export class Classifier {
     }
 
     static async createIndexes(db) {
-        await db.collection(Classifier.getCollectionName()).createIndex({ "name": 1, "fingerprint": 1 }, {"unique": true});
+        await db.collection(this.getCollectionName()).createIndex({ "name": 1, "fingerprint": 1 }, {"unique": true});
     }
 
     static async resetDatabase() {
-        const db = await database(Classifier.getDatabaseName());
-        await db.collection(Classifier.getCollectionName()).deleteMany();
+        const db = await database(this.getDatabaseName());
+        await db.collection(this.getCollectionName()).deleteMany();
         await Classifier.createIndexes(db);
         db.close();
     }

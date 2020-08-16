@@ -1,3 +1,6 @@
+const log = require("debug")("neuralfm:plugins:networks:brainnn");
+const brain = require("brain.js");
+
 // easy to save snapshotted versions
 // load network config
 // load training config
@@ -28,7 +31,29 @@ export class BrainNeuralNetwork {
         this.name = `${this.scraper.constructor.name}:${this.extractor.constructor.name}:${this.normalizer.constructor.name}:${this.classifier.name}`;
     }
 
+    async run() {
+        const classifications = await this.classifier.getClassifications();
+        if (classifications.length == 0) {
+            log(`no classifications to train ${this.name}`);
+            return;
+        }
 
+        const data = await this.normalizer.getDataSource();
+
+        log(`training ${this.name} on ${classifications.length} classifications and ${data.length} data`);
+
+        const normalizationMetadata = await this.normalizer.getOrCreateMetadata(data);
+
+        const nn = this.createNeuralNetwork();
+
+        console.log("NORMAL", normalizationMetadata);
+        console.log("CLASS", classifications);
+
+        // create inputs & outputs
+
+
+        throw "BLAM";
+    }
 
     static getDefaultTrainingOptions() {
         /*
@@ -49,6 +74,15 @@ export class BrainNeuralNetwork {
             log: true,
             logPeriod: 500,
         }
+    }
+
+    train() {
+        this.isDirty = false;
+        this.isTrained = true;
+    }
+
+    createNeuralNetwork() {
+        return new brain.NeuralNetwork(this.networkOptions);
     }
 
     static getDefaultNeuralNetworkOptions() {

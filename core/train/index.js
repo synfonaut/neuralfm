@@ -3,6 +3,7 @@ const database = require("../db").db;
 
 export async function train(network, opts={}) {
     log(`training ${network.name}`);
+    await network.run();
 }
 
 /*

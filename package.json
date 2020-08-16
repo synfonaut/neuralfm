@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
-
     "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --exit ./core/**/test.js ./plugins/**/*test.js",
-
     "scrape": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrape/index.js",
     "extract": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/extract/index.js",
     "normalize": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/normalize/index.js",
@@ -20,6 +18,7 @@
     "@babel/node": "7.10.5",
     "@babel/preset-env": "7.11.0",
     "@babel/preset-react": "7.10.4",
+    "brain.js": "2.0.0-beta.1",
     "caldera": "0.0.8",
     "debug": "4.1.1",
     "esm": "3.2.25",

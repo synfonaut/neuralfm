@@ -20,7 +20,7 @@ export class StandardFeatureNormalizer {
     }
 
     async run() {
-        const data = await (await this.extractor.getDataCursor()).toArray();
+        const data = await this.getDataSource();
         const normalizedFieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
         const unnormalizedData = [];
         const recentlyNormalizedData = [];
@@ -31,15 +31,10 @@ export class StandardFeatureNormalizer {
             }
         }
 
+        const normalizationMetadata = await this.getOrCreateMetadata(data);
+
         if (unnormalizedData.length > 0) {
             log(`detected ${unnormalizedData.length} ${this.scraper.constructor.name}:${this.extractor.constructor.name} features that need normalization`);
-            let normalizationMetadata = await this.db.collection(StandardFeatureNormalizer.getCollectionName()).findOne({ _name: normalizedFieldName });
-            if (normalizationMetadata) {
-                log(`found existing normalization metdata`);
-            } else {
-                log(`missing normalization metdata... generating`);
-                normalizationMetadata = await this.createNormalizationMetadata(data);
-            }
 
             for (const unnormalized of unnormalizedData) {
                 recentlyNormalizedData.push(await this.updateNormalizationValues(unnormalized[this.extractor.constructor.getFeaturesFieldName()], normalizationMetadata));
@@ -49,6 +44,35 @@ export class StandardFeatureNormalizer {
         }
 
         return recentlyNormalizedData;
+    }
+
+    async getMetadata() {
+        const normalizedFieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
+        return await this.db.collection(StandardFeatureNormalizer.getCollectionName()).findOne({ _name: normalizedFieldName });
+    }
+
+    async getOrCreateMetadata(data) {
+        let normalizationMetadata = await this.getMetadata();
+        if (normalizationMetadata) {
+            log(`found existing normalization metdata`);
+        } else {
+            log(`missing normalization metdata... generating`);
+            normalizationMetadata = await this.createNormalizationMetadata(data);
+        }
+
+        return normalizationMetadata;
+    }
+
+    async getDataSource() {
+        return await (await this.extractor.getDataCursor()).toArray();
+    }
+
+    async getDataCursor() {
+        const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
+        const collectionName = this.scraper.constructor.getCollectionName();
+        const findQuery = {};
+        findQuery[fieldName] = {"$exists": true};
+        return await this.db.collection(collectionName).find(findQuery);
     }
 
     async updateNormalizationValues(unnormalized, metadata) {
