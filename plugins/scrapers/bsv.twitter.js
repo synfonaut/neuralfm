@@ -2,6 +2,7 @@ const log = require("debug")("neuralfm:plugins:scrapers:bsv.twitter");
 
 const config = require("../../config");
 const utils = require("../../utils");
+const database = require("../../core/db").db;
 
 const Twitter = require("twitter");
 
@@ -147,8 +148,16 @@ export class BSVTwitterScraper {
   }
 
   static async createIndexes(db) {
-    await db.collection(BSVTwitterScraper.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
-    await db.collection(BSVTwitterScraper.getUsernameCollectionName()).createIndex({ "username": 1 }, {"unique": true});
+    await db.collection(this.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+    await db.collection(this.getUsernameCollectionName()).createIndex({ "username": 1 }, {"unique": true});
+  }
+
+  static async resetDatabase() {
+    const db = await database(this.getDatabaseName());
+    await db.collection(this.getCollectionName()).deleteMany();
+    await db.collection(this.getUsernameCollectionName()).deleteMany();
+    await this.createIndexes(db);
+    db.close();
   }
 }
 

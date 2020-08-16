@@ -85,6 +85,8 @@ export class Classifier {
     static async resetDatabase() {
         const db = await database(Classifier.getDatabaseName());
         await db.collection(Classifier.getCollectionName()).deleteMany();
+        await Classifier.createIndexes(db);
+        db.close();
     }
 }
 

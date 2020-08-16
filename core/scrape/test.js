@@ -1,6 +1,7 @@
 const assert = require("assert");
 const core = require("../index");
 const utils = require("../../utils");
+const database = require("../../core/db").db;
 
 export class TestScraper {
     constructor(db, opts={}) {
@@ -47,21 +48,21 @@ export class TestScraper {
     }
 
     static async createIndexes(db) {
-        await db.collection(TestScraper.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+        await db.collection(this.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+    }
+
+    static async resetDatabase() {
+        const db = await database(this.getDatabaseName());
+        await db.collection(this.getCollectionName()).deleteMany();
+        await this.createIndexes(db);
+        db.close();
     }
 }
 
 describe("scrape", function () {
 
     beforeEach(async function() {
-        const db = await core.db(TestScraper.getDatabaseName());
-        let response = await db.collection(TestScraper.getCollectionName()).deleteMany({});
-        assert(response);
-        assert(response.result);
-        assert(response.result.ok);
-
-        await TestScraper.createIndexes(db);
-        db.close();
+        await TestScraper.resetDatabase();
     });
 
     it("default plugins load properly", function () {

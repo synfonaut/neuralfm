@@ -14,13 +14,14 @@ BSVTwitterScraper.getDatabaseName = function() {
 describe("bsv twitter scraper", function () {
 
   beforeEach(async function() {
+
+    await BSVTwitterScraper.resetDatabase();
     const db = await core.db(BSVTwitterScraper.getDatabaseName());
-    await db.collection(BSVTwitterScraper.getCollectionName()).deleteMany({});
-    await db.collection(BSVTwitterScraper.getUsernameCollectionName()).deleteMany({});
     await db.collection(BSVTwitterScraper.getUsernameCollectionName()).insertMany([
       {"username": "synfonaut"},
       {"username": "_unwriter"},
     ]);
+    db.close();
   });
 
   it("verify plugin meta data", function () {

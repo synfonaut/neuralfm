@@ -1,6 +1,7 @@
 const log = require("debug")("neuralfm:plugins:normalizers:standard");
 
 const utils = require("../../utils");
+const database = require("../../core/db").db;
 
 const mimir = require("mimir");
 const bow = mimir.bow;
@@ -144,7 +145,14 @@ export class StandardFeatureNormalizer {
     }
 
     static async createIndexes(db) {
-        await db.collection(StandardFeatureNormalizer.getCollectionName()).createIndex({ "_name": 1 }, {"unique": true});
+        await db.collection(this.getCollectionName()).createIndex({ "_name": 1 }, {"unique": true});
+    }
+
+    static async resetDatabase(dbname) {
+        const db = await database(dbname);
+        await db.collection(this.getCollectionName()).deleteMany();
+        await this.createIndexes(db);
+        db.close();
     }
 }
 

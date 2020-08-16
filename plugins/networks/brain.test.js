@@ -20,7 +20,7 @@ const utils = require("../../utils");
 // - dataset used
 // - created date
 
-describe.only("brain neural network", function () {
+describe.skip("brain neural network", function () {
     this.timeout(10000);
     this.slow(1000);
 
@@ -31,34 +31,17 @@ describe.only("brain neural network", function () {
         for (const scraper of scrapers) {
             const databaseName = await scraper.getDatabaseName();
             assert.equal(databaseName.indexOf("Test"), 0);
-
             const db = await core.db(databaseName);
-            let response = await db.collection(scraper.getCollectionName()).deleteMany({});
-            assert(response);
-            assert(response.result);
-            assert(response.result.ok);
 
-            response = await db.collection(scraper.getUsernameCollectionName()).deleteMany({});
-            assert(response);
-            assert(response.result);
-            assert(response.result.ok);
+            await scraper.resetDatabase();
+            await core.plugins.normalizers.StandardFeatureNormalizer.resetDatabase(databaseName);
+            await core.Classifier.resetDatabase();
 
-            response = await db.collection(scraper.getCollectionName()).insertMany(fixtures);
-            assert(response);
-            assert(response.result);
-            assert(response.result.ok);
-
+            await db.collection(scraper.getCollectionName()).insertMany(fixtures);
             const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
-            assert(results);
             assert.equal(results.length, 10);
 
-            // reset metadata
-            response = await db.collection(core.plugins.normalizers.StandardFeatureNormalizer.getCollectionName()).deleteMany({});
-            assert(response);
-            assert(response.result);
-            assert(response.result.ok);
-
-            await core.Classifier.resetDatabase();
+            db.close();
         }
     });
 
@@ -90,7 +73,7 @@ describe.only("brain neural network", function () {
         });
     });
 
-    it.only("trains basic neural network", async function() {
+    it.skip("trains basic neural network", async function() {
         this.timeout(20000);
         this.slow(5000);
 

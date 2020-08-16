@@ -15,25 +15,12 @@ describe("extract features", function () {
             assert.equal(databaseName.indexOf("Test"), 0);
 
             const db = await core.db(databaseName);
-            let response;
 
-            response = await db.collection(scraper.getCollectionName()).deleteMany({});
-            assert(response);
-            assert(response.result);
-            assert(response.result.ok);
-
-            response = await db.collection(scraper.getUsernameCollectionName()).deleteMany({});
-            assert(response);
-            assert(response.result);
-            assert(response.result.ok);
+            await scraper.resetDatabase();
+            await core.plugins.normalizers.StandardFeatureNormalizer.resetDatabase(databaseName);
 
             response = await db.collection(scraper.getCollectionName()).insertMany(fixtures);
-            assert(response);
-            assert(response.result);
-            assert(response.result.ok);
-
             const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
-            assert(results);
             assert.equal(results.length, 10);
         }
     });
