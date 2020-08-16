@@ -53,7 +53,7 @@ function NavigationBar() {
       <div className="navbar-brand">
         <div className="logo">
           <h1 className="title">NeuralFM</h1>
-          <p className="subtitle">AI Information Radio</p>
+          <p className="subtitle">AI News Radio</p>
         </div>
 
         <div className="navbar-menu">

@@ -96,12 +96,41 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-- [ ] frontend
-- [ ] implement second data source to start testing multi data normalization
-    - [ ] twetch, open directory, bit.sv, ark
-- [ ] see how far you can go back in twitter history (discover limits of Twitter API)
+- [ ] Train script to update weights
+
+- [ ] Display tweets on frontend
+- [ ] Image mode
+- [ ] Editor mode
+- [ ] Classification mode
+
+- [ ] Load tweets from channel/classifications
+
+- [ ] Neural Network Studio
+- [ ] Save Channels
+
+
+
+
+
+
+
+
+
+
+- [ ] classifier/editor mode
+- [ ] get top stories for current classifier
+- [ ] SSL certificate
+- [ ] Error boundary
+
+
+
+
 - [ ] training with callback to provide UI updates
 - [ ] cancel training in middle
 - [ ] snapshot hashes of data models on chain
+
+- [ ] implement second data source to start testing multi data normalization
+    - [ ] twetch, open directory, bit.sv, ark
+- [ ] see how far you can go back in twitter history (discover limits of Twitter API)
 - [ ] user permissions
 
