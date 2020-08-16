@@ -94,6 +94,31 @@ nav a {
   vertical-align: middle;
 }
 
+nav a:hover {
+  background-color: rgba(200, 200, 200, 0.05) !important;
+}
+
+nav .create-button {
+  background-color: rgba(200, 200, 200, 0.05);
+  border: 0;
+  margin-top: 8px;
+}
+
+nav .create-button:hover {
+  background-color: rgba(200, 200, 200, 0.15) !important;
+}
+
+nav .navbar-end {
+  display: none;
+}
+
+/** create button isn't hidding properly between desktop and tablet viewports **/
+@media screen and (min-width: 1024px) {
+  nav .navbar-end {
+    display: block;
+  }
+}
+
 /** Sidebar **/
 #sidebar h2 {
   font-size: 120%;
@@ -102,3 +127,4 @@ nav a {
 #sidebar {
   font-size: 14px;
 }
+
