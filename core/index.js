@@ -24,6 +24,7 @@ module.exports = {
     save,
     load,
     train,
+    network,
     Classifier,
 
     // plugins

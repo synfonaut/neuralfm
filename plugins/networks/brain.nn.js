@@ -130,7 +130,7 @@ export class BrainNeuralNetwork {
 
             return obj.fingerprint;
         } catch (e) {
-            log(`error saving network ${obj.fingerprint} - ${resonse}`);
+            log(`error saving network ${obj.fingerprint} - ${e}`);
             throw e;
         } finally {
             db.close();

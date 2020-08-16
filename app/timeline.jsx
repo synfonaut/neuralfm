@@ -1,6 +1,16 @@
 import React, { useState } from "react"
 
+const core = require("../core");
+
+const DEFAULT_NETWORK_FINGERPRINT = "";
+
 export function Timeline(args) {
+
+    // get neural networks
+    // display data from top rated neural networks
+    const networks = core.networks.getAllNetworks();
+    console.log("CORE", core.plugins);
+
     return <div id="timeline">
         <h2 className="title">Top News</h2>
         <p className="content">NeuralFM's mission is to put you in control of the AI's feeding you information.</p>

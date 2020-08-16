@@ -84,3 +84,14 @@ export async function save(network) {
     await network.save();
 }
 
+export async function getAllNetworks() {
+    log(`getting all networks`);
+    const db = await database(config.databaseName);
+
+    const networks = (await db.collection(config.networkCollectionName).find({}).sort({"order": -1})).toArray();
+
+    db.close();
+
+    return networks;
+}
+
