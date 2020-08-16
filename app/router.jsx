@@ -2,6 +2,7 @@ import React, { useState } from "react"
 
 import { Timeline } from "./timeline"
 import { Sidebar } from "./sidebar"
+import { CreateNetwork, CreateNetworkSidebar } from "./network"
 
 function getRouteForLocation(location) {
   if (location.pathname.indexOf("/create") == 0) {
@@ -17,10 +18,10 @@ export function Router(args={}) {
     return <div id="create">
         <div className="columns">
             <div className="column is-8">
-                CREATE
+                <CreateNetwork {...args} />
             </div>
             <div className="column is-4">
-                <Sidebar {...args} />
+                <CreateNetworkSidebar {...args} />
             </div>
         </div>
       </div>

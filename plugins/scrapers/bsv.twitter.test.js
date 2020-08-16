@@ -8,7 +8,10 @@ const BSVTwitterScraper = plugins.scrapers.BSVTwitterScraper;
 
 BSVTwitterScraper._getDatabaseName = BSVTwitterScraper.getDatabaseName;
 BSVTwitterScraper.getDatabaseName = function() {
-  return `Test${BSVTwitterScraper._getDatabaseName()}`;
+  if (BSVTwitterScraper._getDatabaseName().indexOf("Test") !== 0) {
+    return `Test${BSVTwitterScraper._getDatabaseName()}`;
+  }
+  return BSVTwitterScraper._getDatabaseName();
 }
 
 describe("bsv twitter scraper", function () {

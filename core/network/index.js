@@ -60,11 +60,16 @@ export async function load(fingerprint) {
 
     const networkInstance = new network(scraperInstance, extractorInstance, normalizerInstance, classifierInstance, options);
 
-    const nn = networkInstance.createNeuralNetwork(networkOptions);
-    nn.fromJSON(data.neuralnetwork);
+    if (data.neuralnetwork) {
+        const nn = networkInstance.createNeuralNetwork(networkOptions);
+        nn.fromJSON(data.neuralnetwork);
+        networkInstance.nn = nn;
+        networkInstance.isDirty = false;
+    } else {
+        networkInstance.nn = null;
+        networkInstance.isDirty = true;
+    }
 
-    networkInstance.nn = nn;
-    networkInstance.isDirty = false;
     networkInstance.normalizationMetadata = data.normalizationMetadata;
     networkInstance.classifications = data.classifications;
     networkInstance.data = data.data;
@@ -82,7 +87,7 @@ export async function load(fingerprint) {
 
 export async function save(network) {
     log(`saving network ${network.fingerprint}`);
-    await network.save();
+    return await network.save();
 }
 
 export async function getAllNetworks() {
@@ -100,9 +105,36 @@ export async function calculate(network) {
     await network.calculate();
 }
 
+export async function create(scraper, extractor, normalizer, network, classifier) {
+    if (!scraper) { throw "expected scraper" }
+    if (!extractor) { throw "expected extractor" }
+    if (!normalizer) { throw "expected normalizer" }
+    if (!network) { throw "expected network" }
+    if (!classifier) { throw "expected name" }
+
+    const scraperDatabase = await database(scraper.getDatabaseName());
+    const scraperInstance = new scraper(scraperDatabase);
+    const extractorInstance = new extractor(scraperDatabase, scraperInstance);
+    const normalizerInstance = new normalizer(scraperDatabase, scraperInstance, extractorInstance);
+    const classifierInstance = new Classifier(classifier);
+
+    const defaultNetworkOptions = network.getDefaultNeuralNetworkOptions();
+    const networkInstance = new network(scraperInstance, extractorInstance, normalizerInstance, classifierInstance, defaultNetworkOptions);
+
+    return await save(networkInstance);
+}
+
+export async function createIndexes() {
+    const db = await database(config.databaseName);
+    await db.collection(config.networkCollectionName).createIndex({"fingerprint": 1}, {"unique": true});
+    await db.collection(config.networkCollectionName).createIndex({"name": 1}, {"unique": true});
+    db.close();
+}
 
 if (require.main === module) {
     (async function() {
+
+        await createIndexes();
 
         const networks = await getAllNetworks();
         console.log("NETWORKS", networks);

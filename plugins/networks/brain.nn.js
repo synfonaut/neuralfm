@@ -17,24 +17,23 @@ export class BrainNeuralNetwork {
         this.normalizer = normalizer;
         this.classifier = classifier;
 
+        this.name = `${this.scraper.constructor.name}:${this.extractor.constructor.name}:${this.normalizer.constructor.name}:${this.classifier.name}`;
         this.nn = null;
         this.isDirty = true;
-        this.normalizationMetadata = null;
-        this.classifications = null;
-        this.data = null;
-        this.trainingData = null;
+        this.normalizationMetadata = {};
+        this.classifications = {};
+        this.data = [];
+        this.trainingData = [];
         this.trainedDate = null;
-        this.fingerprint = null;
+        this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}`;
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
         this.networkOptions = (opts.networkOptions ? opts.networkOptions : BrainNeuralNetwork.getDefaultNeuralNetworkOptions());
-
-        this.name = `${this.scraper.constructor.name}:${this.extractor.constructor.name}:${this.normalizer.constructor.name}:${this.classifier.name}`;
     }
 
     async run() {
         this.classifications = await this.classifier.getClassifications();
-        if (this.classifications.length == 0) {
+        if (Object.keys(this.classifications).length == 0) {
             log(`no classifications to train ${this.name}`);
             return;
         }
@@ -115,12 +114,12 @@ export class BrainNeuralNetwork {
     reset() {
         this.nn = null;
         this.isDirty = true;
-        this.normalizationMetadata = null;
-        this.classifications = null;
-        this.data = null;
-        this.trainingData = null;
+        this.normalizationMetadata = {};
+        this.classifications = {};
+        this.data = [];
+        this.trainingData = [];
         this.trainedDate = null;
-        this.fingerprint = null;
+        this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}`;
     }
 
     createNeuralNetwork(options=null) {
@@ -133,10 +132,12 @@ export class BrainNeuralNetwork {
     }
 
     async toJSON() {
-        if (!this.nn || !this.classifications) { throw "expected nn and classifications" }
+        let classifications = {}, neuralnetwork = null;
 
-        const classifications = await this.classifier.getClassificationMapping(this.classifications);
-        const neuralnetwork = this.nn.toJSON();
+        if (this.nn && this.classifications) {
+            classifications = await this.classifier.getClassificationMapping(this.classifications);
+            neuralnetwork = this.nn.toJSON();
+        }
 
         return {
             fingerprint: this.fingerprint,
@@ -159,6 +160,7 @@ export class BrainNeuralNetwork {
 
     async save() {
         const obj = await this.toJSON();
+        if (!obj.fingerprint) { throw "expected fingerprint" }
 
         const db = await database(BrainNeuralNetwork.getDatabaseName());
         try {

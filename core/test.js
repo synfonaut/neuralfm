@@ -3,16 +3,17 @@ const core = require("./index");
 const config = require("../config");
 
 config._databaseName = config.databaseName;
-config.databaseName = `Test${config._databaseName}`;
+config.databaseName = (config._databaseName.indexOf("Test") === -1 ? `Test${config._databaseName}` : config._databaseName);
 
 describe("core plugins", function () {
-    it("default plugins load properly", function () {
+    it("default plugins load properly", async function () {
         assert(core.plugins);
         assert(core.plugins.scrapers.BSVTwitterScraper);
         assert(core.plugins.extractors.TwitterFeatureExtractor);
         assert(core.plugins.normalizers.StandardFeatureNormalizer);
         assert(core.plugins.networks.BrainNeuralNetwork);
         assert(core.Classifier);
+        await core.network.createIndexes();
     });
 
     it("database gets test names", function () {

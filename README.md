@@ -96,7 +96,12 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
+- [ ] Get created connected to new create function.....then show model at URL with fingerprint (name?)
+
 - [ ] Neural Network Studio
+- [ ] Show tweets on frontend
+- [ ] Switch between channels
+
 - [ ] Create a new neural network
 - [ ] Classify it
 - [ ] Train it
@@ -117,6 +122,8 @@ https://neural.fm/synfonaut@moneybutton.com
 
 
 ## NICE TO HAVE
+- [ ] Custom Colors ...just something a little unique
+- [ ] A few icons here and there would make a big different ("like on the create button")
 - [ ] Loading spinner before side loads (with timout and error message)
 
 

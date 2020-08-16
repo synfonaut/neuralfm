@@ -10,9 +10,10 @@ const extract = require("./extract").extract;
 const normalize = require("./normalize").normalize;
 
 const network = require("./network");
-const train = network.train;
-const load = network.load
+const create = network.create;
 const save = network.save;
+const load = network.load
+const train = network.train;
 const calculate = network.calculate;
 
 const Classifier = require("./classify").Classifier;
@@ -22,6 +23,7 @@ require("./compatibility");
 module.exports = {
     // core
     db,
+    create,
     save,
     load,
     train,

@@ -16,12 +16,7 @@ function NeuralFMApplicationWrapper(args={}) {
     search,
   });
 
-  setTimeout(function() {
-  }, 2000);
-
-  return <>
-    <NeuralFMApplication {...params} />
-    </>
+  return <NeuralFMApplication {...params} />
 };
 
 function NeuralFMApplication(args={}) {

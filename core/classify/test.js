@@ -4,8 +4,12 @@ const utils = require("../../utils");
 
 core.Classifier._getDatabaseName = core.Classifier.getDatabaseName;
 core.Classifier.getDatabaseName = function() {
-  return `Test${core.Classifier._getDatabaseName()}`;
+  if (core.Classifier._getDatabaseName().indexOf("Test") !== 0) {
+    return `Test${core.Classifier._getDatabaseName()}`;
+  }
+  return core.Classifier._getDatabaseName();
 }
+
 
 describe("classify", function () {
   this.timeout(5000);
