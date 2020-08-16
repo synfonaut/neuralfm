@@ -5,17 +5,6 @@ const database = require("../../core/db").db;
 
 const brain = require("brain.js");
 
-// easy to save snapshotted versions
-// load network config
-// load training config
-//
-// networks -> plugins
-
-// is cancelable 
-// training is async and can provide update to ui progress bar
-
-// TODO: loadPredictorFromFingerprint - a lightweight version
-
 export class BrainNeuralNetwork {
     constructor(scraper, extractor, normalizer, classifier, opts={}) {
         if (!scraper) { throw "expected scraper" }
@@ -34,6 +23,8 @@ export class BrainNeuralNetwork {
         this.classifications = null;
         this.data = null;
         this.trainingData = null;
+        this.trainedDate = null;
+        this.fingerprint = null;
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
         this.networkOptions = (opts.networkOptions ? opts.networkOptions : BrainNeuralNetwork.getDefaultNeuralNetworkOptions());
@@ -67,6 +58,8 @@ export class BrainNeuralNetwork {
         log(`finished training ${this.name} in ${(endtime-starttime) / 1000}s`);
 
         this.isDirty = false;
+        this.trainedDate = new Date();
+        this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }
 
     predict(input) {
@@ -85,34 +78,41 @@ export class BrainNeuralNetwork {
         this.classifications = null;
         this.data = null;
         this.trainingData = null;
+        this.trainedDate = null;
+        this.fingerprint = null;
     }
 
-    createNeuralNetwork() {
-        log(`creating new neural network with options ${JSON.stringify(this.networkOptions)}`);
-        return new brain.NeuralNetwork(this.networkOptions);
+    createNeuralNetwork(options=null) {
+        if (!options) {
+            options = this.networkOptions;
+        }
+
+        log(`creating new neural network with options ${JSON.stringify(options)}`);
+        return new brain.NeuralNetwork(options);
     }
 
     async toJSON() {
         if (!this.nn || !this.classifications) { throw "expected nn and classifications" }
 
         const classifications = await this.classifier.getClassificationMapping(this.classifications);
-        const network = this.nn.toJSON();
-        const fingerprint = `${this.name}:${Object.keys(classifications).length}:${Date.now()}`;
+        const neuralnetwork = this.nn.toJSON();
 
         return {
-            fingerprint,
-            name: fingerprint,
+            fingerprint: this.fingerprint,
+            name: this.fingerprint,
             networkOptions: this.networkOptions,
             trainingOptions: this.trainingOptions,
             scraper: this.scraper.constructor.name,
             extractor: this.extractor.constructor.name,
             normalizer: this.normalizer.constructor.name,
             classifier: this.classifier.name,
+            network: BrainNeuralNetwork.name,
+            neuralnetwork,
             classifications,
             normalizationMetadata: this.normalizationMetadata,
             trainingData: this.trainingData,
-            network,
-            created_at: new Date(),
+            trainedDate: this.trainedDate,
+            createdDate: new Date(),
         }
     }
 
@@ -193,7 +193,7 @@ export class BrainNeuralNetwork {
     }
 
     static getCollectionName() {
-        return "networks";
+        return config.networkCollectionName;
     }
 
     static getDatabaseName() {
@@ -206,7 +206,7 @@ export class BrainNeuralNetwork {
 
     static async resetDatabase() {
         const db = await database(this.getDatabaseName());
-        await db.collection(this.getCollectionName()).deleteMany();
+        await db.collection(this.getCollectionName()).deleteMany({});
         await BrainNeuralNetwork.createIndexes(db);
         db.close();
     }

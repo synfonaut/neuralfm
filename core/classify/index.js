@@ -97,7 +97,7 @@ export class Classifier {
 
     static async resetDatabase() {
         const db = await database(this.getDatabaseName());
-        await db.collection(this.getCollectionName()).deleteMany();
+        await db.collection(this.getCollectionName()).deleteMany({});
         await Classifier.createIndexes(db);
         db.close();
     }

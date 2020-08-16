@@ -53,7 +53,7 @@ export class TestScraper {
 
     static async resetDatabase() {
         const db = await database(this.getDatabaseName());
-        await db.collection(this.getCollectionName()).deleteMany();
+        await db.collection(this.getCollectionName()).deleteMany({});
         await this.createIndexes(db);
         db.close();
     }

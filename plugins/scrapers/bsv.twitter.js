@@ -154,8 +154,8 @@ export class BSVTwitterScraper {
 
   static async resetDatabase() {
     const db = await database(this.getDatabaseName());
-    await db.collection(this.getCollectionName()).deleteMany();
-    await db.collection(this.getUsernameCollectionName()).deleteMany();
+    await db.collection(this.getCollectionName()).deleteMany({});
+    await db.collection(this.getUsernameCollectionName()).deleteMany({});
     await this.createIndexes(db);
     db.close();
   }

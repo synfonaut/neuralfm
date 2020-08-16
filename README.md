@@ -7,7 +7,7 @@
                     | |\  |  __/ |_| | | | (_| | |_| |   | |  | |
                     \_| \_/\___|\__,_|_|  \__,_|_(_)_|   \_|  |_/
                                                                  
-                             Intelligence For Your Life                                                         
+                              AI Information Radio
 
 
 # NeuralFM
@@ -16,7 +16,7 @@ NeuralFM's mission is to put you in control of the AI's feeding you information.
 
 Say goodbye to factory farmed algorithms from megacorps that destroy your life. NeuralFM offers a novel solution to the biggest invisible: algorithm bias.
 
-Some Google engineer is probably going to decide the next President of the United States. It's bad enough when megacorps purposefully bias algorithms (it really is). What's shocking though, is even with small algorithms, and even when unintended, human bias infects AI. Even worse, AI are "black boxes"—many of the creators don't fully understand what's happening inside.
+Some Google or Facebook engineer is probably going to decide the next President of the United States. It's bad enough when megacorps purposefully bias algorithms (it really is). What's shocking though, is even with small algorithms, and even when unintended, human bias infects AI. Even worse, AI are "black boxes"—many of the creators don't fully understand what's happening inside.
 
 Neural Networks ("AI") are shaping your reality, but they're increasingly out-of-reach. AI is too powerful be left to the megacorps.
 
@@ -61,65 +61,21 @@ You can offer your plugin for free or charge. Welcome to the NeuralFM AI Marketp
 
 What are the different plugins you can build?
 
-
 ### Scrapers
 
 Scrapers pull in data to the system. Here's an example of a simple scraper:
-
-```function SimpleScraper() {
-    return [{"tweet": "just include some data"}, {"tweet": "and return a list of JSON objects", num_likes: 200}];
-}```
-
-Scrapers will be exposed a DB they can store state and only update what's needed.
 
 ### Feature Extractors
 
 Feature Extractors decide which parts of the data are important.
 
-```function SimpleFeatureExtractor(data) {
-    return data.map(function(d) {
-        return {
-            "tweet": d.tweet,
-            "num_likes": d.num_likes || 0,
-        };
-    });
-}```
-
-// TODO: You will get a core object that contains a DB you can use to store state and only update what's necessary
-// TODO: Each data should return a fingerprint, or a hash of the data will be the fingerprint. bonus points for using bitcoin txids as fingerprints
-
 ### Normalizers
 
 Normalizers convert those data features into a similar format.
 
-```function SimpleNormalizer(data) {
-    const words = bagofwords(data.map(d => { return d.tweet }));
-    const minmax = calculateMinMax(data);
-    return data.map(function(d) {
-        return {
-            "tweet": normalizeWordVector(d.tweet, words),
-            "num_likes": normalizeValue(d.num_likes, minmax.numlikes);
-        };
-    });
-}```
-
-In the example above `bagofwords` is a function that takes a string and buckets the words into categories.
-
-`calculateMinMax` finds the ranges of values and then the `normalizeWordVector` and `normalizeValue` functions convert everything to the same range, in a format Neural Networks can read.
-
-
 ### Networks
 
 Networks are Neural Networks, they're plug-and-play.
-
-```function SimpleNeuralNetwork() {
-    return new brain.NeuralNetwork({
-        hiddenLayers: [10, 5],
-        activation: 'sigmoid',
-    });
-}```
-
-This function creates a new neural network with two hidden layers: one with 10 inputs and one with 5. Then the activation function it uses is `sigmoid`. It's ok if you don't fully understand this right now, you can still experiment with the 3 other plugin types and use one of the default Neural Networks.
 
 ## TAGLINES
 - Neural Network Radio Stations
@@ -140,17 +96,11 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-
-- [ ] add network plugin with ability to customize neural network architecture
-- [ ] what default plugins need to be added?
-    - [ ] scrapers: twitter, twetch, open directory, bit.sv
-    - [ ] extractors: twitter, twetch, open directory, bit.sv
-    - [ ] normalizer: default normalizer
-    - [ ] network: default neural network that is easily mutatable so can be controlled with ui (and provide UI updates)
-
-- [ ] pretty quickly implement a second data source so you can start testing multi data normalization
-- [ ] see how far you can go back in twitter history
-- [ ] discover limits of Twitter API
-- [ ] snapshot data onchain at specific points and use the txid as an anchor/fingerprint/uuid
-- [ ] think about how to do permissions....signing content?
+- [ ] implement second data source to start testing multi data normalization
+    - [ ] twetch, open directory, bit.sv, ark
+- [ ] see how far you can go back in twitter history (discover limits of Twitter API)
+- [ ] training with callback to provide UI updates
+- [ ] cancel training in middle
+- [ ] snapshot hashes of data models on chain
+- [ ] user permissions
 

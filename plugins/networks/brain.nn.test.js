@@ -9,11 +9,12 @@ const StandardFeatureNormalizer = plugins.normalizers.StandardFeatureNormalizer;
 
 plugins.networks.BrainNeuralNetwork._getDatabaseName = plugins.networks.BrainNeuralNetwork.getDatabaseName;
 plugins.networks.BrainNeuralNetwork.getDatabaseName = function() {
-  return `Test${plugins.networks.BrainNeuralNetwork._getDatabaseName()}`;
+  if (plugins.networks.BrainNeuralNetwork._getDatabaseName().indexOf("Test") !== 0) {
+    return `Test${plugins.networks.BrainNeuralNetwork._getDatabaseName()}`;
+  }
+  return plugins.networks.BrainNeuralNetwork._getDatabaseName();
 }
 
-// save neural network
-// load neural network
 // easily morphable for frontend UI
 // UI callbacks for frontend
 // interrputable training
@@ -137,31 +138,50 @@ describe("brain neural network", function () {
         }
     });
 
-    it.only("saves and loads neural network", async function() {
-        this.timeout(20000);
-        this.slow(5000);
+  it("saves and loads neural network", async function() {
+    this.timeout(20000);
+    this.slow(5000);
 
-        const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
-        const scraper = new plugins.scrapers.BSVTwitterScraper(db);
-        const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
-        const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
+    const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
+    const scraper = new plugins.scrapers.BSVTwitterScraper(db);
+    const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
+    const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
 
-        await scraper.run();
-        await extractor.run();
-        await normalizer.run();
+    await scraper.run();
+    await extractor.run();
+    await normalizer.run();
 
-        const classifier = new core.Classifier("test_classifier");
-        await classifier.classify("twitter-1294363849961820200", 1);
+    const classifier = new core.Classifier("test_classifier");
+    await classifier.classify("twitter-1294363849961820200", 1);
 
-        const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
-        await core.train(network);
+    const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
+    await core.train(network);
 
-        const fingerprint = await network.save();
-        assert(fingerprint);
+    const fingerprint = await network.save();
+    assert(fingerprint);
 
-        const newNetwork = await plugins.networks.BrainNeuralNetwork.loadFromFingerprint(fingerprint);
-        assert(newNetwork);
+    const newNetwork = await core.load(fingerprint);
+    assert(newNetwork);
 
-    });
+
+    const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(newNetwork.extractor);
+
+    const rows = await newNetwork.normalizer.getDataSource();
+
+    let found = false;
+    for (const row of rows) {
+      const input = StandardFeatureNormalizer.convertToTrainingDataInput(row[fieldName]);
+      for (const val of input) {
+        assert(val >= -1);
+        assert(val <= 1);
+      }
+
+      const output = network.predict(input);
+      assert(output > 0.8);
+      found = true;
+    }
+
+    assert(found);
+  });
 });
 

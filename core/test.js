@@ -1,5 +1,9 @@
 const assert = require("assert");
 const core = require("./index");
+const config = require("../config");
+
+config._databaseName = config.databaseName;
+config.databaseName = `Test${config._databaseName}`;
 
 describe("core plugins", function () {
     it("default plugins load properly", function () {
@@ -11,10 +15,11 @@ describe("core plugins", function () {
         assert(core.Classifier);
     });
 
-    it("default plugins load properly", function () {
+    it("database gets test names", function () {
         assert(core.plugins.scrapers.BSVTwitterScraper.getDatabaseName().indexOf("Test") === 0);
         assert(core.plugins.networks.BrainNeuralNetwork.getDatabaseName().indexOf("Test") === 0);
         assert(core.Classifier.getDatabaseName().indexOf("Test") === 0);
+        assert(config.databaseName.indexOf("Test") === 0);
     });
 });
 

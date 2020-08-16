@@ -223,7 +223,7 @@ export class StandardFeatureNormalizer {
 
     static async resetDatabase(dbname) {
         const db = await database(dbname);
-        await db.collection(this.getCollectionName()).deleteMany();
+        await db.collection(this.getCollectionName()).deleteMany({});
         await this.createIndexes(db);
         db.close();
     }
