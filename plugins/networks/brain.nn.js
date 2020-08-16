@@ -14,6 +14,8 @@ const brain = require("brain.js");
 // is cancelable 
 // training is async and can provide update to ui progress bar
 
+// TODO: loadPredictorFromFingerprint - a lightweight version
+
 export class BrainNeuralNetwork {
     constructor(scraper, extractor, normalizer, classifier, opts={}) {
         if (!scraper) { throw "expected scraper" }
@@ -133,6 +135,14 @@ export class BrainNeuralNetwork {
         } finally {
             db.close();
         }
+    }
+
+    static async loadFromFingerprint(fingerprint) {
+        const db = await database(BrainNeuralNetwork.getDatabaseName());
+        const network = await db.collection(BrainNeuralNetwork.getCollectionName()).findOne({ fingerprint });
+        if (!network) { throw `couldn't find network with fingerprint ${fingerprint}` }
+
+        console.log(network.scraper);
     }
 
     static getDefaultNeuralNetworkOptions() {
