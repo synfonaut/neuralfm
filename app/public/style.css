@@ -11,11 +11,14 @@ html, body {
   left: 0;
   right: 0;
   font-size: 24px;
-  animation: pulse 3s infinite ease-in-out;
 }
 
 #loading .columns {
   height: 100%;
+}
+
+.breathe {
+  animation: pulse 3s infinite ease-in-out;
 }
 
 @keyframes pulse {
