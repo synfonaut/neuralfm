@@ -11,10 +11,9 @@ function getNewData() {
     });
 }
 
-const NeuralFMApplication = (params={}) => {
-
+function NeuralFMApplicationWrapper(args={}) {
     const [data, setData]  = useState([]);
-    const [isLoaded, setIsLoaded]  = useState(false);
+    const [isLoaded, setIsLoaded]  = useState(true);
 
     if (!isLoaded) {
         setTimeout(function() {
@@ -22,17 +21,49 @@ const NeuralFMApplication = (params={}) => {
         }, 1000);
     }
 
-    const args = Object.assign({}, params, {
+    const params = Object.assign({}, args, {
         isLoaded,
     });
 
-    getNewData().then(setData);
+    //getNewData().then(setData);
 
-    return <div>
-        <LoadingScreen {...args} />
-        <input type="button" value="CLICK" />
-    </div>
+    return <>
+        <LoadingScreen {...params} />
+        <NeuralFMApplication {...params} />
+    </>
 };
+
+function NeuralFMApplication(args={}) {
+    return <div id="app" className={args.isLoaded ? "loaded" : "unloaded"}>
+        <div className="columns">
+            <div className="column">
+                <Timeline {...args} />
+            </div>
+        </div>
+    </div>
+}
+
+function Timeline(args) {
+    return <div id="timeline">
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+        timeline<br />
+    </div>
+}
 
 function LoadingScreen(args={}) {
   return <div id="loading" className={args.isLoaded ? "loaded" : "unloaded"}>
@@ -45,7 +76,7 @@ function LoadingScreen(args={}) {
   </div>
 }
 
-renderCalderaApp(<NeuralFMApplication />, {
+renderCalderaApp(<NeuralFMApplicationWrapper />, {
     port: 7777,
     rootDir: "./app/public"
 });
