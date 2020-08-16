@@ -34,21 +34,54 @@ function NeuralFMApplicationWrapper(args={}) {
 };
 
 function NeuralFMApplication(args={}) {
-    return <div id="app" className={args.isLoaded ? "loaded" : "unloaded"}>
-        <div className="columns">
-            <div className="column">
-                <Timeline {...args} />
+    return <div id="app">
+        <NavigationBar {...args} />
+        <section className="section">
+          <div className="container">
+            <div className="columns">
+                <div className="column">
+                    <Timeline {...args} />
+                </div>
             </div>
-        </div>
+          </div>
+        </section>
     </div>
 }
 
+function NavigationBar() {
+    return <nav className="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+      <div className="navbar-brand">
+        <div className="logo">
+          <h1 className="title">NeuralFM</h1>
+          <p className="subtitle">AI Information Radio</p>
+        </div>
+
+        <div className="navbar-menu">
+          <a className="navbar-item" href="">Bitcoin</a>
+          <a className="navbar-item" href="">Business</a>
+          <a className="navbar-item" href="">Technology</a>
+          <a className="navbar-item" href="">Metanet</a>
+          <a className="navbar-item" href="">Proof of Work</a>
+          <a className="navbar-item" href="">Decentralized Applications</a>
+          <a className="navbar-item" href="">Wallets</a>
+        </div>
+
+        <a role="button" className="navbar-burger" aria-label="menu" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+    </nav>
+}
+
+
 function Timeline(args) {
     return <div id="timeline">
-        timeline<br />
-        timeline<br />
-        timeline<br />
-        timeline<br />
+        TOP timeline<br />
+        1timeline<br />
+        2timeline<br />
+        3timeline<br />
         timeline<br />
         timeline<br />
         timeline<br />
