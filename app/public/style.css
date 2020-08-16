@@ -1,5 +1,7 @@
 html, body {
   background: hsl(0, 0%, 4%);
+  background-image: radial-gradient(circle at center center, rgb(71, 71, 71),rgb(8, 8, 8));
+  height: 100%;
 }
 
 /* App */
@@ -49,7 +51,7 @@ html, body {
 /** Navigation **/
 
 nav {
-  background: black !important;
+  background-image: repeating-linear-gradient(45deg, rgb(27, 27, 27) 0px, rgb(27, 27, 27) 97px,rgb(24, 24, 24) 97px, rgb(24, 24, 24) 194px,rgb(20, 20, 20) 194px, rgb(20, 20, 20) 291px);
 }
 
 nav a {
@@ -80,3 +82,5 @@ nav a {
   transform: rotate(-14deg);
   vertical-align: middle;
 }
+
+
