@@ -1,26 +1,26 @@
 import React, { useState } from "react"
 import { renderCalderaApp, makeSharedResource, useSharedState, useLocation, useHistory } from "caldera"
+import { Router } from "./router"
+import { NavigationBar } from "./nav"
 
-import { Timeline } from "./timeline"
-import { Sidebar } from "./sidebar"
 
 function NeuralFMApplicationWrapper(args={}) {
-    const [data, setData]  = useState([]);
-    const [isLoaded, setIsLoaded]  = useState(true);
+  const location = useLocation();
+  const history = useHistory();
 
-    if (!isLoaded) {
-        setTimeout(function() {
-            setIsLoaded(true);
-        }, 1000);
-    }
+  const search = new URLSearchParams(location.search);
 
-    const params = Object.assign({}, args, {
-        isLoaded,
-    });
+  const params = Object.assign({}, args, {
+    location,
+    history,
+    search,
+  });
 
-    return <>
-        <LoadingScreen {...params} />
-        <NeuralFMApplication {...params} />
+  setTimeout(function() {
+  }, 2000);
+
+  return <>
+    <NeuralFMApplication {...params} />
     </>
 };
 
@@ -30,48 +30,14 @@ function NeuralFMApplication(args={}) {
         <section className="section">
           <div className="container">
             <div id="app-wrapper">
-              <div className="columns">
-                  <div className="column is-8">
-                      <Timeline {...args} />
-                  </div>
-                  <div className="column is-4">
-                      <Sidebar {...args} />
-                  </div>
-              </div>
+              <Router {...args} />
             </div>
           </div>
         </section>
     </div>
 }
 
-function NavigationBar() {
-    return <nav className="navbar is-fixed-top" role="navigation" aria-label="main navigation">
-      <div className="navbar-brand">
-        <div className="logo">
-          <h1 className="title">NeuralFM</h1>
-          <p className="subtitle">AI Information Radio</p>
-        </div>
-
-        <div className="navbar-menu">
-          <a className="navbar-item" href="">Bitcoin</a>
-          <a className="navbar-item" href="">Business</a>
-          <a className="navbar-item" href="">Technology</a>
-          <a className="navbar-item" href="">Metanet</a>
-          <a className="navbar-item" href="">Proof of Work</a>
-          <a className="navbar-item" href="">Decentralized Applications</a>
-          <a className="navbar-item" href="">Wallets</a>
-        </div>
-
-        <a role="button" className="navbar-burger" aria-label="menu" aria-expanded="false">
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </a>
-      </div>
-    </nav>
-}
-
-
+/*
 function LoadingScreen(args={}) {
   return <div id="loading" className={args.isLoaded ? "loaded" : "unloaded"}>
     <div className="columns is-vcentered">
@@ -82,6 +48,7 @@ function LoadingScreen(args={}) {
     </div>
   </div>
 }
+*/
 
 renderCalderaApp(<NeuralFMApplicationWrapper />, {
     port: 7777,
