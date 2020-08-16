@@ -19,15 +19,23 @@ export class Classifier {
 
         const created_date = new Date();
         try {
-            await db.collection(Classifier.getCollectionName()).insert({
+            const response = await db.collection(Classifier.getCollectionName()).insert({
                 name: this.name,
                 fingerprint,
                 classification,
                 created_date,
             });
+
+            if (utils.ok(response)) {
+                if (response.result.n >= 1) {
+                    log(`classified ${this.name} ${fingerprint} to ${classification}`);
+                } else {
+                    log(`skipped unclassifying ${this.name} ${fingerprint}... already classified`);
+                }
+            }
         } catch (e) {
             if (e.writeErrors && e.writeErrors[0].err.code == 11000) {
-                log(`already classified ${this.name} ${fingerprint}`);
+                log(`skipped unclassifying ${this.name} ${fingerprint}... already classified`);
             } else {
                 throw e;
             }
@@ -39,10 +47,19 @@ export class Classifier {
     async unclassify(fingerprint) {
         log(`unclassifying ${this.name} ${fingerprint}`);
         const db = await database(Classifier.getDatabaseName());
-        await db.collection(Classifier.getCollectionName()).deleteOne({
+        const response = await db.collection(Classifier.getCollectionName()).deleteOne({
             name: this.name,
             fingerprint,
         });
+
+        if (utils.ok(response)) {
+            if (response.result.n >= 1) {
+                log(`unclassified ${this.name} ${fingerprint}`);
+            } else {
+                log(`skipped unclassifying ${this.name} ${fingerprint}... couldn't find record`);
+            }
+        }
+
         db.close();
     }
 

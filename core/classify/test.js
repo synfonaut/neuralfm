@@ -8,6 +8,8 @@ core.Classifier.getDatabaseName = function() {
 }
 
 describe("classify", function () {
+    this.timeout(5000);
+    this.slow(1000);
 
     beforeEach(async function() {
         const db = await core.db(core.Classifier.getDatabaseName());
@@ -16,9 +18,6 @@ describe("classify", function () {
     });
 
     it("classifies data", async function() {
-        this.timeout(10000);
-        this.slow(2500);
-
         const classifier = new core.Classifier("test_classifier");
         await classifier.classify("fingerprint-12345", 1);
         await classifier.classify("fingerprint-54321", -1);
@@ -29,9 +28,6 @@ describe("classify", function () {
     });
 
     it("handles duplicate classification", async function() {
-        this.timeout(10000);
-        this.slow(2500);
-
         const classifier = new core.Classifier("test_classifier");
         await classifier.classify("fingerprint-12345", 1);
         await classifier.classify("fingerprint-12345", 1);
@@ -41,9 +37,6 @@ describe("classify", function () {
     });
 
     it("removes classification", async function() {
-        this.timeout(10000);
-        this.slow(2500);
-
         const classifier = new core.Classifier("test_classifier");
         let classifications;
 
@@ -61,7 +54,12 @@ describe("classify", function () {
 
     });
 
-    // silently fails on unclassifying nothing
+    it("silently fails on unclassifying nothing", async function() {
+        const classifier = new core.Classifier("test_classifier");
+        let classifications;
 
+        await classifier.unclassify("fingerprint-12345");
+        await classifier.unclassify("fingerprint-54321");
+    });
 });
 
