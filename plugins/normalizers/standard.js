@@ -170,7 +170,12 @@ export class StandardFeatureNormalizer {
 
         // often need to calculate data externally, so don't want to duplicate a large query
         if (!rows) {
-            rows = await this.getDataSource();
+            const fingerprints = [];
+            for (const classificationFingerprint in classificationMapping) {
+                fingerprints.push(classificationFingerprint);
+            }
+
+            rows = await this.extractor.getDataByFingerprints(fingerprints);
         }
 
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);

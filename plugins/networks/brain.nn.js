@@ -52,8 +52,7 @@ export class BrainNeuralNetwork {
             this.nn = this.createNeuralNetwork();
         }
 
-        // TODO: fetch training data ourselves and only fetch valid data
-        this.trainingData = await this.normalizer.getTrainingData(this.classifier, this.data);
+        this.trainingData = await this.normalizer.getTrainingData(this.classifier);
         if (this.trainingData.length === 0) {
             throw `none of the classifications match the training data ${this.name}`;
         }

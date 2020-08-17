@@ -42,6 +42,11 @@ export class TwitterFeatureExtractor {
         return await this.db.collection(collectionName).find(findQuery);
     }
 
+    async getDataByFingerprints(fingerprints) {
+        const collectionName = this.scraper.constructor.getCollectionName();
+        return await (this.db.collection(collectionName).find({ "fingerprint": {"$in": fingerprints}}).toArray());
+    }
+
     async runFeatureExtractOnTweet(tweet) {
         log(`extracting features from ${tweet.fingerprint}`);
 
