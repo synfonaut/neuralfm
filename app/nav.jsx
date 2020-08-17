@@ -1,8 +1,12 @@
 import React, { useState } from "react"
 import { Link } from "caldera"
 
+const core = require("../core");
 
 export function NavigationBar(args={}) {
+
+  const [channels, setChannels] = useState([]);
+  core.channels.getTop().then(setChannels);
 
   const [isShowingMobileNavigation, setIsShowingMobileNavigation] = React.useState(false);
   function handleToggleMobileNavigation() {
@@ -46,6 +50,9 @@ export function NavigationBar(args={}) {
           <a className="navbar-item" href="">Proof of Work</a>
           <a className="navbar-item" href="">Decentralized Applications</a>
           <a className="navbar-item" href="">Wallets</a>
+          {channels.map(channel => {
+              return <a key={channel.name} className="navbar-item" href="">{channel.name}</a>
+          })}
           <hr className="navbar-divider is-hidden-desktop" />
           <a className="navbar-item is-hidden-desktop" onClick={handleClickCreate}>
             Create

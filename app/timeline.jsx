@@ -9,7 +9,6 @@ export function Timeline(args) {
     const [channels, setChannels] = useState([]);
     core.channels.getTop().then(setChannels);
 
-
     return <div id="timeline">
         <h2 className="title">Top News</h2>
         <p className="content">
