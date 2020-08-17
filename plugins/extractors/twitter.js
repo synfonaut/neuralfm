@@ -70,7 +70,7 @@ export class TwitterFeatureExtractor {
         const setQuery = {"$set": {}};
         setQuery["$set"][fieldName] = features;
 
-        const response = await this.db.collection(collectionName).update({"fingerprint": tweet.fingerprint}, setQuery);
+        const response = await this.db.collection(collectionName).updateOne({"fingerprint": tweet.fingerprint}, setQuery);
         if (!utils.ok(response)) {
             log(`error saving extracted features on tweet ${tweet.fingerprint} - ${response}`);
             return tweet;

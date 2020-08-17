@@ -82,6 +82,7 @@ export class BSVTwitterScraper {
       if (since_id) {
         params.since_id = since_id;
       }
+
       client.get("statuses/user_timeline", params, function(error, tweets, response) {
         if (error) { return reject(error) }
         resolve(tweets.map(BSVTwitterScraper.fingerprintData));

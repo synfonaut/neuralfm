@@ -50,7 +50,7 @@ if (require.main === module) {
         const utils = require("../../utils");
         let results;
         do {
-            results = await scrape(allScrapers);
+            results = await scrape(allScrapers, { limit: 200 });
             log("sleeping");
             await utils.sleep(1000);
         } while (results.length > 0);

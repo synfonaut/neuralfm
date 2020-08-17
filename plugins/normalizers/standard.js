@@ -101,7 +101,7 @@ export class StandardFeatureNormalizer {
         const setQuery = {"$set": {}};
         setQuery["$set"][fieldName] = normalized;
 
-        const response = await this.db.collection(this.scraper.constructor.getCollectionName()).update({"fingerprint": normalized.fingerprint}, setQuery);
+        const response = await this.db.collection(this.scraper.constructor.getCollectionName()).updateOne({"fingerprint": normalized.fingerprint}, setQuery);
         if (!utils.ok(response)) {
             log(`error updating normalization values for ${normalized.fingerprint} - ${response}`);
         }
