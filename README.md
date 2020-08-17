@@ -122,6 +122,7 @@ https://neural.fm/synfonaut@moneybutton.com
 - [ ] Performance optimzations on training...it takes a really long time...likely just do load soure dat
     - [ ] Is there a move to make training a lot more lightweight but only using partial data?
     - [ ] Is there a move to make training a lot more lightweight but only using partial data?
+- [ ] Update all throw "strings" into throw new Error("string")...it makes stack traces nicer
 - [ ] Custom Colors ...just something a little unique
 - [ ] A few icons here and there would make a big different ("like on the create button")
 - [ ] Loading spinner before side loads (with timout and error message)

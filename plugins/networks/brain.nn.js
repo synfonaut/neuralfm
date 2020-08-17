@@ -40,11 +40,14 @@ export class BrainNeuralNetwork {
             throw `no classifications to train ${this.name}`;
         }
 
-        // TODO: This has a huge optimization waiting. Only need DataSource if we need to generate metadata
-        //          otherwise don't fetch it!
-        this.data = await this.normalizer.getDataSource();
-
-        this.normalizationMetadata = await this.normalizer.getOrCreateMetadata(this.data);
+        let normalizationMetadata = await this.normalizer.getMetadata();
+        if (normalizationMetadata) {
+            log(`found existing normalization metdata`);
+        } else {
+            log(`missing normalization metdata... generating ...WARNING this could be expensive!`);
+            const data = await this.normalizer.getDataSource();
+            normalizationMetadata = await this.normalizer.createNormalizationMetadata(data);
+        }
 
         if (this.nn) {
             log(`reusing existing neural network`);
@@ -71,7 +74,7 @@ export class BrainNeuralNetwork {
         };
 
 
-        log(`training ${this.name} on ${this.trainingData.length} classifications (${this.data.length} data)`);
+        log(`training ${this.name} on ${this.trainingData.length} classifications`);
         const starttime = Date.now();
         this.nn.train(this.trainingData, this.trainingOptions);
         const endtime = Date.now();
@@ -84,19 +87,25 @@ export class BrainNeuralNetwork {
 
     async calculate() {
         if (!this.nn) { throw "expected neural network" }
-        if (!this.data || this.data.length === 0) { throw "expected data" }
-
-        log(`calculating predictions for ${this.fingerprint} on ${this.data.length} data`);
 
         const normalizedFieldName = this.normalizer.constructor.getNormalizedFieldName(this.extractor);
-        for (const row of this.data) {
+        const cursor = await this.normalizer.getDataCursor();
+        let row;
+        let numCalculated = 0;
+
+        // TODO: bulk prediction updating....
+
+        log(`calculating predictions for ${this.fingerprint}`);
+        while (row = await cursor.next()) {
             const normalizedData = row[normalizedFieldName];
             const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
             const prediction = this.predict(input);
             await this.updatePrediction(row.fingerprint, prediction);
+
+            numCalculated += 1;
         }
 
-        log(`updated predictions for ${this.fingerprint} on ${this.data.length} data`);
+        log(`updated predictions for ${numCalculated} items for ${this.fingerprint}`);
     }
 
     async updatePrediction(fingerprint, prediction) {
