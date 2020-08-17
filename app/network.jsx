@@ -36,7 +36,6 @@ export function CreateNetwork(args={}) {
       return;
     }
 
-    console.log(network.fingerprint);
     const channel = await core.channels.create(name, network);
 
     console.log("CHANNLE", channel);
