@@ -91,21 +91,30 @@ export class BrainNeuralNetwork {
         const normalizedFieldName = this.normalizer.constructor.getNormalizedFieldName(this.extractor);
         const cursor = await this.normalizer.getDataCursor();
         let row;
-        let numCalculated = 0;
 
-        // TODO: bulk prediction updating....
+        const predictionUpdates = [];
 
         log(`calculating predictions for ${this.fingerprint}`);
         while (row = await cursor.next()) {
             const normalizedData = row[normalizedFieldName];
             const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
             const prediction = this.predict(input);
-            await this.updatePrediction(row.fingerprint, prediction);
 
-            numCalculated += 1;
+            const key = `probabilities.${normalizedFieldName}`;
+            const predictionUpdate = {
+                "updateOne": {
+                    "filter": { "fingerprint": row.fingerprint },
+                    "update": { "$set": {}}
+                }
+            };
+
+            predictionUpdate.updateOne.update["$set"][`predictions.${this.fingerprint}`] = prediction;
+
+            predictionUpdates.push(predictionUpdate);
         }
 
-        log(`updated predictions for ${numCalculated} items for ${this.fingerprint}`);
+        const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
+        log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
     }
 
     async updatePrediction(fingerprint, prediction) {
