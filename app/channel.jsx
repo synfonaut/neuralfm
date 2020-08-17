@@ -72,6 +72,13 @@ export function Channel(args={}) {
 }
 
 function FeedItem(args={}) {
+  console.log("ITEM", args.item);
+  return <div className="feed-item">
+    {args.item.text}
+  </div>
+}
+
+function TweetFeedItem(args={}) {
   return <div className="feed-item">
     {args.item.text}
   </div>
