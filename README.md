@@ -96,15 +96,12 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-- [ ] Show channels on frontend and Switch between them
 - [ ] Show tweets on frontend
 
-- [ ] Train script to update weights
+- [ ] Run training to update weights
 
-- [ ] Create a new neural network
 - [ ] Classify it
 - [ ] Train it
-- [ ] Save it as a channel
 
 - [ ] Image mode
 - [ ] Editor mode
