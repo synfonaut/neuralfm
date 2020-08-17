@@ -260,6 +260,8 @@ export function ChannelSidebar(args={}) {
   let networkFingerprint;
   const channel = args.channel
 
+  const classifications = args.classifications || [];
+
   if (channel && channel.slug) {
     const network = networks[channel.slug];
     if (network) {
@@ -277,7 +279,7 @@ export function ChannelSidebar(args={}) {
         {args.isTraining && <div>Training</div>}
         <a onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
         <a onClick={() => { args.handleClickSort("created_at") }}>Date</a>
-        {args.classifications.map(classification => {
+        {classifications.map(classification => {
             return <div key={classification.fingerprint}>{classification.fingerprint} {classification.classification}</div>
         })}
     </div>
