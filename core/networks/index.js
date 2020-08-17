@@ -9,8 +9,17 @@ const plugins = require("../../plugins");
 
 export async function train(network) {
     log(`training ${network.name}`);
-    await network.run();
-    await network.calculate();
+    try {
+        await network.run();
+    } catch (e) {
+        log(`error while training ${e}`);
+    }
+
+    try {
+        await network.calculate();
+    } catch (e) {
+        log(`error while calculating ${e}`);
+    }
 }
 
 export async function load(fingerprint) {
