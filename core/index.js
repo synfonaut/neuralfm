@@ -17,6 +17,10 @@ async function setup() {
     await networks.createIndexes();
     await channels.createIndexes();
     await classifiers.Classifier.createIndexes();
+
+    for (const scraper of Object.values(plugins.scrapers)) {
+        await scraper.createIndexes();
+    }
 }
 
 module.exports = {

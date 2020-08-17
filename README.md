@@ -95,6 +95,11 @@ https://neural.fm/music
 
 https://neural.fm/synfonaut@moneybutton.com
 
+
+- run calculation up to X most recent entries
+- run longer full data calculations in background
+- before updating predictions, reset all back to 0
+
 ## SCALING PROBLEM
 - There's just too many rows...you need to classify a smaller data set while iterating and then do the full one in the background
 - Clear Twitter dataset....only grab recent 50 tweets?
@@ -144,4 +149,5 @@ https://neural.fm/synfonaut@moneybutton.com
 ## INSANE MODE
 - [ ] implement twetch source to start testing multi data normalization
 - [ ] scrape a lot of twitter history
+- [ ] sometimes caldera is crashing
 

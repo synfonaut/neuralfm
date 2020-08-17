@@ -148,16 +148,21 @@ export class BSVTwitterScraper {
     return "BSV Twitter"; // human readable dataset this scraper creates
   }
 
-  static async createIndexes(db) {
+  static async createIndexes() {
+    log(`creating indexes`);
+    const db = await database(this.getDatabaseName());
     await db.collection(this.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+    await db.collection(this.getCollectionName()).createIndex({ "created_at": 1 });
     await db.collection(this.getUsernameCollectionName()).createIndex({ "username": 1 }, {"unique": true});
+    db.close();
   }
 
   static async resetDatabase() {
+    log(`resetting database`);
     const db = await database(this.getDatabaseName());
     await db.collection(this.getCollectionName()).deleteMany({});
     await db.collection(this.getUsernameCollectionName()).deleteMany({});
-    await this.createIndexes(db);
+    await this.createIndexes();
     db.close();
   }
 }

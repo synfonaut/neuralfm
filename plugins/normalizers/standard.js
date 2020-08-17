@@ -69,7 +69,7 @@ export class StandardFeatureNormalizer {
     }
 
     async getDataSource() {
-        return await (await this.extractor.getDataCursor()).toArray();
+        return await (await this.extractor.getDataCursor()).sort({"created_at": -1}).toArray();
     }
 
     async getDataCursor() {
@@ -77,7 +77,7 @@ export class StandardFeatureNormalizer {
         const collectionName = this.scraper.constructor.getCollectionName();
         const findQuery = {};
         findQuery[fieldName] = {"$exists": true};
-        return await this.db.collection(collectionName).find(findQuery);
+        return await this.db.collection(collectionName).find(findQuery).sort({"created_at": -1});
     }
 
     async getDataStream() {
@@ -85,9 +85,8 @@ export class StandardFeatureNormalizer {
         const collectionName = this.scraper.constructor.getCollectionName();
         const findQuery = {};
         findQuery[fieldName] = {"$exists": true};
-        return await this.db.collection(collectionName).find(findQuery).stream();
+        return await this.db.collection(collectionName).find(findQuery).sort({"created_at": -1}).stream();
     }
-
 
     async updateNormalizationValues(unnormalized, metadata) {
         log(`normalizing ${unnormalized.fingerprint}`);
@@ -95,6 +94,7 @@ export class StandardFeatureNormalizer {
         const normalized = {
             fingerprint: unnormalized.fingerprint,
         };
+
         delete unnormalized["fingerprint"];
 
         for (const key in metadata) {
