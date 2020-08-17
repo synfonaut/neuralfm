@@ -1,4 +1,10 @@
 
+const slugifyModule = require("slugify");
+
+export function slugify(text) {
+  return slugifyModule(text).toLowerCase();
+}
+
 export function ok(response) {
     if (!response) return false;
     if (!response.result) return false;

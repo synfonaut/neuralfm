@@ -26,6 +26,7 @@ describe("channels", function () {
     const channel = await core.channels.create("BSV News");
     assert(channel);
     assert.equal(channel.name, "BSV News");
+    assert.equal(channel.slug, "bsv-news");
 
     let allowedDupe = true;
     try {

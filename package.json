@@ -24,6 +24,7 @@
     "esm": "3.2.25",
     "mimir": "0.0.1",
     "mongodb": "3.6.0",
+    "slugify": "1.4.5",
     "twitter": "1.7.1"
   },
   "devDependencies": {

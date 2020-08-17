@@ -5,9 +5,13 @@ const config = require("../../config");
 const utils = require("../../utils");
 const networks = require("../networks");
 
-
 export async function create(name, network=null) {
-    const channel = { name };
+    if (!name) { throw "invalid name" }
+
+    const slug = utils.slugify(name);
+
+    const channel = { name, slug };
+
 
     if (network) {
         log(`creating channel ${name} with network ${network.name}`);
@@ -54,7 +58,7 @@ export async function getTop() {
 
 export async function createIndexes() {
     const db = await database(config.databaseName);
-    await db.collection(config.channelsCollectionName).createIndex({"name": 1}, {"unique": true});
+    await db.collection(config.channelsCollectionName).createIndex({"slug": 1}, {"unique": true});
     db.close();
 }
 
