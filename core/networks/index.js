@@ -111,23 +111,26 @@ export async function calculate(network) {
     await network.calculate();
 }
 
-export async function create(scraper, extractor, normalizer, network, classifier) {
+export async function create(scraper, extractor, normalizer, network, classifierName) {
     if (!scraper) { throw "expected scraper" }
     if (!extractor) { throw "expected extractor" }
     if (!normalizer) { throw "expected normalizer" }
     if (!network) { throw "expected network" }
-    if (!classifier) { throw "expected name" }
+    if (!classifierName) { throw "expected name" }
 
     const scraperDatabase = await database(scraper.getDatabaseName());
     const scraperInstance = new scraper(scraperDatabase);
     const extractorInstance = new extractor(scraperDatabase, scraperInstance);
     const normalizerInstance = new normalizer(scraperDatabase, scraperInstance, extractorInstance);
-    const classifierInstance = new Classifier(classifier);
+    const classifierInstance = new Classifier(classifierName);
 
     const defaultNetworkOptions = network.getDefaultNeuralNetworkOptions();
     const networkInstance = new network(scraperInstance, extractorInstance, normalizerInstance, classifierInstance, defaultNetworkOptions);
 
-    return await save(networkInstance);
+    const fingerprint = await save(networkInstance);
+    log(`created network ${fingerprint}`);
+
+    return networkInstance;
 }
 
 export async function createIndexes() {

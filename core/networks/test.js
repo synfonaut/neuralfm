@@ -28,13 +28,13 @@ describe("network", function () {
     const network = new core.plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
     await core.networks.train(network);
 
-    const fingerprint1 = await network.save();
-    assert(fingerprint1);
+    const networkInstance1 = await network.save();
+    assert(networkInstance1.fingerprint);
 
 
     await core.networks.train(network);
-    const fingerprint2 = await network.save();
-    assert(fingerprint2);
+    const networkInstance2 = await network.save();
+    assert(networkInstance2.fingerprint);
 
     const networks = await core.networks.getAllNetworks();
     assert.equal(networks.length, 2);
@@ -47,10 +47,10 @@ describe("network", function () {
     const network = core.plugins.networks.BrainNeuralNetwork;
     const classifier = "test neural network name";
 
-    const fingerprint = await core.networks.create(scraper, extractor, normalizer, network, classifier);
-    assert.equal(fingerprint, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test neural network name:0");
+    const oldNetworkInstance = await core.networks.create(scraper, extractor, normalizer, network, classifier);
+    assert.equal(oldNetworkInstance.fingerprint, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test neural network name:0");
 
-    const networkInstance = await core.networks.load(fingerprint);
+    const networkInstance = await core.networks.load(oldNetworkInstance.fingerprint);
     assert(networkInstance);
     assert.equal(scraper.name, networkInstance.scraper.constructor.name);
     assert.equal(extractor.name, networkInstance.extractor.constructor.name);

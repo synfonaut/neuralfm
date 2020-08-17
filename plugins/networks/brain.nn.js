@@ -171,7 +171,7 @@ export class BrainNeuralNetwork {
 
             log(`successfully saved network ${obj.fingerprint}`);
 
-            return obj.fingerprint;
+            return obj;
         } catch (e) {
             log(`error saving network ${obj.fingerprint} - ${e}`);
             throw e;

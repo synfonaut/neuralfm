@@ -96,7 +96,6 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-- [ ] Create channel data model with tests
 - [ ] Create new neural network (studio)
 - [ ] Show tweets on frontend
 - [ ] Switch between channels
@@ -126,6 +125,8 @@ https://neural.fm/synfonaut@moneybutton.com
 - [ ] Loading spinner before side loads (with timout and error message)
 - [ ] training with callback to provide UI updates
 - [ ] cancel training in middle
+
+- [ ] model is getting detached when server resets or client closes website....need to wake up socket automatically when client reconnects
 
 ## INSANE MODE
 - [ ] implement twetch source to start testing multi data normalization

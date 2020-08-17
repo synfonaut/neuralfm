@@ -6,22 +6,46 @@ import React, { useState } from "react"
 
 export function CreateNetwork(args={}) {
 
-  function handleFormSubmit() {
-    const scraper = core.plugins.scrapers.BSVTwitterScraper;
-    const extractor = core.plugins.extractors.TwitterFeatureExtractor;
-    const normalizer = core.plugins.normalizers.StandardFeatureNormalizer;
-    const network = core.plugins.networks.BrainNeuralNetwork;
+  const [name, setName] = React.useState("");
+  const [error, setError] = React.useState("");
 
-    console.log(scraper);
-    console.log(extractor);
-    console.log(normalizer);
-    console.log(network);
+  async function handleUpdateNameField(e) {
+    setName(e.target.value);
+  }
+
+  async function handleFormSubmit() {
     log("submitting form");
+
+    if (!name) {
+      setError("Please create a name for your AI");
+      return;
+    }
+
+    setError("");
+
+    const network = await core.networks.create(
+      core.plugins.scrapers.BSVTwitterScraper,
+      core.plugins.extractors.TwitterFeatureExtractor,
+      core.plugins.normalizers.StandardFeatureNormalizer,
+      core.plugins.networks.BrainNeuralNetwork,
+      name,
+    );
+
+    if (!network) {
+      setError("Unable to create network, please try again or contact @synfonaut");
+      return;
+    }
+
+    console.log(network.fingerprint);
+    const channel = await core.channels.create(name, network);
+
+    console.log("CHANNLE", channel);
   }
 
   return <div id="create-network">
        <h2 className="title">Create a NeraulFM AI</h2>
        <p className="content">Creating your own NeuralFM AI is as simple as clicking the <strong>Create Neural Network</strong> button below.</p>
+       {error && <p className="content error has-text-danger">ERROR: {error}</p>}
 
        <div className="columns">
          <div className="column is-6">
@@ -84,11 +108,11 @@ export function CreateNetwork(args={}) {
         </div>
       
        <div className="columns">
-         <div className="column is-6">
+         <div className="column is-5">
            <div className="field">
               <label className="label">Name</label>
               <div className="control">
-                <input className="input" type="text" placeholder="What's the name of your channel?" />
+                <input className="input" type="text" placeholder="What's the name of your channel?" value={name} onChange={handleUpdateNameField} />
               </div>
             </div>
           </div>
