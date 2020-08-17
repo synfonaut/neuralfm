@@ -13,18 +13,17 @@ export function Channel(args={}) {
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
   const [feed, setFeed] = useState([]);
+  const [isTraining, setIsTraining] = useState(false);
 
   async function updateChannel(slug) {
     setSlug(args.slug);
     setIsLoading(true);
-    const chnl = await core.channels.getBySlug(args.slug)
-    if (chnl) {
-      const network = chnl.network;
-      chnl.network = await network.toJSON();
-      setChannel(chnl);
+    const chan = await core.channels.getBySlug(args.slug)
+    if (chan) {
+      setChannel(chan);
 
       // TODO: add pagination & sorting
-      const data = await network.normalizer.getDataCursor();
+      const data = await chan.network.normalizer.getDataCursor();
       const feedData = [];
 
       let feedItem;
@@ -44,6 +43,33 @@ export function Channel(args={}) {
     }
   }
 
+  async function handleClickTrain() {
+    log(`training`);
+
+    if (!channel || !channel.network) {
+      // TODO: display error
+    }
+
+    setIsTraining(true);
+    try {
+      await core.networks.train(channel.network);
+    } catch (e) {
+      // TODO: display error
+    } finally {
+      setIsTraining(false);
+    }
+  }
+
+  async function handleClickClassify(fingerprint, value) {
+    log(`classifying ${fingerprint} to ${value}`);
+    try {
+      await channel.network.classifier.classify(fingerprint, value);
+      log(`classified ${fingerprint} to ${value}`);
+    } catch (e) {
+      // TODO: display error
+    }
+  }
+
   if (slug !== args.slug) {
     log(`updating channel data ${args.slug}`);
     updateChannel(args.slug);
@@ -52,6 +78,9 @@ export function Channel(args={}) {
 
   const params = Object.assign({}, args, {
     channel,
+    handleClickTrain,
+    handleClickClassify,
+    isTraining,
   });
 
   if (!channel || !channel.name) {
@@ -104,6 +133,8 @@ function TweetFeedItem(args={}) {
   const tweet = args.item;
   const network = args.channel.network;
   const predictions = tweet.predictions || {};
+  console.log(predictions);
+  console.log(network.fingerprint);
   const prediction = predictions[network.fingerprint] || 0;
 
   return <div className="feed-item tweet">
@@ -111,12 +142,16 @@ function TweetFeedItem(args={}) {
       <div className="column is-1">
         <div className="prediction">
         {prediction}
+      </div>
+      <div className="column is-1">
+        <button className="button is-small" onClick={() => { args.handleClickClassify(tweet.fingerprint, 1) } }>Up</button>
+        <button className="button is-small" onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>Down</button>
         </div>
       </div>
       <div className="column is-2">
         {tweet.user.screen_name}
       </div>
-      <div className="column is-9">
+      <div className="column is-8">
         {tweet.full_text}
       </div>
     </div>
@@ -162,6 +197,8 @@ export function ChannelSidebar(args={}) {
         <p className="content">CHANNEL INFORMATION</p>
         <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information.</p>
 
+        <button className="button" onClick={args.handleClickTrain}>Train</button>
+        {args.isTraining && <div>Training</div>}
     </div>
 }
 

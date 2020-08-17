@@ -117,6 +117,8 @@ https://neural.fm/synfonaut@moneybutton.com
 
 ## NICE TO HAVE
 - [ ] Performance optimzations on normalizer...iterative so doesn't need entire data set in memory
+- [ ] Performance optimzations on prediction updater....bulk writer
+- [ ] Performance optimzations on model input size
 - [ ] Custom Colors ...just something a little unique
 - [ ] A few icons here and there would make a big different ("like on the create button")
 - [ ] Loading spinner before side loads (with timout and error message)

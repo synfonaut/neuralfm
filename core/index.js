@@ -16,6 +16,7 @@ async function setup() {
     log('setting up core db');
     await networks.createIndexes();
     await channels.createIndexes();
+    await classifiers.Classifier.createIndexes();
 }
 
 module.exports = {

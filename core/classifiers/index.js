@@ -19,7 +19,7 @@ export class Classifier {
 
         const created_date = new Date();
         try {
-            const response = await db.collection(Classifier.getCollectionName()).insert({
+            const response = await db.collection(Classifier.getCollectionName()).insertOne({
                 name: this.name,
                 fingerprint,
                 classification,
@@ -30,15 +30,11 @@ export class Classifier {
                 if (response.result.n >= 1) {
                     log(`classified ${this.name} ${fingerprint} to ${classification}`);
                 } else {
-                    log(`skipped unclassifying ${this.name} ${fingerprint}... already classified`);
+                    log(`skipped classifying ${this.name} ${fingerprint}... already classified`);
                 }
             }
         } catch (e) {
-            if (e.writeErrors && e.writeErrors[0].err.code == 11000) {
-                log(`skipped unclassifying ${this.name} ${fingerprint}... already classified`);
-            } else {
-                throw e;
-            }
+            log(`skipped classifying ${this.name} ${fingerprint}... already classified`);
         } finally {
             db.close();
         }
@@ -91,14 +87,16 @@ export class Classifier {
         return config.databaseName;
     }
 
-    static async createIndexes(db) {
+    static async createIndexes() {
+        const db = await database(this.getDatabaseName());
         await db.collection(this.getCollectionName()).createIndex({ "name": 1, "fingerprint": 1 }, {"unique": true});
+        db.close();
     }
 
     static async resetDatabase() {
         const db = await database(this.getDatabaseName());
         await db.collection(this.getCollectionName()).deleteMany({});
-        await Classifier.createIndexes(db);
+        await Classifier.createIndexes();
         db.close();
     }
 }

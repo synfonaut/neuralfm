@@ -29,6 +29,8 @@ export class BrainNeuralNetwork {
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
         this.networkOptions = (opts.networkOptions ? opts.networkOptions : BrainNeuralNetwork.getDefaultNeuralNetworkOptions());
+
+        this.trainingOptions
     }
 
     async run() {
@@ -52,6 +54,20 @@ export class BrainNeuralNetwork {
         if (this.trainingData.length === 0) {
             throw `none of the classifications match the training data ${this.name}`;
         }
+
+        if (!this.trainingData.callback) {
+            this.trainingData.callback = BrainNeuralNetwork.getDefaultTrainingOptions().callback;
+        }
+
+        this.trainingOptions = {
+            iterations: 10000,
+            errorThresh: 0.005,
+            callback: (stats={}) => {
+                log(`training iterations=${stats.iterations} error=${stats.error} for ${this.name}`);
+            },
+            callbackPeriod: 1,
+        };
+
 
         log(`training ${this.name} on ${this.trainingData.length} classifications (${this.data.length} data)`);
         const starttime = Date.now();
@@ -94,6 +110,7 @@ export class BrainNeuralNetwork {
         }
 
         if (response.result.n === 1) {
+            // TODO: make this bulk
             log(`created prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`);
         } else {
             log(`error updating prediction for ${fingerprint} to ${prediction} for ${this.fingerprint} - ${response}`);
