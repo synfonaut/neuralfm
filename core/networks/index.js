@@ -95,6 +95,14 @@ export async function save(network) {
     return await network.save();
 }
 
+// TODO: eventually update all kinds of neural network options as well
+export async function updateFingerprint(network, oldFingerprint, newFingerprint) {
+    log(`updating network fingerprint ${oldFingerprint} to ${newFingerprint}`);
+    const db = await database(config.databaseName);
+    await network.updateFingerprint(db, oldFingerprint, newFingerprint);
+    db.close();
+}
+
 export async function getAllNetworks() {
     log(`getting all networks`);
     const db = await database(config.databaseName);

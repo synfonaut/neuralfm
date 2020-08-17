@@ -35,6 +35,26 @@ export async function create(name, network=null) {
     return channel;
 }
 
+export async function updateNetwork(slug, network_fingerprint) {
+    log(`updating channel ${slug} to network ${network_fingerprint}`);
+
+    const db = await database(config.databaseName);
+    const response = await db.collection(config.channelsCollectionName).updateOne({ slug }, {
+        "$set": {
+            network_fingerprint,
+        }
+    });
+
+    if (!utils.ok(response)) {
+        throw `invalid response while updating network for ${slug}`
+    }
+
+    log(`successfully updated ${slug} to network ${network_fingerprint}`);
+
+    db.close();
+}
+
+
 export async function getBySlug(slug) {
     const db = await database(config.databaseName);
     const channel = await db.collection(config.channelsCollectionName).findOne({ slug });

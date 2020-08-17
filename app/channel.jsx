@@ -46,9 +46,11 @@ export function Channel(args={}) {
   async function handleClickTrain() {
     log(`training`);
 
-    if (!channel || !channel.network) {
+    if (!channel || !channel.slug || !channel.network) {
       // TODO: display error
     }
+
+    const oldFingerprint = channel.network.fingerprint;
 
     setIsTraining(true);
     try {
@@ -57,6 +59,13 @@ export function Channel(args={}) {
       // TODO: display error
     } finally {
       setIsTraining(false);
+    }
+
+    if (channel.network.fingerprint !== oldFingerprint) {
+      log(`network fingerprint has updated from ${oldFingerprint} to ${channel.network.fingerprint}`);
+      await core.networks.updateFingerprint(channel.network.constructor, oldFingerprint, channel.network.fingerprint);
+      await core.channels.updateNetwork(channel.slug, channel.network.fingerprint);
+      channel.network_fingerprint = channel.network.fingerprint;
     }
   }
 
@@ -133,8 +142,8 @@ function TweetFeedItem(args={}) {
   const tweet = args.item;
   const network = args.channel.network;
   const predictions = tweet.predictions || {};
-  console.log(predictions);
-  console.log(network.fingerprint);
+  //console.log(predictions);
+  //console.log(network.fingerprint);
   const prediction = predictions[network.fingerprint] || 0;
 
   return <div className="feed-item tweet">

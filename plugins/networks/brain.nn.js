@@ -40,6 +40,8 @@ export class BrainNeuralNetwork {
             throw `no classifications to train ${this.name}`;
         }
 
+        // TODO: This has a huge optimization waiting. Only need DataSource if we need to generate metadata
+        //          otherwise don't fetch it!
         this.data = await this.normalizer.getDataSource();
 
         this.normalizationMetadata = await this.normalizer.getOrCreateMetadata(this.data);
@@ -50,6 +52,7 @@ export class BrainNeuralNetwork {
             this.nn = this.createNeuralNetwork();
         }
 
+        // TODO: fetch training data ourselves and only fetch valid data
         this.trainingData = await this.normalizer.getTrainingData(this.classifier, this.data);
         if (this.trainingData.length === 0) {
             throw `none of the classifications match the training data ${this.name}`;
@@ -111,7 +114,7 @@ export class BrainNeuralNetwork {
 
         if (response.result.n === 1) {
             // TODO: make this bulk
-            log(`created prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`);
+            //log(`created prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`);
         } else {
             log(`error updating prediction for ${fingerprint} to ${prediction} for ${this.fingerprint} - ${response}`);
             throw `error updating prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`;
@@ -202,6 +205,27 @@ export class BrainNeuralNetwork {
             db.close();
         }
     }
+
+    static async updateFingerprint(db, oldFingerprint, newFingerprint) {
+        try {
+            const response = await db.collection(BrainNeuralNetwork.getCollectionName()).updateOne({ fingerprint: oldFingerprint }, {
+                "$set": {
+                    fingerprint: newFingerprint
+                }
+            });
+
+            if (!utils.ok(response)) {
+                throw "invalid response"
+            }
+
+            log(`successfully updated ${oldFingerprint} to ${newFingerprint}`);
+            return true;
+        } catch (e) {
+            log(`error updating network ${oldFingerprint} - ${e}`);
+            throw e;
+        }
+    }
+
 
     static async getFromFingerprint(fingerprint) {
         const db = await database(BrainNeuralNetwork.getDatabaseName());
