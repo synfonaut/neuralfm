@@ -96,20 +96,19 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-- [ ] Show tweets on frontend
-
-- [ ] Run training to update weights
-
+- [ ] Editor mode
 - [ ] Classify it
 - [ ] Train it
 
+
 - [ ] Image mode
-- [ ] Editor mode
 - [ ] Classification mode
 
 ## BONUS ROUND
 - [ ] title tags
 - [ ] snapshot hashes of data models on chain
+- [ ] paymail integration
+- [ ] tonicpow integration
 
 ## BEFORE GOING LIVE
 - [ ] SSL certificate

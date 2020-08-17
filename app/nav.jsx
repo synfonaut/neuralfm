@@ -48,7 +48,7 @@ export function NavigationBar(args={}) {
     <div className="navbar-brand">
       <div className="logo">
         <a onClick={handleClickHomepage}><h1 className="title">NeuralFM</h1></a>
-        <p className="subtitle">AI Information Radio</p>
+        <p className="subtitle">Tune In To Information</p>
       </div>
 
       <a onClick={handleToggleMobileNavigation} role="button" className="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
