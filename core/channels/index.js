@@ -44,6 +44,14 @@ export async function getByName(name) {
     return channel;
 }
 
+export async function getTop() {
+    const db = await database(config.databaseName);
+    const channels = await (db.collection(config.channelsCollectionName).find({}).toArray());
+    db.close();
+    return channels;
+}
+
+
 export async function createIndexes() {
     const db = await database(config.databaseName);
     await db.collection(config.channelsCollectionName).createIndex({"name": 1}, {"unique": true});
