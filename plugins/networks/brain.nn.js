@@ -100,7 +100,7 @@ export class BrainNeuralNetwork {
         while (row = await cursor.next()) {
             const normalizedData = row[normalizedFieldName];
             const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
-            const prediction = 1;
+            const prediction = this.nn.run(input)[0];
 
             const key = `probabilities.${normalizedFieldName}`;
             const predictionUpdate = {

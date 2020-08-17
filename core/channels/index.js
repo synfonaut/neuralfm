@@ -58,11 +58,13 @@ export async function updateNetwork(slug, network_fingerprint) {
 export async function getBySlug(slug) {
     const db = await database(config.databaseName);
     const channel = await db.collection(config.channelsCollectionName).findOne({ slug });
-    if (!channel) {
-    }
 
     if (channel && channel.network_fingerprint) {
-        channel.network = await networks.load(channel.network_fingerprint);
+        try {
+            channel.network = await networks.load(channel.network_fingerprint);
+        } catch (e) {
+            log(`unable to load channel '${channel.slug}' network ${channel.network_fingerprint}`);
+        }
     }
 
     db.close();

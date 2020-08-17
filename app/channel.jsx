@@ -26,7 +26,6 @@ export function Channel(args={}) {
     setIsLoading(true);
     const chan = await core.channels.getBySlug(args.slug)
     if (chan) {
-      console.log("UPDATING CHANNEL", chan);
       const network = chan.network;
       delete chan.network;
       networks[chan.slug] = network;
@@ -49,8 +48,13 @@ export function Channel(args={}) {
       newSort = sortKey;
     }
 
-    log(`updating channel feed ${slug} ${newSort}`);
     const network = networks[slug]
+    if (!network) {
+      log(`cannot update channel feed, missing network on channel '${slug}'`);
+      return;
+    }
+
+    log(`updating channel feed ${slug} ${newSort}`);
     const data = await network.normalizer.getDataCursor(newSort);
     const feedData = [];
 
@@ -65,7 +69,6 @@ export function Channel(args={}) {
     setFeed(feedData);
 
     const classes = await network.classifier.getClassifications();
-    console.log("CLASSES", network.classifier.name, classes);
     if (classes) {
       setClassifications(classes);
     }
@@ -122,7 +125,7 @@ export function Channel(args={}) {
   }
 
   if (slug !== args.slug) {
-    log(`updating channel data ${args.slug}`);
+    log(`updating channel data for ${args.slug}`);
     updateChannel(args.slug);
   }
 
@@ -186,8 +189,11 @@ function TweetFeedItem(args={}) {
   const tweet = args.item;
   const channel = args.channel;
   const network = networks[channel.slug]; // HACKY :(
-  const predictions = tweet.predictions || {};
-  const prediction = predictions[network.fingerprint] || 0;
+  let prediction = 0;
+  if (network) {
+    const predictions = tweet.predictions || {};
+    prediction = predictions[network.fingerprint] || 0;
+  }
 
   return <div className="feed-item tweet">
     <div className="columns is-mobile">
