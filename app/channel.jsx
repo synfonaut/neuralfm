@@ -7,6 +7,9 @@ const core = require("../core");
 
 const DEFAULT_NETWORK_FINGERPRINT = "";
 
+// this is hacky....but that's why they call it a hackathon
+const networks = {};
+
 export function Channel(args={}) {
 
   const [isLoading, setIsLoading] = useState(true);
@@ -16,14 +19,18 @@ export function Channel(args={}) {
   const [isTraining, setIsTraining] = useState(false);
 
   async function updateChannel(slug) {
+    log("updating channel");
     setSlug(args.slug);
     setIsLoading(true);
     const chan = await core.channels.getBySlug(args.slug)
     if (chan) {
+      const network = chan.network;
+      delete chan.network;
+      networks[chan.slug] = network;
       setChannel(chan);
 
       // TODO: add pagination & sorting
-      const data = await chan.network.normalizer.getDataCursor();
+      const data = await network.normalizer.getDataCursor();
       const feedData = [];
 
       let feedItem;
@@ -46,15 +53,20 @@ export function Channel(args={}) {
   async function handleClickTrain() {
     log(`training`);
 
-    if (!channel || !channel.slug || !channel.network) {
+    if (!channel || !channel.slug) {
       // TODO: display error
     }
 
-    const oldFingerprint = channel.network.fingerprint;
+    const network = networks[channel.slug];
+    if (!network) {
+      // TODO: display error
+    }
+
+    const oldFingerprint = network.fingerprint;
 
     setIsTraining(true);
     try {
-      await core.networks.train(channel.network);
+      await core.networks.train(network);
     } catch (e) {
       throw e;
       // TODO: display error
@@ -62,18 +74,19 @@ export function Channel(args={}) {
       setIsTraining(false);
     }
 
-    if (channel.network.fingerprint !== oldFingerprint) {
-      log(`network fingerprint has updated from ${oldFingerprint} to ${channel.network.fingerprint}`);
-      await core.networks.updateFingerprint(channel.network.constructor, oldFingerprint, channel.network.fingerprint);
-      await core.channels.updateNetwork(channel.slug, channel.network.fingerprint);
-      channel.network_fingerprint = channel.network.fingerprint;
+    if (network.fingerprint !== oldFingerprint) {
+      log(`network fingerprint has updated from ${oldFingerprint} to ${network.fingerprint}`);
+      await core.networks.updateFingerprint(network.constructor, oldFingerprint, network.fingerprint);
+      await core.channels.updateNetwork(channel.slug, network.fingerprint);
+      channel.network_fingerprint = network.fingerprint;
     }
   }
 
   async function handleClickClassify(fingerprint, value) {
     log(`classifying ${fingerprint} to ${value}`);
+    const network = networks[channel.slug];
     try {
-      await channel.network.classifier.classify(fingerprint, value);
+      await network.classifier.classify(fingerprint, value);
       log(`classified ${fingerprint} to ${value}`);
     } catch (e) {
       // TODO: display error
@@ -141,10 +154,9 @@ function FeedItem(args={}) {
 
 function TweetFeedItem(args={}) {
   const tweet = args.item;
-  const network = args.channel.network;
+  const channel = args.channel;
+  const network = networks[channel.slug]; // HACKY :(
   const predictions = tweet.predictions || {};
-  //console.log(predictions);
-  //console.log(network.fingerprint);
   const prediction = predictions[network.fingerprint] || 0;
 
   return <div className="feed-item tweet">
@@ -169,6 +181,7 @@ function TweetFeedItem(args={}) {
 }
 
 function RetweetFeedItem(args={}) {
+  /*
   const predictions = args.item.predictions || {};
   const prediction = predictions[args.channel.network.fingerprint] || 0;
   return <div className="feed-item tweet">
@@ -183,9 +196,11 @@ function RetweetFeedItem(args={}) {
       </div>
     </div>
   </div>
+  */
 }
 
 function QuoteTweetFeedItem(args={}) {
+  /*
   const predictions = args.item.predictions || {};
   const prediction = predictions[args.channel.network.fingerprint] || 0;
   return <div className="feed-item tweet">
@@ -200,6 +215,7 @@ function QuoteTweetFeedItem(args={}) {
       </div>
     </div>
   </div>
+  */
 }
 
 export function ChannelSidebar(args={}) {
