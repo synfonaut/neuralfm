@@ -56,6 +56,7 @@ export function Channel(args={}) {
     try {
       await core.networks.train(channel.network);
     } catch (e) {
+      throw e;
       // TODO: display error
     } finally {
       setIsTraining(false);

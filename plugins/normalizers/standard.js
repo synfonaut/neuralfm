@@ -80,6 +80,15 @@ export class StandardFeatureNormalizer {
         return await this.db.collection(collectionName).find(findQuery);
     }
 
+    async getDataStream() {
+        const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
+        const collectionName = this.scraper.constructor.getCollectionName();
+        const findQuery = {};
+        findQuery[fieldName] = {"$exists": true};
+        return await this.db.collection(collectionName).find(findQuery).stream();
+    }
+
+
     async updateNormalizationValues(unnormalized, metadata) {
         log(`normalizing ${unnormalized.fingerprint}`);
 

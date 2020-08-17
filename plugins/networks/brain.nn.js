@@ -85,40 +85,46 @@ export class BrainNeuralNetwork {
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }
 
-    // TODO: throwing error here isn't showing up on frontend
     async calculate() {
         if (!this.nn) { throw "expected neural network" }
 
         const normalizedFieldName = this.normalizer.constructor.getNormalizedFieldName(this.extractor);
-        const cursor = await this.normalizer.getDataCursor();
+        //const cursor = await this.normalizer.getDataCursor();
         let row;
 
         const predictionUpdates = [];
 
         log(`calculating predictions for ${this.fingerprint}`);
-        while (row = await cursor.next()) {
-            const normalizedData = row[normalizedFieldName];
-            const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
-            const prediction = this.predict(input);
+        return new Promise(async (resolve, reject) => {
+            const stream = await this.normalizer.getDataStream();
 
-            const key = `probabilities.${normalizedFieldName}`;
-            const predictionUpdate = {
-                "updateOne": {
-                    "filter": { "fingerprint": row.fingerprint },
-                    "update": { "$set": {}}
-                }
-            };
+            stream.on("close", async () => {
+                const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
+                log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
 
-            predictionUpdate.updateOne.update["$set"][`predictions.${this.fingerprint}`] = prediction;
+                resolve();
+            });
 
-            predictionUpdates.push(predictionUpdate);
-        }
+            let numCalculated = 0;
+            stream.on("data", (row) => {
+                const normalizedData = row[normalizedFieldName];
+                const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
+                const prediction = 1;
 
-        log('done');
+                const key = `probabilities.${normalizedFieldName}`;
+                const predictionUpdate = {
+                    "updateOne": {
+                        "filter": { "fingerprint": row.fingerprint },
+                        "update": { "$set": {}}
+                    }
+                };
 
-        const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
-        log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
+                predictionUpdate.updateOne.update["$set"][`predictions.${this.fingerprint}`] = prediction;
 
+                predictionUpdates.push(predictionUpdate);
+                numCalculated += 1;
+            });
+        });
     }
 
     async updatePrediction(fingerprint, prediction) {
