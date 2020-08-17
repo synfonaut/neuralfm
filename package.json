@@ -9,7 +9,8 @@
     "scrape": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrapers/index.js",
     "extract": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/extractors/index.js",
     "normalize": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/normalizers/index.js",
-    "train": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/networks/index.js"
+    "train": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/networks/index.js",
+    "css": "./node_modules/.bin/node-sass --omit-source-map-url app/sass/bulma.sass app/public/bulma.css"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",
@@ -28,7 +29,9 @@
     "twitter": "1.7.1"
   },
   "devDependencies": {
+    "bulma": "0.9.0",
     "mocha": "8.1.1",
+    "node-sass": "4.14.1",
     "nodemon": "2.0.4"
   }
 }

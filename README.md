@@ -111,6 +111,7 @@ https://neural.fm/synfonaut@moneybutton.com
 - [ ] Classification mode
 
 ## BONUS ROUND
+- [ ] title tags
 - [ ] snapshot hashes of data models on chain
 
 ## BEFORE GOING LIVE
