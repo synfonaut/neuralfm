@@ -1,3 +1,5 @@
+const log = require("debug")("neuralfm:app:nav");
+
 import React, { useState } from "react"
 import { Link } from "caldera"
 
@@ -5,8 +7,18 @@ const core = require("../core");
 
 export function NavigationBar(args={}) {
 
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const [channels, setChannels] = useState([]);
-  core.channels.getTop().then(setChannels);
+
+  if (!isLoaded) {
+    setIsLoaded(true);
+
+    core.channels.getTop().then(newChannels => {
+      log("setting channels");
+      setChannels(newChannels);
+    });
+  }
 
   const [isShowingMobileNavigation, setIsShowingMobileNavigation] = React.useState(false);
   function handleToggleMobileNavigation() {
