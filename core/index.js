@@ -12,8 +12,15 @@ const normalizers = require("./normalizers");
 
 require("./compatibility");
 
+async function setup() {
+    log('setting up core db');
+    await networks.createIndexes();
+    await channels.createIndexes();
+}
+
 module.exports = {
     db,
+    setup,
     channels,
     networks,
     classifiers,

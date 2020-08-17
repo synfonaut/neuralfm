@@ -4,7 +4,7 @@ const core = require("../index");
 const utils = require("../../utils");
 const helpers = require("../../helpers");
 
-describe("network", function () {
+describe("channels", function () {
   this.timeout(5000);
   this.slow(1000);
 
@@ -12,43 +12,33 @@ describe("network", function () {
       await helpers.setupTestDatabase();
   });
 
-          it.skip("creates a channel with no neural network", async function() {
-              assert(true);
-          });
+  it("creates a channel with no neural network", async function() {
+    const channel = await core.channels.create("BSV News");
+    assert(channel);
+    assert.equal(channel.name, "BSV News");
 
-    // creates channel with neural network
-    // cannot create duplicate channel names
-
-    /*
-  it("gets all networks", async function() {
-    const db = await core.db(core.plugins.scrapers.BSVTwitterScraper.getDatabaseName());
-    const scraper = new core.plugins.scrapers.BSVTwitterScraper(db);
-    const extractor = new core.plugins.extractors.TwitterFeatureExtractor(db, scraper);
-    const normalizer = new core.plugins.normalizers.StandardFeatureNormalizer(db, scraper, extractor);
-
-    await scraper.run();
-    await extractor.run();
-    await normalizer.run();
-
-    const classifier = new core.classifiers.Classifier("test_classifier");
-    await classifier.classify("twitter-1294363849961820200", 1);
-
-    const network = new core.plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
-    await core.networks.train(network);
-
-    const fingerprint1 = await network.save();
-    assert(fingerprint1);
-
-
-    await core.networks.train(network);
-    const fingerprint2 = await network.save();
-    assert(fingerprint2);
-
-    const networks = await core.networks.getAllNetworks();
-    assert.equal(networks.length, 2);
+    const fetchedChannel = await core.channels.getByName("BSV News");
+    assert(fetchedChannel);
+    assert.equal(fetchedChannel.name, "BSV News");
   });
 
-  it("creates a new network with options", async function() {
+  it("doesn't create duplicate channels", async function() {
+    const channel = await core.channels.create("BSV News");
+    assert(channel);
+    assert.equal(channel.name, "BSV News");
+
+    let allowedDupe = true;
+    try {
+      const duplicateChannel = await core.channels.create("BSV News");
+    } catch (e) {
+      allowedDupe = false;
+    }
+
+    assert(!allowedDupe);
+  });
+
+  it("creates channel with neural network", async function() {
+    // create network
     const scraper = core.plugins.scrapers.BSVTwitterScraper;
     const extractor = core.plugins.extractors.TwitterFeatureExtractor;
     const normalizer = core.plugins.normalizers.StandardFeatureNormalizer;
@@ -82,7 +72,38 @@ describe("network", function () {
       found = true;
     }
     assert(found);
+
+    // create channel
+
+    const channel = await core.channels.create("BSV News", networkInstance);
+    assert(channel);
+    assert.equal(channel.name, "BSV News");
+    assert(channel.network);
+
+    const fetchedChannel = await core.channels.getByName("BSV News");
+    assert(fetchedChannel);
+    assert.equal(fetchedChannel.name, "BSV News");
+    assert(fetchedChannel.network);
+    assert.equal(fetchedChannel.network.fingerprint, networkInstance.fingerprint);
+
+    // zero out previous predictions
+    const newResults = await networkInstance.normalizer.getDataSource();
+    found = false;
+    for (const result of newResults) {
+      delete result.predictions[networkInstance.fingerprint];
+      found = true;
+    }
+    assert(found);
+
+    found = false;
+    for (const result of newResults) {
+      const normalizedData = result[fetchedChannel.network.normalizer.constructor.getNormalizedFieldName(fetchedChannel.network.extractor)];
+      const normalizedInput = fetchedChannel.network.normalizer.constructor.convertToTrainingDataInput(normalizedData);
+      const prediction = networkInstance.predict(normalizedInput);
+      assert(prediction > 0.8);
+      found = true;
+    }
+    assert(found);
   });
-  */
 });
 

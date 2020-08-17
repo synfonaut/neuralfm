@@ -220,7 +220,7 @@ export class BrainNeuralNetwork {
     }
 
     static getCollectionName() {
-        return config.networkCollectionName;
+        return config.networksCollectionName;
     }
 
     static getDatabaseName() {

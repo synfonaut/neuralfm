@@ -3,6 +3,7 @@ import { renderCalderaApp, makeSharedResource, useSharedState, useLocation, useH
 import { Router } from "./router"
 import { NavigationBar } from "./nav"
 
+const core = require("../core");
 
 function NeuralFMApplicationWrapper(args={}) {
   const location = useLocation();
@@ -32,21 +33,12 @@ function NeuralFMApplication(args={}) {
     </div>
 }
 
-/*
-function LoadingScreen(args={}) {
-  return <div id="loading" className={args.isLoaded ? "loaded" : "unloaded"}>
-    <div className="columns is-vcentered">
-      <div className="column has-text-centered">
-        <p className="bd-notification is-primary breathe">NeuralFM</p>
-        <p className="is-size-6 breathe">Loading...</p>
-      </div>
-    </div>
-  </div>
-}
-*/
+(async function() {
+  await core.setup();
 
-renderCalderaApp(<NeuralFMApplicationWrapper />, {
-    port: 7777,
-    rootDir: "./app/public"
-});
+  renderCalderaApp(<NeuralFMApplicationWrapper />, {
+      port: 7777,
+      rootDir: "./app/public"
+  });
 
+})();

@@ -13,6 +13,11 @@ export async function setupTestDatabase() {
         await network.resetDatabase();
     }
 
+    await core.plugins.networks.BrainNeuralNetwork.resetDatabase();
+
+    await core.setup();
+    await core.channels.resetDatabase();
+
     const scrapers = scrapersCore.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
     assert(scrapers && scrapers.length > 0);
     const fixtures = JSON.parse(fs.readFileSync("./plugins/extractors/fixtures.json", "utf8"));
@@ -29,9 +34,6 @@ export async function setupTestDatabase() {
         const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
         assert.equal(results.length, 10);
 
-        await core.plugins.networks.BrainNeuralNetwork.resetDatabase();
-
-        await core.networks.createIndexes();
 
         db.close();
     }

@@ -16,9 +16,17 @@ export async function train(network) {
 
 export async function load(fingerprint) {
     log(`loading network ${fingerprint}`);
-
     const db = await database(config.databaseName);
-    const data = await db.collection(config.networkCollectionName).findOne({});
+    const data = await db.collection(config.networksCollectionName).findOne({});
+    const network = await loadFromData(data);
+    db.close();
+    return network;
+}
+
+export async function loadFromData(data) {
+    const fingerprint = data.fingerprint;
+    if (!fingerprint) { throw "expected fingerprint" }
+
     if (!data) { throw `error finding data with fingerprint ${fingerprint}` }
 
     const scraper = plugins.scrapers[data.scraper];
@@ -38,7 +46,6 @@ export async function load(fingerprint) {
     if (!data.trainingOptions) { throw `expected trainingOptions for fingerprint ${fingerprint}` }
     if (!data.normalizationMetadata) { throw `expected normalizationMetadata for fingerprint ${fingerprint}` }
     if (!data.classifications) { throw `expected classifications for fingerprint ${fingerprint}` }
-    if (data.fingerprint !== fingerprint) { throw `expected fingerprint ${data.fingerprint} to match ${fingerprint}` }
 
     const scraperDatabase = await database(scraper.getDatabaseName());
 
@@ -79,7 +86,6 @@ export async function load(fingerprint) {
 
     log(`loaded neural network ${networkInstance.fingerprint}`);
 
-    db.close();
     scraperDatabase.close();
 
     return networkInstance;
@@ -94,7 +100,7 @@ export async function getAllNetworks() {
     log(`getting all networks`);
     const db = await database(config.databaseName);
 
-    const networks = (await db.collection(config.networkCollectionName).find({}).sort({"order": -1})).toArray();
+    const networks = (await db.collection(config.networksCollectionName).find({}).sort({"order": -1})).toArray();
 
     db.close();
 
@@ -126,8 +132,8 @@ export async function create(scraper, extractor, normalizer, network, classifier
 
 export async function createIndexes() {
     const db = await database(config.databaseName);
-    await db.collection(config.networkCollectionName).createIndex({"fingerprint": 1}, {"unique": true});
-    await db.collection(config.networkCollectionName).createIndex({"name": 1}, {"unique": true});
+    await db.collection(config.networksCollectionName).createIndex({"fingerprint": 1}, {"unique": true});
+    await db.collection(config.networksCollectionName).createIndex({"name": 1}, {"unique": true});
     db.close();
 }
 
