@@ -2,7 +2,7 @@ import React, { useState } from "react"
 
 import { Sidebar } from "./sidebar"
 import { CreateNetwork, CreateNetworkSidebar } from "./network"
-import { Channel, ChannelSidebar } from "./channel"
+import { Channel } from "./channel"
 import { Error404Page } from "./error"
 
 // return ["route", "identifier"] from location
@@ -53,14 +53,7 @@ export function Router(args={}) {
       </div>
   } else if (route == "channel") {
     return <div id="channel">
-        <div className="columns">
-            <div className="column is-8">
-                <Channel {...params} />
-            </div>
-            <div className="column is-4">
-                <ChannelSidebar {...params} />
-            </div>
-        </div>
+          <Channel {...params} />
       </div>
   } else {
       return <Error404Page {...params} />

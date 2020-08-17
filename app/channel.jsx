@@ -9,39 +9,72 @@ const DEFAULT_NETWORK_FINGERPRINT = "";
 
 export function Channel(args={}) {
 
+  const [isLoading, setIsLoading] = useState(true);
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
-  const [isInvalidChannel, setIsInvalidChannel] = useState(false);
+  const [feed, setFeed] = useState([]);
+
+  async function updateChannel(slug) {
+    setSlug(args.slug);
+    setIsLoading(true);
+    const chnnl = await core.channels.getBySlug(args.slug)
+    if (chnnl) {
+      const network = chnnl.network;
+      delete chnnl.network;
+      setChannel(chnnl);
+
+      // TODO: add pagination
+      const data = await network.normalizer.getDataSource();
+      setFeed(data);
+      setIsLoading(false);
+    } else {
+      setChannel({});
+      setIsLoading(false);
+    }
+  }
 
   if (slug !== args.slug) {
     log(`updating channel data ${args.slug}`);
-    setSlug(args.slug);
-    core.channels.getBySlug(args.slug).then(updatedChannel => {
-      if (updatedChannel) {
-        delete updatedChannel.network;
-        setChannel(updatedChannel);
-      } else {
-        setChannel({});
-        setIsInvalidChannel(true);
-      }
-    });
+    updateChannel(args.slug);
   }
 
   if (!channel || !channel.name) {
-    return <div id="channel">
-        <h2 className="title"></h2>
-        {!isInvalidChannel && <div className="block-loader">
-          <div className="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-        </div>}
-        {isInvalidChannel && <p className="content">Unable to find channel <strong>{args.slug}</strong></p>}
-      </div>
+    return <div className="columns">
+        <div className="column is-8">
+            <h2 className="title"></h2>
+            {isLoading && <div className="block-loader">
+              <div className="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            </div>}
+            {!isLoading && <p className="content">Unable to find channel <strong>{args.slug}</strong></p>}
+        </div>
+        <div className="column is-4">
+            <ChannelSidebar {...args} />
+        </div>
+    </div>
   }
 
-  return <div id="channel">
-      <h2 className="title">{channel.name}</h2>
-        <p className="content">{channel.network_fingerprint}</p>
-    </div>
+  return <div className="columns">
+      <div className="column is-8">
+          <h2 className="title">{channel.name}</h2>
+          <p className="content">{channel.network_fingerprint}</p>
+          <div className="feed">
+            {feed.map(item => {
+              console.log("TEXT", item.text);
+              return <FeedItem item={item} {...args} />
+            })}
+          </div>
+      </div>
+      <div className="column is-4">
+          <ChannelSidebar {...args} />
+      </div>
+  </div>
 
+}
+
+function FeedItem(args={}) {
+  return <div className="feed-item">
+    {args.item.text}
+  </div>
 }
 
 export function ChannelSidebar(args={}) {

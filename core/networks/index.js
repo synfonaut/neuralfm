@@ -7,7 +7,6 @@ const Classifier = require("../classifiers").Classifier;
 
 const plugins = require("../../plugins");
 
-
 export async function train(network) {
     log(`training ${network.name}`);
     await network.run();
