@@ -142,11 +142,14 @@ export class BrainNeuralNetwork {
             neuralnetwork = this.nn.toJSON();
         }
 
+        const trainingOptions = this.trainingOptions;
+        delete trainingOptions["callback"];
+
         return {
             fingerprint: this.fingerprint,
             name: this.fingerprint,
             networkOptions: this.networkOptions,
-            trainingOptions: this.trainingOptions,
+            trainingOptions,
             scraper: this.scraper.constructor.name,
             extractor: this.extractor.constructor.name,
             normalizer: this.normalizer.constructor.name,

@@ -17,20 +17,20 @@ export function Channel(args={}) {
   async function updateChannel(slug) {
     setSlug(args.slug);
     setIsLoading(true);
-    const chnnl = await core.channels.getBySlug(args.slug)
-    if (chnnl) {
-      const network = chnnl.network;
-      delete chnnl.network;
-      setChannel(chnnl);
+    const chnl = await core.channels.getBySlug(args.slug)
+    if (chnl) {
+      const network = chnl.network;
+      chnl.network = await network.toJSON();
+      setChannel(chnl);
 
-      // TODO: add pagination
+      // TODO: add pagination & sorting
       const data = await network.normalizer.getDataCursor();
       const feedData = [];
 
       let feedItem;
       while (feedItem = await data.next()) {
         feedData.push(feedItem);
-        if (feedData.length > 50) {
+        if (feedData.length > 200) {
           break;
         }
       }
@@ -38,6 +38,7 @@ export function Channel(args={}) {
       setFeed(feedData);
       setIsLoading(false);
     } else {
+      network = null;
       setChannel({});
       setIsLoading(false);
     }
@@ -48,6 +49,11 @@ export function Channel(args={}) {
     updateChannel(args.slug);
   }
 
+
+  const params = Object.assign({}, args, {
+    channel,
+  });
+
   if (!channel || !channel.name) {
     return <div className="columns">
         <div className="column is-8">
@@ -55,10 +61,10 @@ export function Channel(args={}) {
             {isLoading && <div className="block-loader">
               <div className="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
             </div>}
-            {!isLoading && <p className="content">Unable to find channel <strong>{args.slug}</strong></p>}
+            {!isLoading && <p className="content">Unable to find channel <strong>{params.slug}</strong></p>}
         </div>
         <div className="column is-4">
-            <ChannelSidebar {...args} />
+            <ChannelSidebar {...params} />
         </div>
     </div>
   }
@@ -68,12 +74,12 @@ export function Channel(args={}) {
           <h2 className="title">{channel.name}</h2>
           <div className="feed">
             {feed.map(item => {
-              return <FeedItem key={item.fingerprint} item={item} {...args} />
+              return <FeedItem key={item.fingerprint} item={item} {...params} />
             })}
           </div>
       </div>
       <div className="column is-4">
-          <ChannelSidebar {...args} />
+          <ChannelSidebar {...params} />
       </div>
   </div>
 
@@ -81,6 +87,8 @@ export function Channel(args={}) {
 
 function FeedItem(args={}) {
   const item = args.item;
+  return <TweetFeedItem {...args} />
+
   if (item.quoted_status) {
     return <QuoteTweetFeedItem {...args} />
   } else if (item.retweeted_status) {
@@ -93,21 +101,59 @@ function FeedItem(args={}) {
 }
 
 function TweetFeedItem(args={}) {
+  const tweet = args.item;
+  const network = args.channel.network;
+  const predictions = tweet.predictions || {};
+  const prediction = predictions[network.fingerprint] || 0;
+
   return <div className="feed-item tweet">
-    {args.item.full_text}
+    <div className="columns is-mobile">
+      <div className="column is-1">
+        <div className="prediction">
+        {prediction}
+        </div>
+      </div>
+      <div className="column is-2">
+        {tweet.user.screen_name}
+      </div>
+      <div className="column is-9">
+        {tweet.full_text}
+      </div>
+    </div>
   </div>
 }
 
 function RetweetFeedItem(args={}) {
-  return <div className="feed-item tweet retweet">
-    {args.item.retweeted_status.full_text}
+  const predictions = args.item.predictions || {};
+  const prediction = predictions[args.channel.network.fingerprint] || 0;
+  return <div className="feed-item tweet">
+    <div className="columns is-mobile">
+      <div className="column is-3">
+        <div className="prediction">
+        {prediction}
+        </div>
+      </div>
+      <div className="column is-9">
+        {args.item.full_text}
+      </div>
+    </div>
   </div>
 }
 
 function QuoteTweetFeedItem(args={}) {
-  return <div className="feed-item tweet quote">
-     {args.item.full_text}<br />
-     {args.item.quoted_status.full_text}
+  const predictions = args.item.predictions || {};
+  const prediction = predictions[args.channel.network.fingerprint] || 0;
+  return <div className="feed-item tweet">
+    <div className="columns is-mobile">
+      <div className="column is-3">
+        <div className="prediction">
+        {prediction}
+        </div>
+      </div>
+      <div className="column is-9">
+        {args.item.full_text}
+      </div>
+    </div>
   </div>
 }
 
