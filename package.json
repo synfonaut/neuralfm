@@ -9,7 +9,6 @@
     "scrape": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/scrapers/index.js",
     "extract": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/extractors/index.js",
     "normalize": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/normalizers/index.js",
-    "train": "DEBUG=neuralfm:* babel-node --presets @babel/preset-react --presets @babel/preset-env core/networks/index.js",
     "css": "./node_modules/.bin/node-sass --omit-source-map-url app/sass/bulma.sass app/public/bulma.css"
   },
   "author": "Brad Jasper",

@@ -140,25 +140,3 @@ export async function createIndexes() {
     db.close();
 }
 
-if (require.main === module) {
-    (async function() {
-
-        await createIndexes();
-
-        const networks = await getAllNetworks();
-        console.log("NETWORKS", networks);
-        /*
-        let results;
-        do {
-            results = await extract(allExtractors);
-            if (results.length > 0) {
-                log("sleeping");
-                await utils.sleep(1000);
-            }
-        } while (results.length > 0);
-
-        */
-        process.exit();
-    })();
-
-}
