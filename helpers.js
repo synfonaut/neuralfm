@@ -32,7 +32,7 @@ export async function setupTestDatabase() {
 
         await db.collection(scraper.getCollectionName()).insertMany(fixtures);
         const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
-        assert.equal(results.length, 10);
+        assert.equal(results.length, 20);
 
 
         db.close();

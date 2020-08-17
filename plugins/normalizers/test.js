@@ -129,13 +129,13 @@ describe("normalize features", function () {
         let extractors = [core.plugins.extractors.TwitterFeatureExtractor];
 
         let results = await core.extractors.extract(extractors);
-        assert.equal(results.length, 10);
+        assert.equal(results.length, 20);
         assert(results[0].twitter_features);
 
         const StandardFeatureNormalizer = core.plugins.normalizers.StandardFeatureNormalizer;
 
         let normalized = await core.normalizers.normalize(extractors, StandardFeatureNormalizer);
-        assert.equal(normalized.length, 10);
+        assert.equal(normalized.length, 20);
         assert(normalized[0].fingerprint);
         assert(normalized[0].date != null);
         assert(normalized[0].likes != null);

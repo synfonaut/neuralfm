@@ -72,7 +72,7 @@ describe("brain neural network", function () {
         assert.equal(trainingData.length, 1);
 
         assert.equal(trainingData[0].fingerprint, "twitter-1293919071222849500");
-        assert.equal(trainingData[0].input.length, 155);
+        assert.equal(trainingData[0].input.length, 277);
         assert.equal(trainingData[0].output[0], 1);
     });
 

@@ -45,8 +45,17 @@ export class TwitterFeatureExtractor {
     async runFeatureExtractOnTweet(tweet) {
         log(`extracting features from ${tweet.fingerprint}`);
 
+        let text = tweet.full_text;
+        if (tweet.retweeted_status) {
+            text = tweet.retweeted_status.full_text;
+        }
+
+        if (tweet.quoted_status) {
+            text = `${text} BOWTWITTERQUOTE ${tweet.quoted_status.full_text}`;
+        }
+
         const features = {
-            "text": tweet.full_text,
+            text,
             "likes": tweet.favorite_count,
             "retweets": tweet.retweet_count,
             "submitter": tweet.user.screen_name,
