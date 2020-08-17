@@ -39,6 +39,11 @@ export function NavigationBar(args={}) {
     hideMobileNavigation();
   }
 
+  function handleClickChannel(slug) {
+    args.history.push("/" + slug);
+    hideMobileNavigation();
+  }
+
   return <nav className="navbar is-fixed-top" role="navigation" aria-label="main navigation">
     <div className="navbar-brand">
       <div className="logo">
@@ -55,15 +60,8 @@ export function NavigationBar(args={}) {
 
     <div id="navbarBasicExample" className={"navbar-menu" + (isShowingMobileNavigation ? " is-active": "")}>
       <div className="navbar-start">
-          <a className="navbar-item" href="">Bitcoin</a>
-          <a className="navbar-item" href="">Business</a>
-          <a className="navbar-item" href="">Technology</a>
-          <a className="navbar-item" href="">Metanet</a>
-          <a className="navbar-item" href="">Proof of Work</a>
-          <a className="navbar-item" href="">Decentralized Applications</a>
-          <a className="navbar-item" href="">Wallets</a>
           {channels.map(channel => {
-              return <a key={channel.name} className="navbar-item" href="">{channel.name}</a>
+              return <a key={channel.name} onClick={() => { handleClickChannel(channel.slug) }} className="navbar-item">{channel.name}</a>
           })}
           <hr className="navbar-divider is-hidden-desktop" />
           <a className="navbar-item is-hidden-desktop" onClick={handleClickCreate}>

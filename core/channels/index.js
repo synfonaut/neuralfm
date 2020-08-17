@@ -12,7 +12,6 @@ export async function create(name, network=null) {
 
     const channel = { name, slug };
 
-
     if (network) {
         log(`creating channel ${name} with network ${network.name}`);
         channel.network_fingerprint = network.fingerprint;
@@ -36,11 +35,13 @@ export async function create(name, network=null) {
     return channel;
 }
 
-export async function getByName(name) {
+export async function getBySlug(slug) {
     const db = await database(config.databaseName);
-    const channel = await db.collection(config.channelsCollectionName).findOne({ name });
+    const channel = await db.collection(config.channelsCollectionName).findOne({ slug });
+    if (!channel) {
+    }
 
-    if (channel.network_fingerprint) {
+    if (channel && channel.network_fingerprint) {
         channel.network = await networks.load(channel.network_fingerprint);
     }
 

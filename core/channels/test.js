@@ -17,7 +17,7 @@ describe("channels", function () {
     assert(channel);
     assert.equal(channel.name, "BSV News");
 
-    const fetchedChannel = await core.channels.getByName("BSV News");
+    const fetchedChannel = await core.channels.getBySlug(channel.slug);
     assert(fetchedChannel);
     assert.equal(fetchedChannel.name, "BSV News");
   });
@@ -82,7 +82,7 @@ describe("channels", function () {
     assert.equal(channel.name, "BSV News");
     assert(channel.network_fingerprint);
 
-    const fetchedChannel = await core.channels.getByName("BSV News");
+    const fetchedChannel = await core.channels.getBySlug(channel.slug);
     assert(fetchedChannel);
     assert.equal(fetchedChannel.name, "BSV News");
     assert(fetchedChannel.network_fingerprint);
