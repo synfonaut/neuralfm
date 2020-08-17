@@ -24,8 +24,18 @@ export function Channel(args={}) {
       setChannel(chnnl);
 
       // TODO: add pagination
-      const data = await network.normalizer.getDataSource();
-      setFeed(data);
+      const data = await network.normalizer.getDataCursor();
+      const feedData = [];
+
+      let feedItem;
+      while (feedItem = await data.next()) {
+        feedData.push(feedItem);
+        if (feedData.length > 50) {
+          break;
+        }
+      }
+
+      setFeed(feedData);
       setIsLoading(false);
     } else {
       setChannel({});
@@ -56,11 +66,9 @@ export function Channel(args={}) {
   return <div className="columns">
       <div className="column is-8">
           <h2 className="title">{channel.name}</h2>
-          <p className="content">{channel.network_fingerprint}</p>
           <div className="feed">
             {feed.map(item => {
-              console.log("TEXT", item.text);
-              return <FeedItem item={item} {...args} />
+              return <FeedItem key={item.fingerprint} item={item} {...args} />
             })}
           </div>
       </div>
@@ -72,15 +80,34 @@ export function Channel(args={}) {
 }
 
 function FeedItem(args={}) {
-  console.log("ITEM", args.item);
-  return <div className="feed-item">
-    {args.item.text}
-  </div>
+  const item = args.item;
+  if (item.quoted_status) {
+    return <QuoteTweetFeedItem {...args} />
+  } else if (item.retweeted_status) {
+    return <RetweetFeedItem {...args} />
+  } else if (item.full_text) {
+    return <TweetFeedItem {...args} />
+  } else {
+    log(`unknown feed item ${args.fingerprint}`);
+  }
 }
 
 function TweetFeedItem(args={}) {
-  return <div className="feed-item">
-    {args.item.text}
+  return <div className="feed-item tweet">
+    {args.item.full_text}
+  </div>
+}
+
+function RetweetFeedItem(args={}) {
+  return <div className="feed-item tweet retweet">
+    {args.item.retweeted_status.full_text}
+  </div>
+}
+
+function QuoteTweetFeedItem(args={}) {
+  return <div className="feed-item tweet quote">
+     {args.item.full_text}<br />
+     {args.item.quoted_status.full_text}
   </div>
 }
 
