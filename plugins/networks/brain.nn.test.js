@@ -4,6 +4,7 @@ const core = require("../../core");
 const scrapersCore = require("../../core/scrapers");
 const plugins = require("../index");
 const utils = require("../../utils");
+const helpers = require("../../helpers");
 
 const StandardFeatureNormalizer = plugins.normalizers.StandardFeatureNormalizer;
 
@@ -20,26 +21,7 @@ describe("brain neural network", function () {
     this.slow(1000);
 
     beforeEach(async function() {
-        const scrapers = scrapersCore.getCompatible(core.plugins.extractors.TwitterFeatureExtractor);
-        assert(scrapers && scrapers.length > 0);
-        const fixtures = JSON.parse(fs.readFileSync("./plugins/extractors/fixtures.json", "utf8"));
-        for (const scraper of scrapers) {
-            const databaseName = await scraper.getDatabaseName();
-            assert.equal(databaseName.indexOf("Test"), 0);
-            const db = await core.db(databaseName);
-
-            await scraper.resetDatabase();
-            await StandardFeatureNormalizer.resetDatabase(databaseName);
-            await core.classifiers.Classifier.resetDatabase();
-
-            await db.collection(scraper.getCollectionName()).insertMany(fixtures);
-            const results = await db.collection(scraper.getCollectionName()).find({}).toArray();
-            assert.equal(results.length, 10);
-
-            await plugins.networks.BrainNeuralNetwork.resetDatabase();
-
-            db.close();
-        }
+      await helpers.setupTestDatabase();
     });
 
     it("verifies plugins loaded properly", function() {

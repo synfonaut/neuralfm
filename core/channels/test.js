@@ -1,6 +1,6 @@
+const fs = require("fs");
 const assert = require("assert");
 const core = require("../index");
-const scrapersCore = require("../scrapers");
 const utils = require("../../utils");
 const helpers = require("../../helpers");
 
@@ -9,9 +9,17 @@ describe("network", function () {
   this.slow(1000);
 
   beforeEach(async function() {
-    await helpers.setupTestDatabase();
+      await helpers.setupTestDatabase();
   });
 
+          it.skip("creates a channel with no neural network", async function() {
+              assert(true);
+          });
+
+    // creates channel with neural network
+    // cannot create duplicate channel names
+
+    /*
   it("gets all networks", async function() {
     const db = await core.db(core.plugins.scrapers.BSVTwitterScraper.getDatabaseName());
     const scraper = new core.plugins.scrapers.BSVTwitterScraper(db);
@@ -75,5 +83,6 @@ describe("network", function () {
     }
     assert(found);
   });
+  */
 });
 
