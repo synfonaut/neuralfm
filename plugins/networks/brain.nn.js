@@ -83,6 +83,14 @@ export class BrainNeuralNetwork {
 
         this.isDirty = false;
         this.trainedDate = new Date();
+
+        // HACKY....can only have 64 mongodb indexes LOL
+        const indexQuery = {};
+        const indexKeyField = `predictions.${this.fingerprint}`;
+        indexQuery[indexKeyField] = 1;
+
+        await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).dropIndex(indexQuery);
+
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }
 
