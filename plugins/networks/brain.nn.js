@@ -25,6 +25,7 @@ export class BrainNeuralNetwork {
         this.data = [];
         this.trainingData = [];
         this.trainedDate = null;
+        this.maxTrainingRows = 1000;
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}`;
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
@@ -89,43 +90,42 @@ export class BrainNeuralNetwork {
         if (!this.nn) { throw "expected neural network" }
 
         const normalizedFieldName = this.normalizer.constructor.getNormalizedFieldName(this.extractor);
-        //const cursor = await this.normalizer.getDataCursor();
-        let row;
-
         const predictionUpdates = [];
 
         log(`calculating predictions for ${this.fingerprint}`);
-        return new Promise(async (resolve, reject) => {
-            const stream = await this.normalizer.getDataStream();
 
-            stream.on("close", async () => {
-                const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
-                log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
+        let numCalculated = 0;
+        let row;
+        const cursor = await this.normalizer.getDataCursor();
+        while (row = await cursor.next()) {
+            const normalizedData = row[normalizedFieldName];
+            const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
+            const prediction = 1;
 
-                resolve();
-            });
+            const key = `probabilities.${normalizedFieldName}`;
+            const predictionUpdate = {
+                "updateOne": {
+                    "filter": { "fingerprint": row.fingerprint },
+                    "update": { "$set": {}}
+                }
+            };
 
-            let numCalculated = 0;
-            stream.on("data", (row) => {
-                const normalizedData = row[normalizedFieldName];
-                const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
-                const prediction = 1;
+            predictionUpdate.updateOne.update["$set"][`predictions.${this.fingerprint}`] = prediction;
 
-                const key = `probabilities.${normalizedFieldName}`;
-                const predictionUpdate = {
-                    "updateOne": {
-                        "filter": { "fingerprint": row.fingerprint },
-                        "update": { "$set": {}}
-                    }
-                };
+            predictionUpdates.push(predictionUpdate);
+            numCalculated += 1;
+            if ((numCalculated % 500) == 0) {
+                log(`calculated predictions for ${numCalculated}`);
+            }
 
-                predictionUpdate.updateOne.update["$set"][`predictions.${this.fingerprint}`] = prediction;
+            if (numCalculated >= this.maxTrainingRows) {
+                log(`reached maxTrainingRows ${this.maxTrainingRows}`);
+                break;
+            }
+        }
 
-                predictionUpdates.push(predictionUpdate);
-                numCalculated += 1;
-                log(numCalculated);
-            });
-        });
+        const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
+        log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
     }
 
     async updatePrediction(fingerprint, prediction) {

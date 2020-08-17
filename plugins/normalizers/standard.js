@@ -77,6 +77,7 @@ export class StandardFeatureNormalizer {
         const collectionName = this.scraper.constructor.getCollectionName();
         const findQuery = {};
         findQuery[fieldName] = {"$exists": true};
+
         return await this.db.collection(collectionName).find(findQuery).sort({"created_at": -1});
     }
 
@@ -230,7 +231,12 @@ export class StandardFeatureNormalizer {
     }
 
     static getNormalizedFieldName(extractor) {
-        return `${extractor.constructor.getFeaturesFieldName()}_normalized`;
+        return this.getNormalizedFieldNameWithExtractorFieldName(extractor.constructor.getFeaturesFieldName());
+    }
+
+    // TODO: Hacky...make proper
+    static getNormalizedFieldNameWithExtractorFieldName(extractorFieldName) {
+        return `${extractorFieldName}_normalized`;
     }
 
     static getCollectionName() {
@@ -239,6 +245,15 @@ export class StandardFeatureNormalizer {
 
     static async createIndexes(db) {
         await db.collection(this.getCollectionName()).createIndex({ "_name": 1 }, {"unique": true});
+    }
+
+    static async createNormalizationFieldIndexes(db, extractor) {
+        const normalizedFieldName = this.getNormalizedFieldNameWithExtractorFieldName(extractor.getFeaturesFieldName());
+        const createIndexQuery = {};
+
+        createIndexQuery[normalizedFieldName] = 1;
+
+        await db.collection(this.getCollectionName()).createIndex(createIndexQuery);
     }
 
     static async resetDatabase(dbname) {

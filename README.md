@@ -151,3 +151,6 @@ https://neural.fm/synfonaut@moneybutton.com
 - [ ] scrape a lot of twitter history
 - [ ] sometimes caldera is crashing
 
+
+## AFTER
+- [ ] Thorough review of data model and indexes. Don't need to index entire normalization field just to check if it exists...probably need a separate field
