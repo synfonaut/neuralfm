@@ -95,6 +95,16 @@ https://neural.fm/music
 
 https://neural.fm/synfonaut@moneybutton.com
 
+## SCALING PROBLEM
+- There's just too many rows...you need to classify a smaller data set while iterating and then do the full one in the background
+- Clear Twitter dataset....only grab recent 50 tweets?
+- Do a little more testing on what is actually slow.... mysql streaming? normalization? prediction? all of it?
+- What else is causing the slow down?
+- Could cache trainingInputData if that is slow...might make DB big bug oh well....
+- MongoDB batch size....see if faster ways to stream data in
+- btw streaming data doesn't even seem to be working...it's not calling 'done' which means promise is hanging.....
+- what's a way we could hack it so that we could ship tomorrow? my vote right now? make data set smaller... goodnight. and good luck
+
 ## TODO
 - [ ] Editor mode
 - [ ] Classify it

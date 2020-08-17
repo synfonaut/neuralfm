@@ -123,6 +123,7 @@ export class BrainNeuralNetwork {
 
                 predictionUpdates.push(predictionUpdate);
                 numCalculated += 1;
+                log(numCalculated);
             });
         });
     }
