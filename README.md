@@ -96,9 +96,8 @@ https://neural.fm/music
 https://neural.fm/synfonaut@moneybutton.com
 
 ## TODO
-- [ ] Create new neural network (studio)
+- [ ] Show channels on frontend and Switch between them
 - [ ] Show tweets on frontend
-- [ ] Switch between channels
 
 - [ ] Train script to update weights
 

@@ -8,12 +8,19 @@ export function CreateNetwork(args={}) {
 
   const [name, setName] = React.useState("");
   const [error, setError] = React.useState("");
+  const [success, setSuccess] = React.useState("");
 
   async function handleUpdateNameField(e) {
     setName(e.target.value);
   }
 
-  async function handleFormSubmit() {
+  function handleResetForm() {
+    setName("");
+  }
+
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+
     log("submitting form");
 
     if (!name) {
@@ -23,29 +30,36 @@ export function CreateNetwork(args={}) {
 
     setError("");
 
-    const network = await core.networks.create(
-      core.plugins.scrapers.BSVTwitterScraper,
-      core.plugins.extractors.TwitterFeatureExtractor,
-      core.plugins.normalizers.StandardFeatureNormalizer,
-      core.plugins.networks.BrainNeuralNetwork,
-      name,
-    );
+    try {
+      const network = await core.networks.create(
+        core.plugins.scrapers.BSVTwitterScraper,
+        core.plugins.extractors.TwitterFeatureExtractor,
+        core.plugins.normalizers.StandardFeatureNormalizer,
+        core.plugins.networks.BrainNeuralNetwork,
+        name,
+      );
 
-    if (!network) {
-      setError("Unable to create network, please try again or contact @synfonaut");
-      return;
+      if (!network) {
+        setError("Unable to create network, please try again or contact @synfonaut");
+        return;
+      }
+
+      const channel = await core.channels.create(name, network);
+      handleResetForm();
+      setSuccess(`Successfully created channel ${name}`);
+      log(`created channel '${name}' with network ${network.fingerprint}`);
+    } catch (e) {
+      setError("Error creating channel, is the name already taken?");
     }
-
-    const channel = await core.channels.create(name, network);
-
-    console.log("CHANNLE", channel);
   }
 
   return <div id="create-network">
        <h2 className="title">Create a NeraulFM AI</h2>
        <p className="content">Creating your own NeuralFM AI is as simple as clicking the <strong>Create Neural Network</strong> button below.</p>
        {error && <p className="content error has-text-danger">ERROR: {error}</p>}
+       {success && <p className="content success has-text-primary">{success}</p>}
 
+       <form onSubmit={handleFormSubmit}>
        <div className="columns">
          <div className="column is-6">
             <div className="field">
@@ -117,11 +131,12 @@ export function CreateNetwork(args={}) {
           </div>
         </div>
 
-        <div className="field is-grouped">
-          <div className="control">
-            <button className="button is-link" onClick={handleFormSubmit}>Create Neural Network</button>
-          </div>
-        </div> 
+          <div className="field is-grouped">
+            <div className="control">
+              <button className="button is-link" onClick={handleFormSubmit}>Create Neural Network</button>
+            </div>
+          </div> 
+        </form>
     </div>
 }
 
