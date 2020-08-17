@@ -165,18 +165,15 @@ export class StandardFeatureNormalizer {
         return metadata;
     }
 
-    async getTrainingData(classifier, rows=null) {
+    async getTrainingData(classifier) {
         const classificationMapping = await classifier.getClassificationMapping();
 
-        // often need to calculate data externally, so don't want to duplicate a large query
-        if (!rows) {
-            const fingerprints = [];
-            for (const classificationFingerprint in classificationMapping) {
-                fingerprints.push(classificationFingerprint);
-            }
-
-            rows = await this.extractor.getDataByFingerprints(fingerprints);
+        const fingerprints = [];
+        for (const classificationFingerprint in classificationMapping) {
+            fingerprints.push(classificationFingerprint);
         }
+
+        const rows = await this.extractor.getDataByFingerprints(fingerprints);
 
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
 
