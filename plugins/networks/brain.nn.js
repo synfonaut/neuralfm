@@ -85,6 +85,7 @@ export class BrainNeuralNetwork {
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }
 
+    // TODO: throwing error here isn't showing up on frontend
     async calculate() {
         if (!this.nn) { throw "expected neural network" }
 
@@ -113,8 +114,11 @@ export class BrainNeuralNetwork {
             predictionUpdates.push(predictionUpdate);
         }
 
+        log('done');
+
         const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
         log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
+
     }
 
     async updatePrediction(fingerprint, prediction) {

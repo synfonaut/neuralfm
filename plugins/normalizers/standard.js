@@ -207,10 +207,16 @@ export class StandardFeatureNormalizer {
     static convertToTrainingDataInput(normalizedData) {
         delete normalizedData["fingerprint"];
         const keys = Object.keys(normalizedData).sort();
-        let normalizedInput = [];
-        for (const key of keys) {
-            normalizedInput = normalizedInput.concat(normalizedData[key]);
-        }
+
+        const values = keys.map(key => {
+            const value = normalizedData[key];
+            if (typeof value == "number") {
+                return [value]
+            }
+            return value;
+        });
+
+        const normalizedInput = [].concat.apply([], values);
         return normalizedInput;
     }
 
