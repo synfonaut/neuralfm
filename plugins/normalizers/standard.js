@@ -21,6 +21,9 @@ export class StandardFeatureNormalizer {
         this.name = `${this.scraper.constructor.name}:${this.extractor.constructor.name}:${StandardFeatureNormalizer.name}`;
     }
 
+    // two potential areas of exploration
+    //  - getDataSource -> ideally optimize this one first...
+    //  - getOrCreateMetadata...
     async run() {
         const data = await this.getDataSource();
         const normalizedFieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
