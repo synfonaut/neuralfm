@@ -78,7 +78,7 @@ export function Channel(args={}) {
       log(`network fingerprint has updated from ${oldFingerprint} to ${network.fingerprint}`);
       await core.networks.updateFingerprint(network.constructor, oldFingerprint, network.fingerprint);
       await core.channels.updateNetwork(channel.slug, network.fingerprint);
-      channel.network_fingerprint = network.fingerprint;
+      updateChannel(channel.slug);
     }
   }
 
