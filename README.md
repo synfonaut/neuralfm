@@ -117,6 +117,7 @@ https://neural.fm/synfonaut@moneybutton.com
 - [ ] Copywriting
 
 ## NICE TO HAVE
+- [ ] Performance optimzations on normalizer...iterative so doesn't need entire data set in memory
 - [ ] Custom Colors ...just something a little unique
 - [ ] A few icons here and there would make a big different ("like on the create button")
 - [ ] Loading spinner before side loads (with timout and error message)
