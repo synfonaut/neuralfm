@@ -46,7 +46,7 @@ export class TwitterFeatureExtractor {
         log(`extracting features from ${tweet.fingerprint}`);
 
         const features = {
-            "text": tweet.text,
+            "text": tweet.full_text,
             "likes": tweet.favorite_count,
             "retweets": tweet.retweet_count,
             "submitter": tweet.user.screen_name,

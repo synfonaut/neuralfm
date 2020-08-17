@@ -35,7 +35,7 @@ export class BrainNeuralNetwork {
         this.classifications = await this.classifier.getClassifications();
         if (Object.keys(this.classifications).length == 0) {
             log(`no classifications to train ${this.name}`);
-            return;
+            throw `no classifications to train ${this.name}`;
         }
 
         this.data = await this.normalizer.getDataSource();
@@ -49,6 +49,9 @@ export class BrainNeuralNetwork {
         }
 
         this.trainingData = await this.normalizer.getTrainingData(this.classifier, this.data);
+        if (this.trainingData.length === 0) {
+            throw `none of the classifications match the training data ${this.name}`;
+        }
 
         log(`training ${this.name} on ${this.trainingData.length} classifications (${this.data.length} data)`);
         const starttime = Date.now();

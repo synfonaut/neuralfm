@@ -44,10 +44,13 @@ describe("bsv twitter scraper", function () {
       assert.equal(results.length, 10);
       assert(results[0].created_at);
       assert(results[0].id);
-      assert(results[0].text);
+      assert(results[0].full_text);
       assert(results[0].user);
       assert(results[0].user.id);
       assert(results[0].fingerprint);
+      for (const result of results) {
+        console.log("RESULT", JSON.stringify(result, null, 4));
+      }
       done();
     });
   });
@@ -84,3 +87,5 @@ describe("bsv twitter scraper", function () {
   });
 });
 
+
+// TODO: Test for properly scraping retweeted text

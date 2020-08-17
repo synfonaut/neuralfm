@@ -63,7 +63,7 @@ describe("brain neural network", function () {
         await normalizer.run();
 
         const classifier = new core.classifiers.Classifier("test_classifier");
-        await classifier.classify("twitter-1294363849961820200", 1);
+        await classifier.classify("twitter-1293919071222849500", 1);
 
         const classifications = await classifier.getClassifications();
         assert.equal(classifications.length, 1);
@@ -71,8 +71,8 @@ describe("brain neural network", function () {
         const trainingData = await normalizer.getTrainingData(classifier);
         assert.equal(trainingData.length, 1);
 
-        assert.equal(trainingData[0].fingerprint, "twitter-1294363849961820200");
-        assert.equal(trainingData[0].input.length, 136);
+        assert.equal(trainingData[0].fingerprint, "twitter-1293919071222849500");
+        assert.equal(trainingData[0].input.length, 155);
         assert.equal(trainingData[0].output[0], 1);
     });
 
@@ -90,7 +90,7 @@ describe("brain neural network", function () {
         await normalizer.run();
 
         const classifier = new core.classifiers.Classifier("test_classifier");
-        await classifier.classify("twitter-1294363849961820200", 1);
+        await classifier.classify("twitter-1293919071222849500", 1);
 
         const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
         assert(network);
@@ -130,7 +130,7 @@ describe("brain neural network", function () {
     await normalizer.run();
 
     const classifier = new core.classifiers.Classifier("test_classifier");
-    await classifier.classify("twitter-1294363849961820200", 1);
+    await classifier.classify("twitter-1293919071222849500", 1);
 
     const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
     await core.networks.train(network);
@@ -176,7 +176,7 @@ describe("brain neural network", function () {
     await normalizer.run();
 
     const classifier = new core.classifiers.Classifier("test_classifier");
-    await classifier.classify("twitter-1294363849961820200", 1);
+    await classifier.classify("twitter-1293919071222849500", 1);
 
     const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
     await core.networks.train(network);

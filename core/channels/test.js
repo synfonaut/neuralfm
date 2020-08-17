@@ -62,7 +62,7 @@ describe("channels", function () {
     await networkInstance.extractor.run();
     await networkInstance.normalizer.run();
 
-    await networkInstance.classifier.classify("twitter-1294363849961820200", 1);
+    await networkInstance.classifier.classify("twitter-1293919071222849500", 1);
 
     await core.networks.train(networkInstance);
 

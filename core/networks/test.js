@@ -23,9 +23,10 @@ describe("network", function () {
     await normalizer.run();
 
     const classifier = new core.classifiers.Classifier("test_classifier");
-    await classifier.classify("twitter-1294363849961820200", 1);
+    await classifier.classify("twitter-1293919071222849500", 1);
 
     const network = new core.plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
+
     await core.networks.train(network);
 
     const networkInstance1 = await network.save();
@@ -62,7 +63,7 @@ describe("network", function () {
     await networkInstance.extractor.run();
     await networkInstance.normalizer.run();
 
-    await networkInstance.classifier.classify("twitter-1294363849961820200", 1);
+    await networkInstance.classifier.classify("twitter-1293919071222849500", 1);
 
     await core.networks.train(networkInstance);
 

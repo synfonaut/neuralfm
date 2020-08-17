@@ -78,7 +78,7 @@ export class BSVTwitterScraper {
       if (!username) { return reject("invalid username") }
 
       log(`scraping ${username} recent tweets count=${count} since_id=${since_id}`);
-      const params = { screen_name: username, count };
+      const params = { screen_name: username, count, tweet_mode: "extended" };
       if (since_id) {
         params.since_id = since_id;
       }
