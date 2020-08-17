@@ -25,13 +25,15 @@ export async function train(network) {
 export async function load(fingerprint) {
     log(`loading network ${fingerprint}`);
     const db = await database(config.databaseName);
-    const data = await db.collection(config.networksCollectionName).findOne({});
+    const data = await db.collection(config.networksCollectionName).findOne({ fingerprint });
     const network = await loadFromData(data);
     db.close();
     return network;
 }
 
 export async function loadFromData(data) {
+    if (!data) { throw new Error("expected data") }
+
     const fingerprint = data.fingerprint;
     if (!fingerprint) { throw "expected fingerprint" }
 

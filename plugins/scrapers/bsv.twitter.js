@@ -153,6 +153,7 @@ export class BSVTwitterScraper {
     const db = await database(this.getDatabaseName());
     await db.collection(this.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
     await db.collection(this.getCollectionName()).createIndex({ "created_at": 1 });
+    await db.collection(this.getCollectionName()).createIndex({ "predictions": 1 });
     await db.collection(this.getUsernameCollectionName()).createIndex({ "username": 1 }, {"unique": true});
     db.close();
   }
@@ -162,6 +163,7 @@ export class BSVTwitterScraper {
     const db = await database(this.getDatabaseName());
     await db.collection(this.getCollectionName()).deleteMany({});
     await db.collection(this.getUsernameCollectionName()).deleteMany({});
+    await db.collection(this.getCollectionName()).dropIndexes();
     await this.createIndexes();
     db.close();
   }

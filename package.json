@@ -6,7 +6,7 @@
   "scripts": {
     "start": "DEBUG=neuralfm:* ./node_modules/.bin/nodemon --exec babel-node --trace-uncaught --max-old-space-size=8192 --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
     "production.start": "DEBUG=neuralfm:* ./node-modules/.bin/babel-node --trace-uncaught --max-old-space-size=8192 --presets @babel/preset-react --presets @babel/preset-env app/server.jsx",
-    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --trace-uncaught --exit ./core/test.js ./core/**/test.js ./plugins/**/*test.js",
+    "test": "DEBUG=neuralfm:* ./node_modules/.bin/mocha --require esm --exit ./core/test.js ./core/**/test.js ./plugins/**/*test.js",
     "scrape": "DEBUG=neuralfm:* babel-node --trace-uncaught --presets @babel/preset-react --presets @babel/preset-env core/scrapers/index.js",
     "extract": "DEBUG=neuralfm:* babel-node --trace-uncaught --presets @babel/preset-react --presets @babel/preset-env core/extractors/index.js",
     "normalize": "DEBUG=neuralfm:* babel-node --trace-uncaught --max-old-space-size=8192 --presets @babel/preset-react --presets @babel/preset-env core/normalizers/index.js",

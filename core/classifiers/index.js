@@ -60,6 +60,7 @@ export class Classifier {
     }
 
     async getClassifications() {
+        log(`getting classifications for ${this.name}`);
         const db = await database(Classifier.getDatabaseName());
         const classifications = await (db.collection(Classifier.getCollectionName()).find({ name: this.name }).toArray());
         db.close();

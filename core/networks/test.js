@@ -49,7 +49,6 @@ describe("network", function () {
     const classifier = "test neural network name";
 
     const oldNetworkInstance = await core.networks.create(scraper, extractor, normalizer, network, classifier);
-    assert.equal(oldNetworkInstance.fingerprint, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test neural network name:0");
 
     const networkInstance = await core.networks.load(oldNetworkInstance.fingerprint);
     assert(networkInstance);

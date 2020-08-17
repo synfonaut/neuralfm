@@ -26,7 +26,7 @@ export class BrainNeuralNetwork {
         this.trainingData = [];
         this.trainedDate = null;
         this.maxTrainingRows = 1000;
-        this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}`;
+        this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${Date.now()}`;
 
         this.trainingOptions = (opts.trainingOptions ? opts.trainingOptions : BrainNeuralNetwork.getDefaultTrainingOptions());
         this.networkOptions = (opts.networkOptions ? opts.networkOptions : BrainNeuralNetwork.getDefaultNeuralNetworkOptions());
@@ -126,6 +126,12 @@ export class BrainNeuralNetwork {
 
         const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
         log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
+
+        const indexQuery = {};
+        const indexKeyField = `predictions.${this.fingerprint}`;
+        indexQuery[indexKeyField] = 1;
+
+        await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).createIndex(indexQuery);
     }
 
     async updatePrediction(fingerprint, prediction) {
@@ -266,8 +272,8 @@ export class BrainNeuralNetwork {
     static getDefaultNeuralNetworkOptions() {
         return {
             binaryThresh: 0.5,
-            hiddenLayers: [10, 5],
-            activation: 'sigmoid',
+            hiddenLayers: [20, 10],
+            activation: 'tanh',
         };
     }
 
@@ -290,7 +296,8 @@ export class BrainNeuralNetwork {
             callback: (stats={}) => {
                 log(`training iterations=${stats.iterations} error=${stats.error} for ${this.name}`);
             },
-            callbackPeriod: 100,
+            callbackPeriod: 500,
+            timeout: (30 * 1000),
         }
     }
 

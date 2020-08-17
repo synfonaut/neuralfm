@@ -72,13 +72,17 @@ export class StandardFeatureNormalizer {
         return await (await this.extractor.getDataCursor()).sort({"created_at": -1}).toArray();
     }
 
-    async getDataCursor() {
+    // TODO: pagination
+    async getDataCursor(sortKey="created_at", sortDirection=-1) {
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
         const collectionName = this.scraper.constructor.getCollectionName();
         const findQuery = {};
         findQuery[fieldName] = {"$exists": true};
 
-        return await this.db.collection(collectionName).find(findQuery).sort({"created_at": -1});
+        const sortQuery = {};
+        sortQuery[sortKey] = sortDirection;
+
+        return await this.db.collection(collectionName).find(findQuery).sort(sortQuery);
     }
 
     async getDataStream() {

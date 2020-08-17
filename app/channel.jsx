@@ -16,7 +16,9 @@ export function Channel(args={}) {
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
   const [feed, setFeed] = useState([]);
+  const [sort, setSort] = useState("created_at");
   const [isTraining, setIsTraining] = useState(false);
+  let [classifications, setClassifications] = useState([]);
 
   async function updateChannel(slug) {
     log("updating channel");
@@ -24,29 +26,48 @@ export function Channel(args={}) {
     setIsLoading(true);
     const chan = await core.channels.getBySlug(args.slug)
     if (chan) {
+      console.log("UPDATING CHANNEL", chan);
       const network = chan.network;
       delete chan.network;
       networks[chan.slug] = network;
       setChannel(chan);
 
-      // TODO: add pagination & sorting
-      const data = await network.normalizer.getDataCursor();
-      const feedData = [];
+      updateChannelFeed(chan.slug);
 
-      let feedItem;
-      while (feedItem = await data.next()) {
-        feedData.push(feedItem);
-        if (feedData.length > 200) {
-          break;
-        }
-      }
-
-      setFeed(feedData);
       setIsLoading(false);
     } else {
       network = null;
       setChannel({});
       setIsLoading(false);
+    }
+  }
+
+  async function updateChannelFeed(slug, sortKey) {
+    let newSort = sort;
+    if (sort !== sortKey) {
+      setSort(sortKey);
+      newSort = sortKey;
+    }
+
+    log(`updating channel feed ${slug} ${newSort}`);
+    const network = networks[slug]
+    const data = await network.normalizer.getDataCursor(newSort);
+    const feedData = [];
+
+    let feedItem;
+    while (feedItem = await data.next()) {
+      feedData.push(feedItem);
+      if (feedData.length > 200) {
+        break;
+      }
+    }
+
+    setFeed(feedData);
+
+    const classes = await network.classifier.getClassifications();
+    console.log("CLASSES", network.classifier.name, classes);
+    if (classes) {
+      setClassifications(classes);
     }
   }
 
@@ -93,6 +114,13 @@ export function Channel(args={}) {
     }
   }
 
+  async function handleClickSort(sortKey) {
+    if (sort !== sortKey) {
+      log(`sorting by ${sortKey}`);
+      updateChannelFeed(channel.slug, sortKey);
+    }
+  }
+
   if (slug !== args.slug) {
     log(`updating channel data ${args.slug}`);
     updateChannel(args.slug);
@@ -101,8 +129,10 @@ export function Channel(args={}) {
 
   const params = Object.assign({}, args, {
     channel,
+    classifications,
     handleClickTrain,
     handleClickClassify,
+    handleClickSort,
     isTraining,
   });
 
@@ -219,12 +249,31 @@ function QuoteTweetFeedItem(args={}) {
 }
 
 export function ChannelSidebar(args={}) {
+  let weightKeyName = "created_at";
+
+  let networkFingerprint;
+  const channel = args.channel
+
+  if (channel && channel.slug) {
+    const network = networks[channel.slug];
+    if (network) {
+      networkFingerprint = network.fingerprint;
+      weightKeyName = `predictions.${networkFingerprint}`;
+    }
+  }
+
   return <div id="sidebar">
         <p className="content">CHANNEL INFORMATION</p>
         <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information.</p>
+        <p className="content">{networkFingerprint}</p>
 
         <button className="button" onClick={args.handleClickTrain}>Train</button>
         {args.isTraining && <div>Training</div>}
+        <a onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
+        <a onClick={() => { args.handleClickSort("created_at") }}>Date</a>
+        {args.classifications.map(classification => {
+            return <div key={classification.fingerprint}>{classification.fingerprint} {classification.classification}</div>
+        })}
     </div>
 }
 
