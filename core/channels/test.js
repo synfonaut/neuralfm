@@ -79,19 +79,20 @@ describe("channels", function () {
     const channel = await core.channels.create("BSV News", networkInstance);
     assert(channel);
     assert.equal(channel.name, "BSV News");
-    assert(channel.network);
+    assert(channel.network_fingerprint);
 
     const fetchedChannel = await core.channels.getByName("BSV News");
     assert(fetchedChannel);
     assert.equal(fetchedChannel.name, "BSV News");
+    assert(fetchedChannel.network_fingerprint);
+    assert.equal(fetchedChannel.network_fingerprint, networkInstance.fingerprint);
     assert(fetchedChannel.network);
-    assert.equal(fetchedChannel.network.fingerprint, networkInstance.fingerprint);
 
     // zero out previous predictions
     const newResults = await networkInstance.normalizer.getDataSource();
     found = false;
     for (const result of newResults) {
-      delete result.predictions[networkInstance.fingerprint];
+      delete result.predictions[networkInstance.network_fingerprint];
       found = true;
     }
     assert(found);

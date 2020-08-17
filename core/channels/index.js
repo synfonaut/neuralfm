@@ -7,15 +7,14 @@ const networks = require("../networks");
 
 
 export async function create(name, network=null) {
-
     const channel = { name };
 
     if (network) {
         log(`creating channel ${name} with network ${network.name}`);
-        channel.network = await network.toJSON();
+        channel.network_fingerprint = network.fingerprint;
     } else {
         log(`creating channel ${name}`);
-        channel.network = null;
+        channel.network_fingerprint = null;
     }
 
     const db = await database(config.databaseName);
@@ -37,8 +36,8 @@ export async function getByName(name) {
     const db = await database(config.databaseName);
     const channel = await db.collection(config.channelsCollectionName).findOne({ name });
 
-    if (channel.network && channel.network.fingerprint) {
-        channel.network = await networks.loadFromData(channel.network);
+    if (channel.network_fingerprint) {
+        channel.network = await networks.load(channel.network_fingerprint);
     }
 
     db.close();
