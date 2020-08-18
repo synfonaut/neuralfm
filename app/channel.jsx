@@ -1,5 +1,8 @@
 const log = require("debug")("neuralfm:app:channel");
 
+const Entities = require('html-entities').AllHtmlEntities;
+const entities = new Entities();
+
 const Linkify = require("linkifyjs/react");
 
 import React, { useState } from "react"
@@ -68,24 +71,22 @@ export function Channel(args={}) {
     }
 
     log(`updating channel feed ${slug} ${newSort} ${direction}`);
-    const data = await network.normalizer.getDataCursor(newSort, direction);
+    const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, 0.2);
     const feedData = [];
 
-    let feedItem, maxIterations = 10000;
+    let feedItem, maxIterations = 1000, maxDataLength = 500;
     while (feedItem = await data.next()) {
       const prediction = feedItem.predictions[network.fingerprint] || 0;
 
-      if (prediction > 0.5) {
-        feedData.push(feedItem);
-      }
+      feedData.push(feedItem);
 
-      console.log(feedData.length, maxIterations);
 
-      if (feedData.length > 200 || maxIterations-- <= 0) {
+      if (feedData.length > maxDataLength || maxIterations-- <= 0) {
         break;
       }
     }
 
+    log(`updating channel feed ${slug} with ${feedData.length} data`);
     setFeed(feedData);
 
     await updateClassifications(network);
@@ -247,7 +248,7 @@ function TweetFeedItem(args={}) {
       </div>
       <div className="column is-10">
         <div className="screen_name"><a target="_blank" className="has-text-white" href={`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`}>@{tweet.user.screen_name}</a></div>
-        <Linkify>{tweet.full_text}</Linkify>
+        <Linkify>{entities.decode(tweet.full_text)}</Linkify>
       </div>
     </div>
   </div>

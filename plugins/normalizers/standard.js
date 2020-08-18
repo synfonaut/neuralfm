@@ -80,7 +80,7 @@ export class StandardFeatureNormalizer {
         findQuery[fieldName] = {"$exists": true};
 
         if (prediction_filter && prediction_value) {
-            findQuery[`predictions.${prediction_filter}`] = {"$lte": prediction_value};
+            findQuery[`predictions.${prediction_filter}`] = {"$gte": prediction_value};
         }
 
         const sortQuery = {};
