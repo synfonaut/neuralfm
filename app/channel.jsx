@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { Error404Page } from "./error"
 
 const core = require("../core");
+const utils = require("../utils");
 
 const DEFAULT_NETWORK_FINGERPRINT = "";
 
@@ -18,7 +19,7 @@ export function Channel(args={}) {
   const [feed, setFeed] = useState([]);
   const [sort, setSort] = useState("created_at");
   const [isTraining, setIsTraining] = useState(false);
-  let [classifications, setClassifications] = useState([]);
+  const [classifications, setClassifications] = useState({});
 
   async function updateChannel(slug) {
     log("updating channel");
@@ -35,7 +36,6 @@ export function Channel(args={}) {
 
       setIsLoading(false);
     } else {
-      network = null;
       setChannel({});
       setIsLoading(false);
     }
@@ -61,17 +61,16 @@ export function Channel(args={}) {
     let feedItem;
     while (feedItem = await data.next()) {
       feedData.push(feedItem);
-      if (feedData.length > 200) {
+      if (feedData.length > 1000) {
         break;
       }
     }
 
     setFeed(feedData);
 
-    const classes = await network.classifier.getClassifications();
-    if (classes) {
-      setClassifications(classes);
-    }
+    const allClassifications = await network.classifier.getClassifications();
+    const classifications = await network.classifier.getClassificationMapping(allClassifications)
+    setClassifications(classifications);
   }
 
   async function handleClickTrain() {
@@ -154,11 +153,13 @@ export function Channel(args={}) {
     </div>
   }
 
+  const feedItems = feed || []; // TODO: for some reason caldera isn't using default state...can't debug now... hackathon
+
   return <div className="columns">
       <div className="column is-8">
           <h2 className="title">{channel.name}</h2>
           <div className="feed">
-            {feed.map(item => {
+            {feedItems.map(item => {
               return <FeedItem key={item.fingerprint} item={item} {...params} />
             })}
           </div>
@@ -188,6 +189,7 @@ function FeedItem(args={}) {
 function TweetFeedItem(args={}) {
   const tweet = args.item;
   const channel = args.channel;
+  const classifications = args.classifications || {};
   const network = networks[channel.slug]; // HACKY :(
   let prediction = 0;
   if (network) {
@@ -195,21 +197,19 @@ function TweetFeedItem(args={}) {
     prediction = predictions[network.fingerprint] || 0;
   }
 
+  const classification = classifications[tweet.fingerprint];
+
   return <div className="feed-item tweet">
     <div className="columns is-mobile">
-      <div className="column is-1">
-        <div className="prediction">
-        {prediction}
-      </div>
-      <div className="column is-1">
-        <button className="button is-small" onClick={() => { args.handleClickClassify(tweet.fingerprint, 1) } }>Up</button>
-        <button className="button is-small" onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>Down</button>
-        </div>
-      </div>
       <div className="column is-2">
-        {tweet.user.screen_name}
+          <button className={"button is-small" + (classification && classification == 1 ? " is-primary" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, 1) } }>Up</button>
+        <div className="prediction">
+        {utils.round(prediction)}
+        </div>
+          <button className={"button is-small" + (classification && classification == -1 ? " is-primary" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>Down</button>
       </div>
-      <div className="column is-8">
+      <div className="column is-10">
+        <div className="screen_name">{tweet.user.screen_name}</div>
         {tweet.full_text}
       </div>
     </div>
@@ -260,7 +260,7 @@ export function ChannelSidebar(args={}) {
   let networkFingerprint;
   const channel = args.channel
 
-  const classifications = args.classifications || [];
+  const classifications = args.classifications || {};
 
   if (channel && channel.slug) {
     const network = networks[channel.slug];
@@ -273,14 +273,15 @@ export function ChannelSidebar(args={}) {
   return <div id="sidebar">
         <p className="content">CHANNEL INFORMATION</p>
         <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information.</p>
-        <p className="content">{networkFingerprint}</p>
+        {networkFingerprint && <p className="content">{networkFingerprint.split(":").join(" ")}</p>}
 
         <button className="button" onClick={args.handleClickTrain}>Train</button>
         {args.isTraining && <div>Training</div>}
         <a onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
         <a onClick={() => { args.handleClickSort("created_at") }}>Date</a>
-        {classifications.map(classification => {
-            return <div key={classification.fingerprint}>{classification.fingerprint} {classification.classification}</div>
+        {Object.keys(classifications).map(fingerprint => {
+            const classification = classifications[fingerprint];
+            return <div key={fingerprint}>{fingerprint} {classification}</div>
         })}
     </div>
 }

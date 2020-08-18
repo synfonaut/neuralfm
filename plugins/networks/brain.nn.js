@@ -89,7 +89,11 @@ export class BrainNeuralNetwork {
         const indexKeyField = `predictions.${this.fingerprint}`;
         indexQuery[indexKeyField] = 1;
 
-        await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).dropIndex(indexQuery);
+        try {
+            await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).dropIndex(indexQuery);
+        } catch (e) {
+            log(`warning: index query couldn't be dropped`);
+        }
 
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }

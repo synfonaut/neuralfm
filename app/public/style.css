@@ -137,6 +137,9 @@ nav .navbar-end {
   margin: 30px 0;
 }
 
+.feed-item .prediction {
+  text-align: center;
+}
 
 /** Loader **/
 .block-loader {
