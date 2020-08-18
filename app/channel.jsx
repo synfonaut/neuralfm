@@ -46,8 +46,19 @@ export function Channel(args={}) {
   async function updateChannelFeed(slug, sortKey) {
     let newSort = sort;
     if (sortKey && sort !== sortKey) {
-      setSort(sortKey);
       newSort = sortKey;
+
+      setSort(sortKey);
+    }
+
+    // hack hack hack hacky hack
+    const sortDirections = {
+      "created_at": 1,
+    };
+
+    let direction = sortDirections[newSort];
+    if (typeof direction === "undefined") {
+      direction = -1;
     }
 
     const network = networks[slug]
@@ -56,14 +67,21 @@ export function Channel(args={}) {
       return;
     }
 
-    log(`updating channel feed ${slug} ${newSort}`);
-    const data = await network.normalizer.getDataCursor(newSort);
+    log(`updating channel feed ${slug} ${newSort} ${direction}`);
+    const data = await network.normalizer.getDataCursor(newSort, direction);
     const feedData = [];
 
-    let feedItem;
+    let feedItem, maxIterations = 10000;
     while (feedItem = await data.next()) {
-      feedData.push(feedItem);
-      if (feedData.length > 1000) {
+      const prediction = feedItem.predictions[network.fingerprint] || 0;
+
+      if (prediction > 0.5) {
+        feedData.push(feedItem);
+      }
+
+      console.log(feedData.length, maxIterations);
+
+      if (feedData.length > 200 || maxIterations-- <= 0) {
         break;
       }
     }
