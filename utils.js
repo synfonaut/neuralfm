@@ -31,6 +31,7 @@ export function diff(num1, num2) {
   }
 }
 
+const crypto = require("crypto");
 export function hash(input) {
   return crypto.createHash('sha256').update(input).digest('hex');
 }

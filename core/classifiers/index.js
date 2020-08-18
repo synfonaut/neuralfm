@@ -88,6 +88,13 @@ export class Classifier {
         return config.databaseName;
     }
 
+    static async getAllClassifications() {
+        const db = await database(Classifier.getDatabaseName());
+        const classifications = await (db.collection(Classifier.getCollectionName()).find({}).toArray());
+        db.close();
+        return classifications;
+    }
+
     static async createIndexes() {
         const db = await database(this.getDatabaseName());
         await db.collection(this.getCollectionName()).createIndex({ "name": 1, "fingerprint": 1 }, {"unique": true});

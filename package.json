@@ -10,7 +10,8 @@
     "scrape": "DEBUG=neuralfm:* babel-node --trace-uncaught --presets @babel/preset-react --presets @babel/preset-env core/scrapers/index.js",
     "extract": "DEBUG=neuralfm:* babel-node --trace-uncaught --presets @babel/preset-react --presets @babel/preset-env core/extractors/index.js",
     "normalize": "DEBUG=neuralfm:* babel-node --trace-uncaught --max-old-space-size=8192 --presets @babel/preset-react --presets @babel/preset-env core/normalizers/index.js",
-    "css": "./node_modules/.bin/node-sass --omit-source-map-url app/sass/bulma.sass app/public/bulma.css"
+    "css": "./node_modules/.bin/node-sass --omit-source-map-url app/sass/bulma.sass app/public/bulma.css",
+    "bitcoin_state_hash": "node -r esm bitcoin_state_hasher.js"
   },
   "author": "Brad Jasper",
   "license": "UNLICENSED",
