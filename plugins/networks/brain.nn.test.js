@@ -193,5 +193,44 @@ describe("brain neural network", function () {
     }
     assert(found);
   });
+
+  it("filters normalizer data source on network prediction", async function() {
+    this.timeout(20000);
+    this.slow(5000);
+
+    const db = await core.db(plugins.scrapers.BSVTwitterScraper.getDatabaseName());
+    const scraper = new plugins.scrapers.BSVTwitterScraper(db);
+    const extractor = new plugins.extractors.TwitterFeatureExtractor(db, scraper);
+    const normalizer = new StandardFeatureNormalizer(db, scraper, extractor);
+
+    await scraper.run();
+    await extractor.run();
+    await normalizer.run();
+
+    const classifier = new core.classifiers.Classifier("test_classifier");
+    await classifier.classify("twitter-1293919071222849500", 1);
+
+    const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
+    await core.networks.train(network);
+
+    await core.networks.calculate(network);
+
+    const data = await normalizer.getDataSource();
+    let found = false;
+    for (const row of data) {
+      assert(row.predictions);
+      assert(row.predictions[network.fingerprint]);
+      assert(row.predictions[network.fingerprint] > 0);
+      found = true;
+    }
+    assert(found);
+
+    const cursor = await normalizer.getDataCursor("created_at", 1, network.fingerprint, 0.9);
+    const results = await cursor.toArray();
+    assert(results);
+    assert(results.length > 0);
+    assert(results.length < data.length);
+  });
+
 });
 

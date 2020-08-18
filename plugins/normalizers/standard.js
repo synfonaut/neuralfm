@@ -73,11 +73,15 @@ export class StandardFeatureNormalizer {
     }
 
     // TODO: pagination
-    async getDataCursor(sortKey="created_at", sortDirection=1) {
+    async getDataCursor(sortKey="created_at", sortDirection=1, prediction_filter=null, prediction_value=null) {
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
         const collectionName = this.scraper.constructor.getCollectionName();
         const findQuery = {};
         findQuery[fieldName] = {"$exists": true};
+
+        if (prediction_filter && prediction_value) {
+            findQuery[`predictions.${prediction_filter}`] = {"$lte": prediction_value};
+        }
 
         const sortQuery = {};
         sortQuery[sortKey] = sortDirection;
