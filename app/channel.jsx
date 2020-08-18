@@ -76,7 +76,8 @@ export function Channel(args={}) {
 
     let feedItem, maxIterations = 1000, maxDataLength = 500;
     while (feedItem = await data.next()) {
-      const prediction = feedItem.predictions[network.fingerprint] || 0;
+      const predictions = feedItem.predictions || {};
+      const prediction = predictions[network.fingerprint] || 0;
 
       feedData.push(feedItem);
 
