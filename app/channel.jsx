@@ -1,5 +1,7 @@
 const log = require("debug")("neuralfm:app:channel");
 
+const Linkify = require("linkifyjs/react");
+
 import React, { useState } from "react"
 import { Error404Page } from "./error"
 
@@ -43,7 +45,7 @@ export function Channel(args={}) {
 
   async function updateChannelFeed(slug, sortKey) {
     let newSort = sort;
-    if (sort !== sortKey) {
+    if (sortKey && sort !== sortKey) {
       setSort(sortKey);
       newSort = sortKey;
     }
@@ -226,8 +228,8 @@ function TweetFeedItem(args={}) {
           <button className={"button is-small" + (classification && classification == -1 ? " is-primary" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>Down</button>
       </div>
       <div className="column is-10">
-        <div className="screen_name">{tweet.user.screen_name}</div>
-        {tweet.full_text}
+        <div className="screen_name"><a target="_blank" className="has-text-white" href={`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`}>@{tweet.user.screen_name}</a></div>
+        <Linkify>{tweet.full_text}</Linkify>
       </div>
     </div>
   </div>
