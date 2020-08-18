@@ -326,7 +326,7 @@ export function ChannelSidebar(args={}) {
 
   return <div id="sidebar">
         <p className="content">This is the latest and greatest <strong>{args.channel.name}</strong> information.</p>
-        <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information. Vote on stories, then <strong>Train</strong> the model to see the updates results.</p>
+        <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information. Vote on stories, then <strong>Train</strong> the model to see the updated results.</p>
         {/*networkFingerprint && <p className="content">{networkFingerprint.split(":").join(" ")}</p>*/}
 
         <div className="columns">
