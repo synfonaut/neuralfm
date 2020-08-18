@@ -80,3 +80,5 @@ Networks are Neural Networks, they're plug-and-play.
 ## Author
 
 @synfonaut
+
+Public repo but copyright is privately held, code is currently UNLICENSED
