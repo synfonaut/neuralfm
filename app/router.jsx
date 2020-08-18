@@ -44,7 +44,7 @@ export function Router(args={}) {
     return <div id="homepage">
         <div className="columns">
             <div className="column is-8">
-                DEFAULT CHANNEL!!!!
+                <Channel {...params} slug="bitcoin" sidebar={false} />
             </div>
             <div className="column is-4">
                 <Sidebar {...params} />

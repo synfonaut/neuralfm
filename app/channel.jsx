@@ -196,19 +196,32 @@ export function Channel(args={}) {
 
   const feedItems = feed || []; // TODO: for some reason caldera isn't using default state...can't debug now... hackathon
 
-  return <div className="columns">
-      <div className="column is-8">
-          <h2 className="title">{channel.name}</h2>
-          <div className="feed">
-            {feedItems.map(item => {
-              return <FeedItem key={item.fingerprint} item={item} {...params} />
-            })}
-          </div>
-      </div>
-      <div className="column is-4">
-          <ChannelSidebar {...params} />
-      </div>
-  </div>
+  if (args.sidebar === false) {
+    return <div className="columns">
+        <div className="column is-12">
+            <h2 className="title">{channel.name}</h2>
+            <div className="feed">
+              {feedItems.map(item => {
+                return <FeedItem key={item.fingerprint} item={item} {...params} />
+              })}
+            </div>
+        </div>
+    </div>
+  } else {
+    return <div className="columns">
+        <div className="column is-8">
+            <h2 className="title">{channel.name}</h2>
+            <div className="feed">
+              {feedItems.map(item => {
+                return <FeedItem key={item.fingerprint} item={item} {...params} />
+              })}
+            </div>
+        </div>
+        <div className="column is-4">
+            <ChannelSidebar {...params} />
+        </div>
+    </div>
+  }
 
 }
 
