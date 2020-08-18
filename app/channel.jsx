@@ -22,7 +22,7 @@ export function Channel(args={}) {
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
   const [feed, setFeed] = useState([]);
-  const [sort, setSort] = useState("weight");
+  const [sort, setSort] = useState("created_at");
   const [isTraining, setIsTraining] = useState(false);
   const [classifications, setClassifications] = useState({});
 
