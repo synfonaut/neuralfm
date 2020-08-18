@@ -22,7 +22,7 @@ export function Channel(args={}) {
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
   const [feed, setFeed] = useState([]);
-  const [sort, setSort] = useState("created_at");
+  const [sort, setSort] = useState("weight");
   const [isTraining, setIsTraining] = useState(false);
   const [classifications, setClassifications] = useState({});
 
@@ -37,7 +37,9 @@ export function Channel(args={}) {
       networks[chan.slug] = network;
       setChannel(chan);
 
-      updateChannelFeed(chan.slug);
+      const sortKey = `predictions.${network.fingerprint}`;
+
+      updateChannelFeed(chan.slug, sortKey);
 
       setIsLoading(false);
     } else {
@@ -71,10 +73,10 @@ export function Channel(args={}) {
     }
 
     log(`updating channel feed ${slug} ${newSort} ${direction}`);
-    const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, 0.2);
+    const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, -0.3);
     const feedData = [];
 
-    let feedItem, maxIterations = 1000, maxDataLength = 500;
+    let feedItem, maxIterations = 250, maxDataLength = 200;
     while (feedItem = await data.next()) {
       const predictions = feedItem.predictions || {};
       const prediction = predictions[network.fingerprint] || 0;
@@ -240,12 +242,12 @@ function TweetFeedItem(args={}) {
 
   return <div className="feed-item tweet">
     <div className="columns is-mobile">
-      <div className="column is-2">
-          <button className={"button is-small" + (classification && classification == 1 ? " is-primary" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, 1) } }>Up</button>
+      <div className="column is-2 has-text-centered">
+          <button className={"vote-button button is-small" + (classification && classification == 1 ? " is-primary-classification" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, 1) } }>⬆</button>
         <div className="prediction">
         {utils.round(prediction)}
         </div>
-          <button className={"button is-small" + (classification && classification == -1 ? " is-primary" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>Down</button>
+          <button className={"vote-button button is-small" + (classification && classification == -1 ? " is-primary-classification" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>⬇</button>
       </div>
       <div className="column is-10">
         <div className="screen_name"><a target="_blank" className="has-text-white" href={`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`}>@{tweet.user.screen_name}</a></div>
@@ -310,18 +312,28 @@ export function ChannelSidebar(args={}) {
   }
 
   return <div id="sidebar">
-        <p className="content">CHANNEL INFORMATION</p>
-        <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information.</p>
-        {networkFingerprint && <p className="content">{networkFingerprint.split(":").join(" ")}</p>}
+        <p className="content">This is the latest and greatest <strong>{args.channel.name}</strong> information.</p>
+        <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information. Vote on stories, then <strong>Train</strong> the model to see the updates results.</p>
+        {/*networkFingerprint && <p className="content">{networkFingerprint.split(":").join(" ")}</p>*/}
 
-        <button className="button" onClick={args.handleClickTrain}>Train</button>
-        {args.isTraining && <div>Training</div>}
-        <a onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
-        <a onClick={() => { args.handleClickSort("created_at") }}>Date</a>
-        {Object.keys(classifications).map(fingerprint => {
+        <div className="columns">
+          <div className="column is-2">
+            <button className="button" onClick={args.handleClickTrain}>Train</button>
+          </div>
+          <div className="column is-8">
+            {args.isTraining && <div className="training-text">Training</div>}
+            {!args.isTraining && <div></div>}
+          </div>
+        </div>
+        <div className="sort">
+          <span><strong>Sort by</strong>&nbsp;</span>
+          <a className="sort-link" onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
+          <a className="sort-link" onClick={() => { args.handleClickSort("created_at") }}>Date</a>
+        </div>
+        {/*Object.keys(classifications).map(fingerprint => {
             const classification = classifications[fingerprint];
             return <div key={fingerprint}>{fingerprint} {classification}</div>
-        })}
+        })*/}
     </div>
 }
 
