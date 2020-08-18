@@ -68,6 +68,10 @@ export function Channel(args={}) {
 
     setFeed(feedData);
 
+    await updateClassifications(network);
+  }
+
+  async function updateClassifications(network) {
     const allClassifications = await network.classifier.getClassifications();
     const classifications = await network.classifier.getClassificationMapping(allClassifications)
     setClassifications(classifications);
@@ -106,13 +110,26 @@ export function Channel(args={}) {
   }
 
   async function handleClickClassify(fingerprint, value) {
-    log(`classifying ${fingerprint} to ${value}`);
+
     const network = networks[channel.slug];
-    try {
-      await network.classifier.classify(fingerprint, value);
-      log(`classified ${fingerprint} to ${value}`);
-    } catch (e) {
-      // TODO: display error
+    if (classifications[fingerprint] && classifications[fingerprint] == value) {
+      log(`unclassifying ${fingerprint}`);
+      try {
+        await network.classifier.unclassify(fingerprint);
+        log(`unclassified ${fingerprint} from ${value}`);
+        await updateClassifications(network);
+      } catch (e) {
+        // TODO: display error
+      }
+    } else {
+      log(`classifying ${fingerprint} to ${value}`);
+      try {
+        await network.classifier.classify(fingerprint, value);
+        log(`classified ${fingerprint} to ${value}`);
+        await updateClassifications(network);
+      } catch (e) {
+        // TODO: display error
+      }
     }
   }
 
