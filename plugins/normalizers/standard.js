@@ -73,7 +73,7 @@ export class StandardFeatureNormalizer {
     }
 
     // TODO: pagination
-    async getDataCursor(sortKey="created_at", sortDirection=-1) {
+    async getDataCursor(sortKey="created_at", sortDirection=1) {
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
         const collectionName = this.scraper.constructor.getCollectionName();
         const findQuery = {};
