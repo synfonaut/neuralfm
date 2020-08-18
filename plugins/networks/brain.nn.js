@@ -5,6 +5,14 @@ const database = require("../../core/db").db;
 
 const brain = require("brain.js");
 
+// hackkkkkkkk for too long mongodb index names
+function makeNameSmaller(name) {
+    return name
+        .replace("BSVTwitterScraper", "BTS")
+        .replace("TwitterFeatureExtractor", "TFE")
+        .replace("StandardFeatureNormalizer", "SFN")
+}
+
 export class BrainNeuralNetwork {
     constructor(scraper, extractor, normalizer, classifier, opts={}) {
         if (!scraper) { throw "expected scraper" }
@@ -17,7 +25,7 @@ export class BrainNeuralNetwork {
         this.normalizer = normalizer;
         this.classifier = classifier;
 
-        this.name = `${this.scraper.constructor.name}:${this.extractor.constructor.name}:${this.normalizer.constructor.name}:${this.classifier.name}`;
+        this.name = makeNameSmaller(`${this.scraper.constructor.name}:${this.extractor.constructor.name}:${this.normalizer.constructor.name}:${this.classifier.name}`);
         this.nn = null;
         this.isDirty = true;
         this.normalizationMetadata = {};

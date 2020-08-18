@@ -95,7 +95,8 @@ describe("brain neural network", function () {
         const network = new plugins.networks.BrainNeuralNetwork(scraper, extractor, normalizer, classifier);
         assert(network);
         assert.equal(network.isDirty, true);
-        assert.equal(network.name, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test_classifier");
+        //assert.equal(network.name, "BSVTwitterScraper:TwitterFeatureExtractor:StandardFeatureNormalizer:test_classifier");
+        assert.equal(network.name, "BTS:TFE:SFN:test_classifier");
 
         await core.networks.train(network);
         assert(network.nn);
