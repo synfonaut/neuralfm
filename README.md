@@ -14,11 +14,11 @@
 
 NeuralFM's mission is to put you in control of the AI's feeding you information.
 
-Say goodbye to factory farmed algorithms from megacorps that destroy your life. NeuralFM offers a novel solution to the biggest invisible: algorithm bias.
+Say goodbye to factory farmed algorithms from megacorps that destroy your life. NeuralFM offers a novel solution to the biggest invisible problem: algorithm bias.
 
 Some Google or Facebook engineer is probably going to decide the next President of the United States. It's bad enough when megacorps purposefully bias algorithms (it really is). What's shocking though, is even with small algorithms, and even when unintended, human bias infects AI. Even worse, AI are "black boxes"—many of the creators don't fully understand what's happening inside.
 
-Neural Networks ("AI") are shaping your reality, but they're increasingly out-of-reach. AI is too powerful be left to the megacorps.
+Neural Networks ("AI") are shaping our reality, but they're increasingly out-of-reach. AI is too powerful be left to the megacorps.
 
 NeuralFM puts an AI in your pocket and it puts you in control. It creates an open market for the best AI for all the information channels you care about. And it puts everything on the blockchain, so you can be sure about exactly what's going into your algorithms.
 
@@ -76,14 +76,6 @@ Normalizers convert those data features into a similar format.
 ### Networks
 
 Networks are Neural Networks, they're plug-and-play.
-
-## TAGLINES
-- Neural Network Radio Stations
-- Intelligence For Your Life
-- Intelligent Neural Networks For your Life
-- AI-powered information channels, be your own DJ
-- Intelligent Information Channels
-- AI-powered information channels
 
 ## Author
 

@@ -74,3 +74,12 @@ https://www.bitpaste.app/tx/0f1c503d83d4e05ffffaaa81fa039187ba8f895a44e0bc8e9dc6
 ## BONUS POINTS
 - [ ] create your own channel should work
 - [ ] ideally create 2 other channels just to have some variance
+
+
+## TAGLINES
+- Neural Network Radio Stations
+- Intelligence For Your Life
+- Intelligent Neural Networks For your Life
+- AI-powered information channels, be your own DJ
+- Intelligent Information Channels
+- AI-powered information channels
