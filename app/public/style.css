@@ -31,7 +31,6 @@ html, body {
   font-size: 24px;
   opacity: 1;
   transition: opacity 1s;
-  display: none;
 }
 
 #loading .columns {
