@@ -18,6 +18,9 @@ const networks = {};
 
 export function Channel(args={}) {
 
+  const MAX_ITERATIONS = 300;
+  const MAX_DATA_LENGTH = 30;
+
   const [isLoading, setIsLoading] = useState(true);
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
@@ -30,6 +33,9 @@ export function Channel(args={}) {
     log("updating channel");
     setSlug(args.slug);
     setIsLoading(true);
+    setFeed([]);
+    setChannel({ slug });
+
     const chan = await core.channels.getBySlug(args.slug)
     if (chan) {
       const network = chan.network;
@@ -40,8 +46,6 @@ export function Channel(args={}) {
       const sortKey = `predictions.${network.fingerprint}`;
 
       updateChannelFeed(chan.slug, sortKey);
-
-      setIsLoading(false);
     } else {
       setChannel({});
       setIsLoading(false);
@@ -76,7 +80,8 @@ export function Channel(args={}) {
     const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, -0.3);
     const feedData = [];
 
-    let feedItem, maxIterations = 250, maxDataLength = 200;
+    setIsLoading(true);
+    let feedItem, maxIterations = MAX_ITERATIONS, maxDataLength = MAX_DATA_LENGTH;
     while (feedItem = await data.next()) {
       const predictions = feedItem.predictions || {};
       const prediction = predictions[network.fingerprint] || 0;
@@ -91,6 +96,7 @@ export function Channel(args={}) {
 
     log(`updating channel feed ${slug} with ${feedData.length} data`);
     setFeed(feedData);
+    setIsLoading(false);
 
     await updateClassifications(network);
   }
@@ -201,6 +207,9 @@ export function Channel(args={}) {
         <div className="column is-12">
             <h2 className="title">{channel.name}</h2>
             <div className="feed">
+              {(feedItems.length === 0 && isLoading) && <div className="block-loader">
+                <div className="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+              </div>}
               {feedItems.map(item => {
                 return <FeedItem key={item.fingerprint} item={item} {...params} />
               })}
@@ -212,6 +221,9 @@ export function Channel(args={}) {
         <div className="column is-8">
             <h2 className="title">{channel.name}</h2>
             <div className="feed">
+              {(feedItems.length === 0 && isLoading) && <div className="block-loader">
+                <div className="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+              </div>}
               {feedItems.map(item => {
                 return <FeedItem key={item.fingerprint} item={item} {...params} />
               })}
@@ -343,10 +355,15 @@ export function ChannelSidebar(args={}) {
           <a className="sort-link" onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
           <a className="sort-link" onClick={() => { args.handleClickSort("created_at") }}>Date</a>
         </div>
-        {/*Object.keys(classifications).map(fingerprint => {
-            const classification = classifications[fingerprint];
-            return <div key={fingerprint}>{fingerprint} {classification}</div>
-        })*/}
+        {(Object.keys(classifications).length > 0) && <table className="classifications table">
+            {Object.keys(classifications).map(fingerprint => {
+                const classification = classifications[fingerprint];
+                return <tr key={fingerprint}>
+                  <td className="classification">{classification}</td>
+                  <td className="fingerprint">{fingerprint}</td>
+                </tr>
+            })}
+        </table>}
     </div>
 }
 
