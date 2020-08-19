@@ -1,3 +1,4 @@
+Note: This branch contains all commits after BSV Hackathon due date, master branch is frozen (including https://neural.fm) and all new work continues here until Hackathon winners are announced. (https://new.neural.fm);
 
 
                      _   _                      _  _________  ___
