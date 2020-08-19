@@ -174,17 +174,27 @@ nav .navbar-end {
 
 .feed-item .prediction {
   text-align: center;
-  margin: 3px 0;
+  margin: 7px 0;
+  font-weight: 500;
   font-size: 13px;
 }
 
 .feed-item .vote-button {
-  font-size: 10px !important;
+  width: 39px;
 }
 
 .is-primary-classification {
   background-color: rgba(200, 200, 200, 0.25);
 }
+
+.arrow {
+  width: 12px;
+  height: 12px;
+  filter: invert(96%) sepia(49%) saturate(396%) hue-rotate(279deg) brightness(115%) contrast(100%);
+  opacity: 0.8;
+}
+
+/** General **/
 
 
 /** Loader **/

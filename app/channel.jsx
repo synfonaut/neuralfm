@@ -266,13 +266,17 @@ function TweetFeedItem(args={}) {
   const classification = classifications[tweet.fingerprint];
 
   return <div className="feed-item tweet">
-    <div className="columns is-mobile">
+    <div className="columns is-mobile is-vcentered">
       <div className="column is-2 has-text-centered">
-          <button className={"vote-button button is-small" + (classification && classification == 1 ? " is-primary-classification" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, 1) } }>⬆</button>
+          <button className={"vote-button button is-small" + (classification && classification == 1 ? " is-primary-classification" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, 1) } }>
+            <img src="/arrow-alt-up-solid.svg" alt="Up Arrow" className="arrow up-arrow" />
+          </button>
         <div className="prediction">
-        {utils.round(prediction)}
+          {utils.round(prediction * 100, 0)}%
         </div>
-          <button className={"vote-button button is-small" + (classification && classification == -1 ? " is-primary-classification" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>⬇</button>
+          <button className={"vote-button button is-small" + (classification && classification == -1 ? " is-primary-classification" : "")}  onClick={() => { args.handleClickClassify(tweet.fingerprint, -1) } }>
+            <img src="/arrow-alt-down-solid.svg" alt="Down Arrow" className="arrow down-arrow" />
+          </button>
       </div>
       <div className="column is-10">
         <div className="screen_name"><a target="_blank" className="has-text-white" href={`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`}>@{tweet.user.screen_name}</a></div>
