@@ -34,6 +34,7 @@ export function Channel(args={}) {
     setSlug(args.slug);
     setIsLoading(true);
     setFeed([]);
+    setClassifications({});
     setChannel({ slug });
 
     const chan = await core.channels.getBySlug(args.slug)
