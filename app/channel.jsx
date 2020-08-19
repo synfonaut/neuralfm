@@ -350,8 +350,8 @@ export function Sort(args={}) {
 
   return <div className="sort has-text-right">
     <span><strong>Sort by</strong>&nbsp;</span>
-    <a className="sort-link" onClick={() => { handleClickSort(weightKeyName) }}>Weight</a>
-    <a className="sort-link" onClick={() => { handleClickSort("created_at") }}>Date</a>
+    <a className="sort-link" onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
+    <a className="sort-link" onClick={() => { args.handleClickSort("created_at") }}>Date</a>
   </div>
 }
 
