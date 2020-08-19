@@ -55,9 +55,9 @@ export class BSVTwitterScraper {
   static fingerprintData(tweet) {
     if (tweet.fingerprint) { return tweet }
 
-    if (!tweet.id) { throw new Error(`tweet has invalid id: ${JSON.stringify(tweet, null, 4)}`) }
+    if (!tweet.id_str) { throw new Error(`tweet has invalid id_str: ${JSON.stringify(tweet, null, 4)}`) }
 
-    tweet.fingerprint = `twitter-${tweet.id}`;
+    tweet.fingerprint = `twitter-${tweet.id_str}`;
 
     return tweet;
   }

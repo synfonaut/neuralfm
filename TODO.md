@@ -1,3 +1,6 @@
+# NEW
+- re-scrape data now that fingerprints have been fixed
+
 ## URL STRUCTURE
 
 https://neural.fm

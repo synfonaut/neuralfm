@@ -19,7 +19,7 @@ const networks = {};
 export function Channel(args={}) {
 
   const MAX_ITERATIONS = 300;
-  const MAX_DATA_LENGTH = 30;
+  const MAX_DATA_LENGTH = 200;
 
   const [isLoading, setIsLoading] = useState(true);
   const [slug, setSlug] = useState("");
@@ -80,6 +80,7 @@ export function Channel(args={}) {
     const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, -0.3);
     const feedData = [];
 
+    setFeed(feedData);
     setIsLoading(true);
     let feedItem, maxIterations = MAX_ITERATIONS, maxDataLength = MAX_DATA_LENGTH;
     while (feedItem = await data.next()) {
@@ -219,7 +220,15 @@ export function Channel(args={}) {
   } else {
     return <div className="columns">
         <div className="column is-8">
-            <h2 className="title">{channel.name}</h2>
+            <div className="columns">
+              <div className="column is-8">
+                <h2 className="title">{channel.name}</h2>
+              </div>
+              <div className="column is-4">
+                <Sort {...params} />
+              </div>
+            </div>
+
             <div className="feed">
               {(feedItems.length === 0 && isLoading) && <div className="block-loader">
                 <div className="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
@@ -324,13 +333,11 @@ function QuoteTweetFeedItem(args={}) {
   */
 }
 
-export function ChannelSidebar(args={}) {
+export function Sort(args={}) {
   let weightKeyName = "created_at";
 
   let networkFingerprint;
   const channel = args.channel
-
-  const classifications = args.classifications || {};
 
   if (channel && channel.slug) {
     const network = networks[channel.slug];
@@ -340,6 +347,14 @@ export function ChannelSidebar(args={}) {
     }
   }
 
+  return <div className="sort has-text-right">
+    <span><strong>Sort by</strong>&nbsp;</span>
+    <a className="sort-link" onClick={() => { handleClickSort(weightKeyName) }}>Weight</a>
+    <a className="sort-link" onClick={() => { handleClickSort("created_at") }}>Date</a>
+  </div>
+}
+
+export function ChannelSidebar(args={}) {
   return <div id="sidebar">
         <p className="content">This is the latest and greatest <strong>{args.channel.name}</strong> information.</p>
         <p className="content"><strong>NeuralFM</strong>'s mission is to put you in control of the AI's feeding you information. Vote on stories, then <strong>Train</strong> the model to see the updated results.</p>
@@ -354,21 +369,31 @@ export function ChannelSidebar(args={}) {
             {!args.isTraining && <div></div>}
           </div>
         </div>
-        <div className="sort">
-          <span><strong>Sort by</strong>&nbsp;</span>
-          <a className="sort-link" onClick={() => { args.handleClickSort(weightKeyName) }}>Weight</a>
-          <a className="sort-link" onClick={() => { args.handleClickSort("created_at") }}>Date</a>
-        </div>
-        {(Object.keys(classifications).length > 0) && <table className="classifications table">
-            {Object.keys(classifications).map(fingerprint => {
-                const classification = classifications[fingerprint];
-                return <tr key={fingerprint}>
-                  <td className="classification">{classification}</td>
-                  <td className="fingerprint">{fingerprint}</td>
-                </tr>
-            })}
-        </table>}
+        <Classifications {...args} />
     </div>
 }
 
+
+export function Classifications(args={}) {
+  const classifications = args.classifications || {};
+
+  if (Object.keys(classifications).length > 0) {
+    return <div>
+      <table className="classifications table">
+        {Object.keys(classifications).map(fingerprint => {
+            const classification = classifications[fingerprint];
+            return <tr key={fingerprint}>
+              <td className="classification">
+                {classification == 1 && <img src="/arrow-alt-up-solid.svg" alt="Up Arrow" className="arrow up-arrow" />}
+                {classification == -1 && <img src="/arrow-alt-down-solid.svg" alt="Down Arrow" className="arrow down-arrow" />}
+              </td>
+              <td className="fingerprint">{fingerprint}</td>
+            </tr>
+        })}
+      </table>
+    </div>
+  } else {
+    return null;
+  }
+}
 

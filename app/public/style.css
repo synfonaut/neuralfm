@@ -127,15 +127,6 @@ nav .navbar-end {
   font-size: 14px;
 }
 
-#sidebar .sort {
-  margin-top: 5px;
-}
-
-#sidebar .sort-link {
-  color: white;
-  margin: 0 8px;
-}
-
 #sidebar .training-text {
   padding: 5px;
   margin-top: 2px;
@@ -145,15 +136,15 @@ nav .navbar-end {
 #sidebar .classifications {
   width: 100%;
   background: none;
-  margin: 20px 0;
 }
 
 #sidebar .classifications td {
   border: none;
+  padding: 4px;
 }
 
 #sidebar .classifications .classification {
-  width: 60px;
+  width: 30px;
 }
 
 #sidebar .classifications .fingerprint{
@@ -195,6 +186,17 @@ nav .navbar-end {
 }
 
 /** General **/
+
+.sort {
+  font-size: 14px;
+  opacity: 0.8;
+  color: grey;
+}
+
+.sort-link {
+  color: white;
+  margin: 0 4px;
+}
 
 
 /** Loader **/
