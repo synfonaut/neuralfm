@@ -84,7 +84,7 @@ export function Channel(args={}) {
     }
 
     log(`updating channel feed ${slug} ${newSort} ${direction}`);
-    const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, -0.3);
+    const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, null);
 
     const feedData = [];
 

@@ -48,6 +48,7 @@ export function CreateNetwork(args={}) {
       handleResetForm();
       setSuccess(`Successfully created channel ${name}`);
       log(`created channel '${name}' with network ${network.fingerprint}`);
+      args.history.push("/" + channel.slug);
     } catch (e) {
       setError("Error creating channel, is the name already taken?");
     }
