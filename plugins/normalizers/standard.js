@@ -72,6 +72,17 @@ export class StandardFeatureNormalizer {
         return await (await this.extractor.getDataCursor()).sort({"created_at": -1}).toArray();
     }
 
+    async hasPredictionIndex(index) {
+        const collectionName = this.scraper.constructor.getCollectionName();
+        const indexes = (await this.db.collection(collectionName).indexes()).map(index => {
+            return Object.keys(index.key)[0];
+        });
+
+        const fullyQualifiedIndex = `predictions.${index}`;
+
+        return indexes.indexOf(fullyQualifiedIndex) > -1;
+    }
+
     // TODO: pagination
     async getDataCursor(sortKey="created_at", sortDirection=1, prediction_filter=null, prediction_value=null) {
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);

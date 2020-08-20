@@ -77,8 +77,15 @@ export function Channel(args={}) {
       return;
     }
 
+    if (!await network.normalizer.hasPredictionIndex(network.fingerprint)) {
+      log(`missing index ${network.fingerprint} ....using default sort key`);
+      newSort = "created_at";
+      direction = -1;
+    }
+
     log(`updating channel feed ${slug} ${newSort} ${direction}`);
     const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, -0.3);
+
     const feedData = [];
 
     setFeed(feedData);
