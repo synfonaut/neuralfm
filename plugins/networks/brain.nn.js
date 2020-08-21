@@ -167,16 +167,28 @@ export class BrainNeuralNetwork {
     async getDataSource(sortKey="created_at", sortDirection=1, prediction_filter=null, prediction_limit=200) {
         const db = await BrainNeuralNetwork.getDatabase();
 
-        const findQuery = {
-            classification: this.classifier.name
-        };
+        const findQuery = { classification: this.classifier.name };
 
         if (prediction_filter !== null) {
             findQuery["prediction"] = {"$gte": prediction_filter};
         }
 
-        const predictions = await (db.collection(BrainNeuralNetwork.getPredictionsCollectionName()).find(findQuery).limit(prediction_limit).toArray());
+        const sortQuery = {};
+        sortQuery[sortKey] = sortDirection;
+
+        const cursor = await db
+            .collection(BrainNeuralNetwork.getPredictionsCollectionName())
+            .find(findQuery)
+            .sort(sortQuery)
+            .limit(prediction_limit);
+
+        const predictions = await cursor.toArray();
+
         db.close();
+
+        if (predictions.length === 0) {
+            return [];
+        }
 
         const contentPredictions = {};
         for (const prediction of predictions) {
@@ -196,6 +208,31 @@ export class BrainNeuralNetwork {
 
             return c;
         });
+
+        if (sortKey) {
+            predictedContent.sort((a, b) => {
+                if (sortKey == "created_at") {
+                    if (sortDirection === -1) {
+                        return b[this.extractor.constructor.getFeaturesFieldName()][sortKey] - a[this.extractor.constructor.getFeaturesFieldName()][sortKey];
+                    } else {
+                        return a[this.extractor.constructor.getFeaturesFieldName()][sortKey] - b[this.extractor.constructor.getFeaturesFieldName()][sortKey];
+                    }
+                } else if (sortKey.indexOf("predictions.") === 0) {
+                    const predictionKeyName = sortKey.split(".")[1];
+                    if (sortDirection === -1) {
+                        return b["predictions"][predictionKeyName] - a["predictions"][predictionKeyName];
+                    } else {
+                        return a["predictions"][predictionKeyName] - b["predictions"][predictionKeyName];
+                    }
+                } else {
+                    if (sortDirection === -1) {
+                        return b[sortKey] - a[sortKey];
+                    } else {
+                        return a[sortKey] - b[sortKey];
+                    }
+                }
+            });
+        }
 
         return predictedContent;
     }

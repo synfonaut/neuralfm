@@ -17,10 +17,8 @@ const DEFAULT_NETWORK_FINGERPRINT = "";
 const networks = {};
 
 export function Channel(args={}) {
-
-  const MAX_ITERATIONS = 300;
-  const MAX_DATA_LENGTH = 200;
-
+  const [qualityFilter, setQualityFilter] = useState(0.0);
+  const [maxDataLength, setMaxDataLength] = useState(200);
   const [isLoading, setIsLoading] = useState(true);
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
@@ -54,6 +52,8 @@ export function Channel(args={}) {
   }
 
   async function updateChannelFeed(slug, sortKey) {
+    setFeed([]);
+
     let newSort = sort;
     if (sortKey && sort !== sortKey) {
       newSort = sortKey;
@@ -77,34 +77,20 @@ export function Channel(args={}) {
       return;
     }
 
-    if (!await network.normalizer.hasPredictionIndex(network.fingerprint)) {
-      log(`missing index ${network.fingerprint} ....using default sort key`);
-      newSort = "created_at";
-      direction = -1;
-    }
-
-    log(`updating channel feed ${slug} ${newSort} ${direction}`);
-    const data = await network.normalizer.getDataCursor(newSort, direction, network.fingerprint, null);
-
-    const feedData = [];
-
-    setFeed(feedData);
     setIsLoading(true);
-    let feedItem, maxIterations = MAX_ITERATIONS, maxDataLength = MAX_DATA_LENGTH;
-    while (feedItem = await data.next()) {
-      const predictions = feedItem.predictions || {};
-      const prediction = predictions[network.fingerprint] || 0;
 
-      feedData.push(feedItem);
+    log(`updating channel feed slug=${slug} sort=${newSort} dir=${direction} filter=${qualityFilter} max=${maxDataLength}`);
+    let data = await network.getDataSource(newSort, direction, qualityFilter, maxDataLength);
 
-
-      if (feedData.length > maxDataLength || maxIterations-- <= 0) {
-        break;
-      }
+    if (data.length === 0) {
+      log(`no results with quality filter... trying without slug=${slug} sort=${newSort} dir=${direction} filter=${qualityFilter} max=${maxDataLength}`);
+      data = await network.getDataSource(newSort, direction, null, maxDataLength);
     }
 
-    log(`updating channel feed ${slug} with ${feedData.length} data`);
-    setFeed(feedData);
+    log(`updated channel feed ${slug} with ${data.length} data`);
+
+    setFeed(data);
+
     setIsLoading(false);
 
     await updateClassifications(network);
@@ -296,7 +282,14 @@ function TweetFeedItem(args={}) {
           </button>
       </div>
       <div className="column is-10">
-        <div className="screen_name"><a target="_blank" className="has-text-white" href={`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`}>@{tweet.user.screen_name}</a></div>
+        <div className="meta">
+          <span className="screen_name">
+            <a target="_blank" className="has-text-white" href={`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`}>@{tweet.user.screen_name}</a>
+          </span>
+          <span className="date">
+            {utils.relativeTime(new Date(tweet.created_at))}
+          </span>
+        </div>
         <Linkify>{entities.decode(tweet.full_text)}</Linkify>
       </div>
     </div>

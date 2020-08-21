@@ -18,6 +18,15 @@ export function sleep(ms) {
     });
 }
 
+const Globalize = require("globalize");
+const cldrData = require("cldr-data");
+const RelativeTime = require("relative-time").default;
+Globalize.load(cldrData.entireSupplemental(), cldrData.entireMainFor("en"));
+Globalize.locale("en");
+export function relativeTime(date) {
+    var relativeTime = new RelativeTime();
+    return relativeTime.format(date, {"unit": "day"});
+};
 
 export function round(num, digits=2) {
     return Math.floor(num * Math.pow(10, digits)) / Math.pow(10, digits);
