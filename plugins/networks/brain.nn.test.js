@@ -16,7 +16,7 @@ plugins.networks.BrainNeuralNetwork.getDatabaseName = function() {
   return plugins.networks.BrainNeuralNetwork._getDatabaseName();
 }
 
-describe("brain neural network", function () {
+describe.only("brain neural network", function () {
     this.timeout(10000);
     this.slow(1000);
 
@@ -184,7 +184,7 @@ describe("brain neural network", function () {
 
     await core.networks.calculate(network);
 
-    const data = await normalizer.getDataSource();
+    const data = await network.getDataSource();
     let found = false;
     for (const row of data) {
       assert(row.predictions);
@@ -194,6 +194,8 @@ describe("brain neural network", function () {
     }
     assert(found);
   });
+
+  // create prediction table
 
   it("filters normalizer data source on network prediction", async function() {
     this.timeout(20000);
@@ -216,7 +218,7 @@ describe("brain neural network", function () {
 
     await core.networks.calculate(network);
 
-    const data = await normalizer.getDataSource();
+    const data = await network.getDataSource();
     let found = false;
     for (const row of data) {
       assert(row.predictions);
@@ -226,8 +228,7 @@ describe("brain neural network", function () {
     }
     assert(found);
 
-    const cursor = await normalizer.getDataCursor("created_at", 1, network.fingerprint, 0.9);
-    const results = await cursor.toArray();
+    const results = await network.getDataSource("created_at", 1, 0.9);
     assert(results);
     assert(results.length > 0);
     assert(results.length < data.length);

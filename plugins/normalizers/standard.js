@@ -68,6 +68,7 @@ export class StandardFeatureNormalizer {
         return normalizationMetadata;
     }
 
+    // DEPRECATE
     async getDataSource() {
         return await (await this.extractor.getDataCursor()).sort({"created_at": -1}).toArray();
     }
@@ -84,15 +85,18 @@ export class StandardFeatureNormalizer {
     }
 
     // TODO: pagination
+    // TODO: DEPRECATE and rewrite
     async getDataCursor(sortKey="created_at", sortDirection=1, prediction_filter=null, prediction_value=null) {
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
         const collectionName = this.scraper.constructor.getCollectionName();
         const findQuery = {};
         findQuery[fieldName] = {"$exists": true};
 
+        /*
         if (prediction_filter && prediction_value) {
             findQuery[`predictions.${prediction_filter}`] = {"$gte": prediction_value};
         }
+        */
 
         const sortQuery = {};
         sortQuery[sortKey] = sortDirection;
@@ -100,6 +104,7 @@ export class StandardFeatureNormalizer {
         return await this.db.collection(collectionName).find(findQuery).sort(sortQuery);
     }
 
+    // DEPRECATE
     async getDataStream() {
         const fieldName = StandardFeatureNormalizer.getNormalizedFieldName(this.extractor);
         const collectionName = this.scraper.constructor.getCollectionName();

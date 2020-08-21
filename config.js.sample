@@ -3,6 +3,7 @@ process.on('unhandledRejection', up => { throw up })
 module.exports = {
     networksCollectionName: "networks",
     channelsCollectionName: "channels",
+    predictionsCollectionName: "predictions",
     databaseName: "neuralfm",
     twitter: {
         consumer_key: '...',

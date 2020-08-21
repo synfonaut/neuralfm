@@ -44,6 +44,7 @@ export class BrainNeuralNetwork {
 
     async run() {
         this.classifications = await this.classifier.getClassifications();
+
         if (Object.keys(this.classifications).length == 0) {
             log(`no classifications to train ${this.name}`);
             throw `no classifications to train ${this.name}`;
@@ -92,6 +93,7 @@ export class BrainNeuralNetwork {
         this.isDirty = false;
         this.trainedDate = new Date();
 
+        /*
         // HACKY....can only have 64 mongodb indexes LOL
         const indexQuery = {};
         const indexKeyField = `predictions.${this.fingerprint}`;
@@ -102,6 +104,7 @@ export class BrainNeuralNetwork {
         } catch (e) {
             log(`warning: index query couldn't be dropped`);
         }
+        */
 
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }
@@ -122,15 +125,17 @@ export class BrainNeuralNetwork {
             const input = this.normalizer.constructor.convertToTrainingDataInput(normalizedData);
             const prediction = this.nn.run(input)[0];
 
-            const key = `probabilities.${normalizedFieldName}`;
             const predictionUpdate = {
                 "updateOne": {
-                    "filter": { "fingerprint": row.fingerprint },
-                    "update": { "$set": {}}
+                    "upsert": true,
+                    "filter": {
+                        "classification": this.classifier.name,
+                        "network_fingerprint": this.fingerprint,
+                        "content_fingerprint": row.fingerprint,
+                    },
+                    "update": { "$set": { prediction } }
                 }
             };
-
-            predictionUpdate.updateOne.update["$set"][`predictions.${this.fingerprint}`] = prediction;
 
             predictionUpdates.push(predictionUpdate);
             numCalculated += 1;
@@ -144,16 +149,54 @@ export class BrainNeuralNetwork {
             }
         }
 
-        const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
+        const db = await BrainNeuralNetwork.getDatabase();
+        const response = await db.collection(this.constructor.getPredictionsCollectionName()).bulkWrite(predictionUpdates, {"w": 1});
+        db.close();
+
         log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
 
+        /*
         const indexQuery = {};
         const indexKeyField = `predictions.${this.fingerprint}`;
         indexQuery[indexKeyField] = 1;
 
         await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).createIndex(indexQuery);
+        */
     }
 
+    async getDataSource(sortKey="created_at", sortDirection=1, prediction_filter=null, prediction_limit=200) {
+        const db = await BrainNeuralNetwork.getDatabase();
+
+        const findQuery = {
+            classification: this.classifier.name
+        };
+
+        if (prediction_filter !== null) {
+            findQuery["prediction"] = {"$gte": prediction_filter};
+        }
+
+        const predictions = await (db.collection(BrainNeuralNetwork.getPredictionsCollectionName()).find(findQuery).limit(prediction_limit).toArray());
+        db.close();
+
+        const contentPredictions = {};
+        for (const prediction of predictions) {
+            contentPredictions[prediction.content_fingerprint] = prediction;
+        }
+
+        const content = await (this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).find({"fingerprint": {"$in": Object.keys(contentPredictions)}})).toArray();
+
+        const predictedContent = content.map(c => {
+            let prediction = contentPredictions[c.fingerprint];
+            if (typeof prediction == "undefined") { return c }
+            c.predictions = {};
+            c.predictions[prediction.network_fingerprint] = prediction.prediction;
+            return c;
+        });
+
+        return predictedContent;
+    }
+
+    // DEPRECATE OR CHANGE
     async updatePrediction(fingerprint, prediction) {
         const findQuery = { fingerprint };
         const updateQuery = { "$set": { "predictions": {} } };
@@ -260,6 +303,7 @@ export class BrainNeuralNetwork {
         }
     }
 
+    // DEPRECATE
     static async updateFingerprint(db, oldFingerprint, newFingerprint) {
         try {
             const response = await db.collection(BrainNeuralNetwork.getCollectionName()).updateOne({ fingerprint: oldFingerprint }, {
@@ -325,17 +369,28 @@ export class BrainNeuralNetwork {
         return config.networksCollectionName;
     }
 
+    static getPredictionsCollectionName() {
+        return config.predictionsCollectionName;
+    }
+
     static getDatabaseName() {
         return config.databaseName;
     }
 
     static async createIndexes(db) {
         await db.collection(this.getCollectionName()).createIndex({ "fingerprint": 1 }, {"unique": true});
+        await db.collection(this.getPredictionsCollectionName()).createIndex({ "classifier": 1, "network_fingerprint": 1, "content_fingerprint": 1 }, {"unique": true});
+        await db.collection(this.getPredictionsCollectionName()).createIndex({ "predictions": 1 });
+    }
+
+    static async getDatabase() {
+        return await database(this.getDatabaseName());
     }
 
     static async resetDatabase() {
         const db = await database(this.getDatabaseName());
         await db.collection(this.getCollectionName()).deleteMany({});
+        await db.collection(this.getPredictionsCollectionName()).deleteMany({});
         await BrainNeuralNetwork.createIndexes(db);
         db.close();
     }
