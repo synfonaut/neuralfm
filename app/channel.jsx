@@ -228,11 +228,11 @@ export function Channel(args={}) {
   } else {
     return <div className="columns">
         <div className="column is-8">
-            <div className="columns">
-              <div className="column is-8">
+            <div className="columns is-mobile">
+              <div className="column is-6">
                 <h2 className="title">{channel.name}</h2>
               </div>
-              <div className="column is-4">
+              <div className="column is-6">
                 <Sort {...params} />
               </div>
             </div>
