@@ -17,8 +17,8 @@ const DEFAULT_NETWORK_FINGERPRINT = "";
 const networks = {};
 
 export function Channel(args={}) {
-  const [qualityFilter, setQualityFilter] = useState(0.0);
-  const [maxDataLength, setMaxDataLength] = useState(200);
+  const [qualityFilter, setQualityFilter] = useState(-1);
+  const [maxDataLength, setMaxDataLength] = useState(100);
   const [isLoading, setIsLoading] = useState(true);
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});

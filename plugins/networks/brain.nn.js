@@ -213,13 +213,13 @@ export class BrainNeuralNetwork {
             predictedContent.sort((a, b) => {
                 if (sortKey == "created_at") {
                     if (sortDirection === -1) {
-                        return b[this.extractor.constructor.getFeaturesFieldName()][sortKey] - a[this.extractor.constructor.getFeaturesFieldName()][sortKey];
+                        return b[this.extractor.constructor.getFeaturesFieldName()]["date"] - a[this.extractor.constructor.getFeaturesFieldName()]["date"];
                     } else {
-                        return a[this.extractor.constructor.getFeaturesFieldName()][sortKey] - b[this.extractor.constructor.getFeaturesFieldName()][sortKey];
+                        return a[this.extractor.constructor.getFeaturesFieldName()]["date"] - b[this.extractor.constructor.getFeaturesFieldName()]["date"];
                     }
                 } else if (sortKey.indexOf("predictions.") === 0) {
                     const predictionKeyName = sortKey.split(".")[1];
-                    if (sortDirection === -1) {
+                    if (sortDirection == -1) {
                         return b["predictions"][predictionKeyName] - a["predictions"][predictionKeyName];
                     } else {
                         return a["predictions"][predictionKeyName] - b["predictions"][predictionKeyName];
