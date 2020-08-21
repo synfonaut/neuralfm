@@ -66,7 +66,7 @@ describe("network", function () {
 
     await core.networks.train(networkInstance);
 
-    const results = await networkInstance.normalizer.getDataSource();
+    const results = await networkInstance.getDataSource();
     let found = false;
     for (const result of results) {
       const prediction = result.predictions[networkInstance.fingerprint];

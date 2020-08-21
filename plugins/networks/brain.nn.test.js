@@ -16,7 +16,7 @@ plugins.networks.BrainNeuralNetwork.getDatabaseName = function() {
   return plugins.networks.BrainNeuralNetwork._getDatabaseName();
 }
 
-describe.only("brain neural network", function () {
+describe("brain neural network", function () {
     this.timeout(10000);
     this.slow(1000);
 

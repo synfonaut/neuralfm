@@ -186,10 +186,14 @@ export class BrainNeuralNetwork {
         const content = await (this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).find({"fingerprint": {"$in": Object.keys(contentPredictions)}})).toArray();
 
         const predictedContent = content.map(c => {
-            let prediction = contentPredictions[c.fingerprint];
-            if (typeof prediction == "undefined") { return c }
             c.predictions = {};
-            c.predictions[prediction.network_fingerprint] = prediction.prediction;
+
+            let prediction = contentPredictions[c.fingerprint];
+            if (typeof prediction !== "undefined") {
+                c.predictions[prediction.network_fingerprint] = prediction.prediction;
+            }
+
+
             return c;
         });
 

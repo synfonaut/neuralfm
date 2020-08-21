@@ -49,12 +49,7 @@ describe("channels", function () {
     const oldNetworkInstance = await core.networks.create(scraper, extractor, normalizer, network, classifier);
     assert(oldNetworkInstance);
 
-    console.log("FINGERPRINT", oldNetworkInstance.fingerprint);
-
-
     const networkInstance = await core.networks.load(oldNetworkInstance.fingerprint);
-
-    console.log("NEW FINGERPRINT", networkInstance.fingerprint);
 
     assert(networkInstance);
     assert.equal(scraper.name, networkInstance.scraper.constructor.name);
@@ -72,7 +67,7 @@ describe("channels", function () {
     await core.networks.train(networkInstance);
     await core.networks.updateFingerprint(networkInstance.constructor, oldNetworkInstance.fingerprint, networkInstance.fingerprint);
 
-    const results = await networkInstance.normalizer.getDataSource();
+    const results = await networkInstance.getDataSource();
     let found = false;
     for (const result of results) {
       const prediction = result.predictions[networkInstance.fingerprint];
@@ -97,7 +92,7 @@ describe("channels", function () {
     assert(fetchedChannel.network);
 
     // zero out previous predictions
-    const newResults = await networkInstance.normalizer.getDataSource();
+    const newResults = await networkInstance.getDataSource();
     found = false;
     for (const result of newResults) {
       delete result.predictions[networkInstance.network_fingerprint];
@@ -146,7 +141,7 @@ describe("channels", function () {
     await core.networks.train(networkInstance);
     await core.networks.updateFingerprint(networkInstance.constructor, oldFingerprint, networkInstance.fingerprint);
 
-    const results = await networkInstance.normalizer.getDataSource();
+    const results = await networkInstance.getDataSource();
     let found = false;
     for (const result of results) {
       const prediction = result.predictions[networkInstance.fingerprint];
@@ -170,7 +165,7 @@ describe("channels", function () {
     assert(fetchedChannel.network);
 
     // zero out previous predictions
-    const newResults = await networkInstance.normalizer.getDataSource();
+    const newResults = await networkInstance.getDataSource();
     found = false;
     for (const result of newResults) {
       delete result.predictions[networkInstance.network_fingerprint];
