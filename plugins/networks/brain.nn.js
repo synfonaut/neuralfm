@@ -93,19 +93,6 @@ export class BrainNeuralNetwork {
         this.isDirty = false;
         this.trainedDate = new Date();
 
-        /*
-        // HACKY....can only have 64 mongodb indexes LOL
-        const indexQuery = {};
-        const indexKeyField = `predictions.${this.fingerprint}`;
-        indexQuery[indexKeyField] = 1;
-
-        try {
-            await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).dropIndex(indexQuery);
-        } catch (e) {
-            log(`warning: index query couldn't be dropped`);
-        }
-        */
-
         this.fingerprint = `${this.name}:${Object.keys(this.classifications).length}:${this.trainedDate.getTime()}`;
     }
 
@@ -154,14 +141,6 @@ export class BrainNeuralNetwork {
         db.close();
 
         log(`updated predictions for ${predictionUpdates.length} items for ${this.fingerprint}`);
-
-        /*
-        const indexQuery = {};
-        const indexKeyField = `predictions.${this.fingerprint}`;
-        indexQuery[indexKeyField] = 1;
-
-        await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).createIndex(indexQuery);
-        */
     }
 
     async getDataSource(sortKey="created_at", sortDirection=1, prediction_filter=null, offset=0, limit=200) {
@@ -236,28 +215,6 @@ export class BrainNeuralNetwork {
         }
 
         return predictedContent;
-    }
-
-    // DEPRECATE OR CHANGE
-    async updatePrediction(fingerprint, prediction) {
-        const findQuery = { fingerprint };
-        const updateQuery = { "$set": { "predictions": {} } };
-
-        updateQuery["$set"]["predictions"][this.fingerprint] = prediction;
-
-        const response = await this.normalizer.db.collection(this.scraper.constructor.getCollectionName()).updateOne(findQuery, updateQuery, {"upsert": true});
-        if (!utils.ok(response)) {
-            log(`error response while updating prediction - ${response}`);
-            throw "error updating prediction"
-        }
-
-        if (response.result.n === 1) {
-            // TODO: make this bulk
-            //log(`created prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`);
-        } else {
-            log(`error updating prediction for ${fingerprint} to ${prediction} for ${this.fingerprint} - ${response}`);
-            throw `error updating prediction for ${fingerprint} to ${prediction} for ${this.fingerprint}`;
-        }
     }
 
     predict(input) {
@@ -345,7 +302,6 @@ export class BrainNeuralNetwork {
         }
     }
 
-    // DEPRECATE
     static async updateFingerprint(db, oldFingerprint, newFingerprint) {
         try {
             const response = await db.collection(BrainNeuralNetwork.getCollectionName()).updateOne({ fingerprint: oldFingerprint }, {
