@@ -17,8 +17,9 @@ const DEFAULT_NETWORK_FINGERPRINT = "";
 const networks = {};
 
 export function Channel(args={}) {
+  let offset = 0;
   const [qualityFilter, setQualityFilter] = useState(-1);
-  const [maxDataLength, setMaxDataLength] = useState(100);
+  const [limit, setLimit] = useState(50);
   const [isLoading, setIsLoading] = useState(true);
   const [slug, setSlug] = useState("");
   const [channel, setChannel] = useState({});
@@ -51,9 +52,7 @@ export function Channel(args={}) {
     }
   }
 
-  async function updateChannelFeed(slug, sortKey) {
-    setFeed([]);
-
+  async function getChannelFeed(slug, sortKey) {
     let newSort = sort;
     if (sortKey && sort !== sortKey) {
       newSort = sortKey;
@@ -74,27 +73,35 @@ export function Channel(args={}) {
     const network = networks[slug]
     if (!network) {
       log(`cannot update channel feed, missing network on channel '${slug}'`);
-      return;
+      return [];
     }
 
     setIsLoading(true);
 
-    log(`updating channel feed slug=${slug} sort=${newSort} dir=${direction} filter=${qualityFilter} max=${maxDataLength}`);
-    let data = await network.getDataSource(newSort, direction, qualityFilter, maxDataLength);
+    log(`updating channel feed slug=${slug} sort=${newSort} dir=${direction} filter=${qualityFilter} max=${limit}`);
+    let data = await network.getDataSource(newSort, direction, qualityFilter, offset, limit);
 
     if (data.length === 0) {
-      log(`no results with quality filter... trying without slug=${slug} sort=${newSort} dir=${direction} filter=${qualityFilter} max=${maxDataLength}`);
-      data = await network.getDataSource(newSort, direction, null, maxDataLength);
+      log(`no results with quality filter... trying without slug=${slug} sort=${newSort} dir=${direction} filter=${qualityFilter} max=${limit}`);
+      data = await network.getDataSource(newSort, direction, null, offset, limit);
     }
 
     log(`updated channel feed ${slug} with ${data.length} data`);
 
-    setFeed(data);
-
     setIsLoading(false);
 
-    await updateClassifications(network);
+    return data;
+
   }
+
+  async function updateChannelFeed(slug, sortKey) {
+    setFeed([]);
+    setFeed(await getChannelFeed(slug, sortKey));
+    if (networks[slug]) {
+      await updateClassifications(networks[slug]);
+    }
+  }
+
 
   async function updateClassifications(network) {
     const allClassifications = await network.classifier.getClassifications();
@@ -165,6 +172,14 @@ export function Channel(args={}) {
     }
   }
 
+  async function handleLoadMore() {
+    log(`Loading more`);
+
+    offset += limit;
+    const newPage = await getChannelFeed(slug, sort);
+    setFeed(feed.concat(newPage));
+  }
+
   if (slug !== args.slug) {
     log(`updating channel data for ${args.slug}`);
     updateChannel(args.slug);
@@ -230,6 +245,7 @@ export function Channel(args={}) {
               {feedItems.map(item => {
                 return <FeedItem key={item.fingerprint} item={item} {...params} />
               })}
+              {feedItems.length > 0 && <div className="has-text-centered"><a onClick={handleLoadMore} className="load-more">Load More</a></div>}
             </div>
         </div>
         <div className="column is-4">
@@ -294,44 +310,6 @@ function TweetFeedItem(args={}) {
       </div>
     </div>
   </div>
-}
-
-function RetweetFeedItem(args={}) {
-  /*
-  const predictions = args.item.predictions || {};
-  const prediction = predictions[args.channel.network.fingerprint] || 0;
-  return <div className="feed-item tweet">
-    <div className="columns is-mobile">
-      <div className="column is-3">
-        <div className="prediction">
-        {prediction}
-        </div>
-      </div>
-      <div className="column is-9">
-        {args.item.full_text}
-      </div>
-    </div>
-  </div>
-  */
-}
-
-function QuoteTweetFeedItem(args={}) {
-  /*
-  const predictions = args.item.predictions || {};
-  const prediction = predictions[args.channel.network.fingerprint] || 0;
-  return <div className="feed-item tweet">
-    <div className="columns is-mobile">
-      <div className="column is-3">
-        <div className="prediction">
-        {prediction}
-        </div>
-      </div>
-      <div className="column is-9">
-        {args.item.full_text}
-      </div>
-    </div>
-  </div>
-  */
 }
 
 export function Sort(args={}) {

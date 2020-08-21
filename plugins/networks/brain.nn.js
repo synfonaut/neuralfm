@@ -164,7 +164,7 @@ export class BrainNeuralNetwork {
         */
     }
 
-    async getDataSource(sortKey="created_at", sortDirection=1, prediction_filter=null, prediction_limit=200) {
+    async getDataSource(sortKey="created_at", sortDirection=1, prediction_filter=null, offset=0, limit=200) {
         const db = await BrainNeuralNetwork.getDatabase();
 
         const findQuery = { classification: this.classifier.name };
@@ -180,7 +180,8 @@ export class BrainNeuralNetwork {
             .collection(BrainNeuralNetwork.getPredictionsCollectionName())
             .find(findQuery)
             .sort(sortQuery)
-            .limit(prediction_limit);
+            .skip(offset)
+            .limit(limit);
 
         const predictions = await cursor.toArray();
 
